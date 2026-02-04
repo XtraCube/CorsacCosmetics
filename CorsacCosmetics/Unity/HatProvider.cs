@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using CorsacCosmetics.Loader;
 using Il2CppInterop.Runtime.Injection;
 using Reactor.Utilities.Attributes;
@@ -33,7 +32,7 @@ public class HatProvider : ResourceProviderBase
 
     public override bool CanProvide(Il2CppSystem.Type t, IResourceLocation location)
     {
-        return location.InternalId.StartsWith("corsac://hat/");
+        return location.InternalId.StartsWith("corsac.");
     }
 
     public override Il2CppSystem.Type GetDefaultType(IResourceLocation location)
@@ -46,18 +45,17 @@ public class HatProvider : ResourceProviderBase
         string internalId = provideHandle.Location.InternalId;
         Info($"Processing {internalId}");
 
-        if (!internalId.StartsWith("corsac://hat/"))
+        if (!internalId.StartsWith("corsac"))
         {
-            Error("Not a Corsac hat");
+            Error($"{internalId} is not a Corsac hat");
             provideHandle.Complete<Sprite>(null!, false, new Il2CppSystem.Exception("Not a Corsac hat"));
             return;
         }
 
-        var lastSegment = internalId.Split('/').Last();
-        var idAndType = lastSegment.Split('.');
+        var idAndType = internalId.Split("/");
         if (idAndType.Length != 2) 
         {
-            Error("Invalid hat identifier");
+            Error($"Invalid hat identifier: {idAndType}");
             provideHandle.Complete<Sprite>(null!, false, new Il2CppSystem.Exception("Invalid Corsac hat ID"));
             return;
         }
@@ -74,11 +72,11 @@ public class HatProvider : ResourceProviderBase
 
         switch (type)
         {
-            case CustomType.Sprite:
+            case ReferenceType.Sprite:
                 Info($"Found hat sprite for {hatId}");
                 provideHandle.Complete(customHat.HatSprite, true, null);
                 return;
-            case CustomType.HatViewData:
+            case ReferenceType.HatViewData:
                 Info($"Found hat view data for {hatId}");
                 provideHandle.Complete(customHat.HatViewData, true, null);
                 return;

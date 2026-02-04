@@ -26,8 +26,8 @@ public static class HatManagerInitPatch
                 hatData.BlocksVisors = customHat.Metadata.BlocksVisors;
                 hatData.NoBounce = customHat.Metadata.NoBounce;
                 hatData.InFront = customHat.Metadata.InFront;
-                hatData.ViewDataRef = new AssetReference(HatLocator.GetTypedId(id, CustomType.HatViewData));
-                hatData.PreviewData = new AssetReference(HatLocator.GetTypedId(id, CustomType.Sprite));
+                hatData.ViewDataRef = new AssetReference(HatLocator.GetGuid(id, ReferenceType.HatViewData));
+                hatData.PreviewData = new AssetReference(HatLocator.GetGuid(id, ReferenceType.Sprite));
                 hats.Add(hatData);
                 Info($"Added {id} to HatManager");
             }
