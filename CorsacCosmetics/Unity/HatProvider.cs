@@ -76,6 +76,10 @@ public class HatProvider : ResourceProviderBase
                 Info($"Found hat sprite for {hatId}");
                 provideHandle.Complete(customHat.HatSprite, true, null);
                 return;
+            case ReferenceType.Preview:
+                Info($"Found hat preview for {hatId}");
+                provideHandle.Complete(customHat.PreviewData, true, null);
+                return;
             case ReferenceType.HatViewData:
                 Info($"Found hat view data for {hatId}");
                 provideHandle.Complete(customHat.HatViewData, true, null);

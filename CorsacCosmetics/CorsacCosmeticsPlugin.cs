@@ -27,10 +27,6 @@ public partial class CorsacCosmeticsPlugin : BasePlugin
         Info("Initializing HatLocator...");
         HatLocator.Initialize();
         Info("HatLocator initialized!");
-        
-        Info("Loading hats...");
-        HatLoader.Instance.LoadHats();
-        Info("Hats loaded!");
 
         Info("Loading Harmony patches...");
         Harmony.PatchAll(Assembly.GetExecutingAssembly());

@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using BepInEx;
+using CorsacCosmetics.Unity;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
+using Reactor.Utilities.Extensions;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 
 namespace CorsacCosmetics.Loader;
 
@@ -98,7 +101,9 @@ public class HatLoader
         var fullId = $"corsac.{id}";
 
         var hatSprite = LoadHatSprite(filePath);
+        hatSprite.DontUnload().DontDestroy();
         var hatViewData = ScriptableObject.CreateInstance<HatViewData>();
+        hatViewData.name = $"{id}.viewdata";
         hatViewData.MatchPlayerColor = metadata.MatchPlayerColor;
         hatViewData.BackImage
             = hatViewData.ClimbImage
@@ -110,8 +115,26 @@ public class HatLoader
                                     = hatViewData.LeftMainImage
                                         = hatSprite;
 
-        var customHat = new CustomHat(fullId, metadata, hatSprite, hatViewData);
+        var previewData = ScriptableObject.CreateInstance<PreviewViewData>();
+        previewData.name = $"{id}.preview";
+        previewData.PreviewSprite = hatSprite;
+
+        var hatData = ScriptableObject.CreateInstance<HatData>();
+        hatData.name = $"{id}.data";
+        hatData.StoreName = id;
+        hatData.Free = true;
+        hatData.ProductId = fullId;
+        hatData.BlocksVisors = metadata.BlocksVisors;
+        hatData.NoBounce = metadata.NoBounce;
+        hatData.InFront = metadata.InFront;
+        hatData.ViewDataRef = new AssetReference(HatLocator.GetGuid(fullId, ReferenceType.HatViewData));
+        hatData.PreviewData = new AssetReference(HatLocator.GetGuid(fullId, ReferenceType.Preview));
+
+        var customHat = new CustomHat(fullId, metadata, hatSprite, hatViewData, previewData, hatData);
         CustomHats.Add(fullId, customHat);
+
+        hatData.ViewDataRef.LoadAsset<HatViewData>();
+        hatData.PreviewData.LoadAsset<PreviewViewData>();
         return true;
     }
 
@@ -126,6 +149,13 @@ public class HatLoader
 
         var texture = new Texture2D(2, 2);
         texture.LoadImage(hatData);
-        return Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+        var sprite =  Sprite.Create(
+            texture,
+            new Rect(0, 0, texture.width, texture.height),
+            new Vector2(0.5f, 0.5f),
+            texture.width
+            );
+        sprite.name = Path.GetFileNameWithoutExtension(filePath);
+        return sprite;
     }
 }

@@ -72,7 +72,7 @@ public class HatLocator : Il2CppSystem.Object
 
         if (!HatLoader.Instance.CustomHats.TryGetValue(realKey, out var customHat))
         {
-            Error($"{keyString} not found in custom hats.");
+            Error($"{realKey} not found in custom hats.");
             return false;
         }
 
@@ -81,6 +81,7 @@ public class HatLocator : Il2CppSystem.Object
         var realType = typeName switch
         {
             ReferenceType.Sprite => Il2CppType.Of<Sprite>(),
+            ReferenceType.Preview => Il2CppType.Of<PreviewViewData>(),
             ReferenceType.HatViewData => Il2CppType.Of<HatViewData>(),
             _ => throw new InvalidOperationException("Unsupported type")
         };
