@@ -11,23 +11,9 @@ namespace CorsacCosmetics.Unity;
 [RegisterInIl2Cpp(typeof(IResourceLocator))]
 public class HatLocator : Il2CppSystem.Object
 {
-    public string LocatorId => "corsac.hatlocator";
-
-    public virtual Il2CppSystem.Collections.Generic.IEnumerable<Il2CppSystem.Object>
-        Keys => HatLoader.Instance.GetHatKeys();
-
-    public string ProviderId { get; } = typeof(HatProvider).FullName!;
-
-    public HatLocator(IntPtr ptr) : base(ptr)
-    {
-    }
 
     private static HatLocator? _instance;
-    
-    public HatLocator() : base(ClassInjector.DerivedConstructorPointer<HatLocator>())
-    {
-        ClassInjector.DerivedConstructorBody(this);
-    }
+    private static IResourceLocator? _locator;
 
     public static string GetTypedId(string hatId, string postfix)
     {
@@ -37,17 +23,37 @@ public class HatLocator : Il2CppSystem.Object
     public static void Initialize()
     {
         _instance = new HatLocator();
-        var il2CppLocator = new IResourceLocator(_instance.Pointer);
-        Addressables.AddResourceLocator(il2CppLocator);
+        _locator = new IResourceLocator(_instance.Pointer);
+        Addressables.AddResourceLocator(_locator);
     }
 
-    public bool Locate(object key, Il2CppSystem.Type type, out Il2CppSystem.Collections.Generic.IList<IResourceLocation> locations)
+    public HatLocator(IntPtr ptr) : base(ptr)
+    {
+    }
+    
+    public HatLocator() : base(ClassInjector.DerivedConstructorPointer<HatLocator>())
+    {
+        ClassInjector.DerivedConstructorBody(this);
+    }
+
+    public string LocatorId => GetType().FullName!;
+
+    public virtual Il2CppSystem.Collections.Generic.IEnumerable<Il2CppSystem.Object>
+        Keys => HatLoader.Instance.GetHatKeys();
+
+    private string ProviderId { get; } = typeof(HatProvider).FullName!;
+
+    public bool Locate(Il2CppSystem.Object key, Il2CppSystem.Type type, out Il2CppSystem.Collections.Generic.IList<IResourceLocation> locations)
     {
         locations = null!;
 
-        if (key is string keyString && keyString.StartsWith("corsac.") &&
+        Info("Locating hat...");
+
+        if (key.TryCast<Il2CppSystem.String>() is { } keyString &&
+            keyString.StartsWith("corsac.") &&
             HatLoader.Instance.CustomHats.TryGetValue(keyString, out var customHat))
         {
+            Info($"Found hat with key {keyString}");
             var postfix = type.Name switch
             {
                 "Sprite" => CustomType.Sprite,
@@ -72,6 +78,7 @@ public class HatLocator : Il2CppSystem.Object
             return true;
         }
 
+        Info("No hat found.");
         return false;
     }
 }

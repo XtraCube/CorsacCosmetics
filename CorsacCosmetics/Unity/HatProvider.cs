@@ -5,6 +5,7 @@ using Il2CppInterop.Runtime.Injection;
 using Reactor.Utilities.Attributes;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.ResourceLocations;
 using UnityEngine.ResourceManagement.ResourceProviders;
 
 namespace CorsacCosmetics.Unity;
@@ -13,6 +14,15 @@ namespace CorsacCosmetics.Unity;
 public class HatProvider : ResourceProviderBase
 {
     private static HatProvider? _instance;
+    private static IResourceProvider? _provider;
+    
+    public static void Initialize()
+    {
+        _instance = new HatProvider();
+        // interfaces r broken in il2cpp so we have to use pointer magic
+        _provider = new IResourceProvider(_instance.Pointer);
+        Addressables.ResourceManager.ResourceProviders.Insert(0, _provider);
+    }
 
     public HatProvider(IntPtr intPtr) : base(intPtr) { }
 
@@ -20,21 +30,25 @@ public class HatProvider : ResourceProviderBase
     {
         ClassInjector.DerivedConstructorBody(this);
     }
-    
-    public static void Initialize()
+
+    public override bool CanProvide(Il2CppSystem.Type t, IResourceLocation location)
     {
-        _instance = new HatProvider();
-        // interfaces r broken in il2cpp so we have to use pointer magic
-        var hatProvider = new IResourceProvider(_instance.Pointer);
-        Addressables.ResourceManager.ResourceProviders.Insert(0, hatProvider);
+        return location.InternalId.StartsWith("corsac://hat/");
+    }
+
+    public override Il2CppSystem.Type GetDefaultType(IResourceLocation location)
+    {
+        return location.ResourceType;
     }
 
     public override void Provide(ProvideHandle provideHandle)
     {
         string internalId = provideHandle.Location.InternalId;
+        Info($"Processing {internalId}");
 
         if (!internalId.StartsWith("corsac://hat/"))
         {
+            Error("Not a Corsac hat");
             provideHandle.Complete<Sprite>(null!, false, new Il2CppSystem.Exception("Not a Corsac hat"));
             return;
         }
@@ -43,6 +57,7 @@ public class HatProvider : ResourceProviderBase
         var idAndType = lastSegment.Split('.');
         if (idAndType.Length != 2) 
         {
+            Error("Invalid hat identifier");
             provideHandle.Complete<Sprite>(null!, false, new Il2CppSystem.Exception("Invalid Corsac hat ID"));
             return;
         }
@@ -52,6 +67,7 @@ public class HatProvider : ResourceProviderBase
 
         if (!HatLoader.Instance.CustomHats.TryGetValue(hatId, out var customHat))
         {
+            Error($"Could not find hat: {hatId}");
             provideHandle.Complete<Sprite>(null!, false, new Il2CppSystem.Exception("Corsac hat not found"));
             return;
         }
@@ -59,14 +75,22 @@ public class HatProvider : ResourceProviderBase
         switch (type)
         {
             case CustomType.Sprite:
+                Info($"Found hat sprite for {hatId}");
                 provideHandle.Complete(customHat.HatSprite, true, null);
                 return;
             case CustomType.HatViewData:
+                Info($"Found hat view data for {hatId}");
                 provideHandle.Complete(customHat.HatViewData, true, null);
                 return;
             default:
+                Error("Unknown hat type");
                 provideHandle.Complete<Sprite>(null!, false, new Il2CppSystem.Exception("Invalid Corsac hat type"));
                 return;
         }
+    }
+
+    public override void Release(IResourceLocation location, Il2CppSystem.Object obj)
+    {
+        Warning("I don't know how to release hat yet");
     }
 }

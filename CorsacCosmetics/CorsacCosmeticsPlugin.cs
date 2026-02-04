@@ -18,24 +18,24 @@ public partial class CorsacCosmeticsPlugin : BasePlugin
 
     public override void Load()
     {
-        Info("Loading Corsac Cosmetics Plugin...");
+        Message("Loading Corsac Cosmetics Plugin...");
 
-        Message("Initializing HatProvider...");
+        Info("Initializing HatProvider...");
         HatProvider.Initialize();
-        Message("HatProvider initialized!");
+        Info("HatProvider initialized!");
         
-        Message("Initializing HatLocator...");
+        Info("Initializing HatLocator...");
         HatLocator.Initialize();
-        Message("HatLocator initialized!");
+        Info("HatLocator initialized!");
         
-        Message("Loading hats...");
+        Info("Loading hats...");
         HatLoader.Instance.LoadHats();
-        Message("Hats loaded!");
+        Info("Hats loaded!");
 
-        Message("Loading Harmony patches...");
+        Info("Loading Harmony patches...");
         Harmony.PatchAll(Assembly.GetExecutingAssembly());
-        Message("Harmony patches loaded!");
+        Info("Harmony patches loaded!");
         
-        Info("Loaded Corsac Cosmetics Plugin!");
+        Message("Loaded Corsac Cosmetics Plugin!");
     }
 }
