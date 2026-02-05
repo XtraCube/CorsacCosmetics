@@ -15,4 +15,6 @@ public static class CosmeticPaths
     public static string HatPath { get; } = Path.Combine(BasePath, "Hats");
 
     public static string VisorPath { get; } = Path.Combine(BasePath, "Visors");
+
+    public static string NameplatePath { get; } = Path.Combine(BasePath, "Nameplates");
 }

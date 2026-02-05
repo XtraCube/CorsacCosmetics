@@ -31,4 +31,17 @@ public static class HatManagerGetCosmeticsPatch
         __result = customVisor.VisorData;
         return false;
     }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(HatManager), nameof(HatManager.GetNamePlateById))]
+    public static bool GetNamePlatePrefix(string namePlateId, ref NamePlateData __result)
+    {
+        if (!CosmeticsLoader.Instance.TryGetNamePlate(namePlateId, out var customNamePlate))
+        {
+            return true;
+        }
+
+        __result = customNamePlate.NamePlateData;
+        return false;
+    }
 }

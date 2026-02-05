@@ -36,7 +36,7 @@ public class VisorLoader : BaseLoader
             }
             catch (Exception e)
             {
-                Error($"Failed to load viso {id} with exception:\n{e.ToString()}");
+                Error($"Failed to load visor {id} with exception:\n{e.ToString()}");
             }
         }
 

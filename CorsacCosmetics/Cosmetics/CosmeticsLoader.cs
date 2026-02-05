@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using CorsacCosmetics.Cosmetics.Hats;
+using CorsacCosmetics.Cosmetics.Nameplates;
 using CorsacCosmetics.Cosmetics.Visors;
 using CorsacCosmetics.Unity;
 using Il2CppInterop.Runtime;
@@ -25,6 +26,7 @@ public class CosmeticsLoader
 
     private readonly HatLoader _hatLoader = new();
     private readonly VisorLoader  _visorLoader = new();
+    private readonly NamePlateLoader _nameplateLoader = new();
 
     public void LoadCosmetics()
     {
@@ -33,6 +35,9 @@ public class CosmeticsLoader
 
         Info("Loading visors...");
         _visorLoader.LoadCosmetics(CosmeticPaths.VisorPath);
+
+        Info("Loading nameplates...");
+        _nameplateLoader.LoadCosmetics(CosmeticPaths.NameplatePath);
     }
 
     public void InstallCosmetics(HatManager hatManager)
@@ -42,6 +47,9 @@ public class CosmeticsLoader
 
         Info("Installing visors...");
         _visorLoader.InstallCosmetics(hatManager);
+
+        Info("Installing nameplates");
+        _nameplateLoader.InstallCosmetics(hatManager);
     }
 
     public bool LocateCosmetic(
@@ -62,7 +70,8 @@ public class CosmeticsLoader
 
             return il2CPPType != null
                    || _hatLoader.LocateCosmetic(id, type, out il2CPPType)
-                   || _visorLoader.LocateCosmetic(id, type, out il2CPPType);
+                   || _visorLoader.LocateCosmetic(id, type, out il2CPPType)
+                   || _nameplateLoader.LocateCosmetic(id, type, out il2CPPType);
         }
         catch (Exception e)
         {
@@ -83,7 +92,8 @@ public class CosmeticsLoader
         {
             var result = 
                 _hatLoader.ProvideCosmetic(provideHandle, id, type) 
-                || _visorLoader.ProvideCosmetic(provideHandle, id, type);
+                || _visorLoader.ProvideCosmetic(provideHandle, id, type)
+                || _nameplateLoader.ProvideCosmetic(provideHandle, id, type);
 
             return result ? true : throw new Exception($"No cosmetic found for {id} and type {type}");
         }
@@ -102,5 +112,10 @@ public class CosmeticsLoader
     public bool TryGetVisor(string id, [NotNullWhen(true)] out CustomVisor? visor)
     {
         return _visorLoader.CustomVisors.TryGetValue(id, out visor);
+    }
+
+    public bool TryGetNamePlate(string id, [NotNullWhen(true)] out CustomNamePlate? namePlate)
+    {
+        return _nameplateLoader.CustomNamePlates.TryGetValue(id, out namePlate);
     }
 }
