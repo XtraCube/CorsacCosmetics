@@ -43,7 +43,7 @@ public class HatProvider : ResourceProviderBase
     public override void Provide(ProvideHandle provideHandle)
     {
         string internalId = provideHandle.Location.InternalId;
-        Info($"Processing {internalId}");
+        Debug($"Processing {internalId}");
 
         if (!internalId.StartsWith("corsac"))
         {
@@ -73,15 +73,15 @@ public class HatProvider : ResourceProviderBase
         switch (type)
         {
             case ReferenceType.Sprite:
-                Info($"Found hat sprite for {hatId}");
+                Debug($"Found hat sprite for {hatId}");
                 provideHandle.Complete(customHat.HatSprite, true, null);
                 return;
             case ReferenceType.Preview:
-                Info($"Found hat preview for {hatId}");
+                Debug($"Found hat preview for {hatId}");
                 provideHandle.Complete(customHat.PreviewData, true, null);
                 return;
             case ReferenceType.HatViewData:
-                Info($"Found hat view data for {hatId}");
+                Debug($"Found hat view data for {hatId}");
                 provideHandle.Complete(customHat.HatViewData, true, null);
                 return;
             default:

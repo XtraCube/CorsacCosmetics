@@ -76,7 +76,7 @@ public class HatLocator : Il2CppSystem.Object
             return false;
         }
 
-        Info($"Found hat {customHat.Id}, type {typeName}");
+        Debug($"Found hat {customHat.Id}, type {typeName}");
 
         var realType = typeName switch
         {

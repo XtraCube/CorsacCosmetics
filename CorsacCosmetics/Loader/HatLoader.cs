@@ -31,12 +31,8 @@ public class HatLoader
     {
         if (_keys == null)
         {
+            // this doesn't actually need to be filled with anything.
             var il2CPPList = new Il2CppSystem.Collections.Generic.List<Il2CppSystem.Object>();
-            foreach (var hatId in CustomHats.Keys)
-            {
-                il2CPPList.Add(new Il2CppSystem.String(hatId.ToCharArray()));
-            }
-
             // pointer magic cuz il2cpp interfaces are broken
             _keys = new(il2CPPList.Pointer);
         }
@@ -79,7 +75,10 @@ public class HatLoader
     {
         var id = Path.GetFileNameWithoutExtension(filePath);
         var metadataFile = Path.ChangeExtension(filePath, ".json");
-        var metadata = new  HatMetadata();
+        var metadata = new HatMetadata
+        {
+            Name = id
+        };
         try
         {
             if (File.Exists(metadataFile))
@@ -103,7 +102,7 @@ public class HatLoader
         var hatSprite = LoadHatSprite(filePath);
         hatSprite.DontUnload().DontDestroy();
         var hatViewData = ScriptableObject.CreateInstance<HatViewData>();
-        hatViewData.name = $"{id}.viewdata";
+        hatViewData.name = metadata.Name;
         hatViewData.MatchPlayerColor = metadata.MatchPlayerColor;
         hatViewData.BackImage
             = hatViewData.ClimbImage
@@ -116,11 +115,11 @@ public class HatLoader
                                         = hatSprite;
 
         var previewData = ScriptableObject.CreateInstance<PreviewViewData>();
-        previewData.name = $"{id}.preview";
+        previewData.name = metadata.Name;
         previewData.PreviewSprite = hatSprite;
 
         var hatData = ScriptableObject.CreateInstance<HatData>();
-        hatData.name = $"{id}.data";
+        hatData.name = metadata.Name;
         hatData.StoreName = id;
         hatData.Free = true;
         hatData.ProductId = fullId;
@@ -153,7 +152,7 @@ public class HatLoader
             texture,
             new Rect(0, 0, texture.width, texture.height),
             new Vector2(0.5f, 0.5f),
-            texture.width
+            100f
             );
         sprite.name = Path.GetFileNameWithoutExtension(filePath);
         return sprite;
