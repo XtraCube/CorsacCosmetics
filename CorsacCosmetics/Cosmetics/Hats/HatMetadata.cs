@@ -1,7 +1,7 @@
-﻿namespace CorsacCosmetics.Loader;
+﻿namespace CorsacCosmetics.Cosmetics.Hats;
 
 
-public struct HatMetadata()
+public record struct HatMetadata()
 {
     public string Name { get; set; } = "Custom Hat";
     public bool MatchPlayerColor { get; set; }

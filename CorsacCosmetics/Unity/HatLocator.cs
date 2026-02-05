@@ -1,9 +1,7 @@
 ﻿using System;
-using CorsacCosmetics.Loader;
-using Il2CppInterop.Runtime;
+using CorsacCosmetics.Cosmetics;
 using Il2CppInterop.Runtime.Injection;
 using Reactor.Utilities.Attributes;
-using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.AddressableAssets.ResourceLocators;
 using UnityEngine.ResourceManagement.ResourceLocations;
@@ -40,8 +38,8 @@ public class HatLocator : Il2CppSystem.Object
 
     public string LocatorId => GetType().FullName!;
 
-    public virtual Il2CppSystem.Collections.Generic.IEnumerable<Il2CppSystem.Object>
-        Keys => HatLoader.Instance.GetHatKeys();
+    public Il2CppSystem.Collections.Generic.IEnumerable<Il2CppSystem.Object>
+        Keys => CosmeticsLoader.Instance.EmptyKeys;
 
     private string ProviderId { get; } = typeof(HatProvider).FullName!;
 
@@ -70,27 +68,19 @@ public class HatLocator : Il2CppSystem.Object
         var realKey = split[0];
         var typeName = split[1];
 
-        if (!HatLoader.Instance.CustomHats.TryGetValue(realKey, out var customHat))
+        if (!CosmeticsLoader.Instance.LocateCosmetic(realKey, typeName, out var il2CPPType))
         {
-            Error($"{realKey} not found in custom hats.");
+            Error($"{realKey} not found in custom cosmetics.");
             return false;
         }
 
-        Debug($"Found hat {customHat.Id}, type {typeName}");
-
-        var realType = typeName switch
-        {
-            ReferenceType.Sprite => Il2CppType.Of<Sprite>(),
-            ReferenceType.Preview => Il2CppType.Of<PreviewViewData>(),
-            ReferenceType.HatViewData => Il2CppType.Of<HatViewData>(),
-            _ => throw new InvalidOperationException("Unsupported type")
-        };
+        Debug($"Found cosmetic {realKey}, type {typeName}, il2cpp tyle {il2CPPType.NameOrDefault}");
 
         var location = new ResourceLocationBase(
             keyString,
             keyString,
             ProviderId,
-            realType
+            il2CPPType
         );
 
         var il2CPPList = new Il2CppSystem.Collections.Generic.List<ResourceLocationBase>();

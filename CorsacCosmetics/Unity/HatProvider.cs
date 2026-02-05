@@ -1,8 +1,7 @@
 ﻿using System;
-using CorsacCosmetics.Loader;
+using CorsacCosmetics.Cosmetics;
 using Il2CppInterop.Runtime.Injection;
 using Reactor.Utilities.Attributes;
-using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.ResourceLocations;
 using UnityEngine.ResourceManagement.ResourceProviders;
@@ -47,52 +46,36 @@ public class HatProvider : ResourceProviderBase
 
         if (!internalId.StartsWith("corsac"))
         {
-            Error($"{internalId} is not a Corsac hat");
-            provideHandle.Complete<Sprite>(null!, false, new Il2CppSystem.Exception("Not a Corsac hat"));
+            Error($"{internalId} is not a Corsac cosmetic");
+            provideHandle.Complete<UnityEngine.Object>(null!, false, new Il2CppSystem.Exception("Not a Corsac cosmetic"));
             return;
         }
 
         var idAndType = internalId.Split("/");
         if (idAndType.Length != 2) 
         {
-            Error($"Invalid hat identifier: {idAndType}");
-            provideHandle.Complete<Sprite>(null!, false, new Il2CppSystem.Exception("Invalid Corsac hat ID"));
+            Error($"Invalid identifier: {idAndType}");
+            provideHandle.Complete<UnityEngine.Object>(null!, false, new Il2CppSystem.Exception("Invalid Corsac ID"));
             return;
         }
 
-        var hatId = idAndType[0];
+        var id = idAndType[0];
         var type = idAndType[1];
 
-        if (!HatLoader.Instance.CustomHats.TryGetValue(hatId, out var customHat))
+        if (CosmeticsLoader.Instance.ProvideCosmetic(provideHandle, id, type, out var exception))
         {
-            Error($"Could not find hat: {hatId}");
-            provideHandle.Complete<Sprite>(null!, false, new Il2CppSystem.Exception("Corsac hat not found"));
-            return;
+            Debug($"Successfully provided cosmetic {id} of type {type}");
         }
-
-        switch (type)
+        else
         {
-            case ReferenceType.Sprite:
-                Debug($"Found hat sprite for {hatId}");
-                provideHandle.Complete(customHat.HatSprite, true, null);
-                return;
-            case ReferenceType.Preview:
-                Debug($"Found hat preview for {hatId}");
-                provideHandle.Complete(customHat.PreviewData, true, null);
-                return;
-            case ReferenceType.HatViewData:
-                Debug($"Found hat view data for {hatId}");
-                provideHandle.Complete(customHat.HatViewData, true, null);
-                return;
-            default:
-                Error("Unknown hat type");
-                provideHandle.Complete<Sprite>(null!, false, new Il2CppSystem.Exception("Invalid Corsac hat type"));
-                return;
+            Error($"Failed to provide cosmetic {id} of type {type}:\n{exception.ToString()}");
+            provideHandle.Complete<UnityEngine.Object>(null!, false, 
+                new Il2CppSystem.Exception(exception.ToString()));
         }
     }
 
     public override void Release(IResourceLocation location, Il2CppSystem.Object obj)
     {
-        Warning("I don't know how to release hat yet");
+        Warning("I don't know how to release cosmetic yet");
     }
 }

@@ -2,7 +2,6 @@
 using System.Reflection;
 using BepInEx;
 using BepInEx.Unity.IL2CPP;
-using CorsacCosmetics.Loader;
 using CorsacCosmetics.Unity;
 using HarmonyLib;
 using Reactor;
