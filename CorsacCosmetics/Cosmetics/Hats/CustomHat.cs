@@ -7,7 +7,6 @@ public class CustomHat
     public CustomHat(
         string id,
         HatMetadata metadata,
-        Sprite hatSprite,
         HatData hatData,
         HatViewData viewData,
         PreviewViewData previewData
@@ -15,7 +14,6 @@ public class CustomHat
     {
         Id = id;
         Metadata = metadata;
-        HatSprite = hatSprite;
         HatData = hatData;
         HatViewData = viewData;
         PreviewData = previewData;
@@ -23,7 +21,6 @@ public class CustomHat
 
     public string Id { get; }
     public HatMetadata Metadata { get; }
-    public Sprite HatSprite { get; }
     public HatData HatData { get; }
     public HatViewData HatViewData { get; }
     public PreviewViewData PreviewData { get; }

@@ -99,10 +99,6 @@ public class NamePlateLoader : BaseLoader
 
         switch (type)
         {
-            case ReferenceType.Sprite:
-                Debug($"Found nameplate sprite for {id}");
-                handle.Complete(nameplate.NamePlateSprite, true, null);
-                return true;
             case ReferenceType.Preview:
                 Debug($"Found nameplate preview for {id}");
                 handle.Complete(nameplate.PreviewData, true, null);
@@ -168,7 +164,7 @@ public class NamePlateLoader : BaseLoader
         namePlateData.ViewDataRef = new AssetReference(HatLocator.GetGuid(fullId, ReferenceType.NamePlateViewData));
         namePlateData.PreviewData = new AssetReference(HatLocator.GetGuid(fullId, ReferenceType.Preview));
 
-        var customNamePlate = new CustomNamePlate(fullId, metadata, namePlateSprite, namePlateData, namePlateViewData, previewData);
+        var customNamePlate = new CustomNamePlate(fullId, metadata, namePlateData, namePlateViewData, previewData);
         CustomNamePlates.Add(fullId, customNamePlate);
         
         namePlateData.ViewDataRef.LoadAsset<NamePlateViewData>();

@@ -7,7 +7,6 @@ public class CustomVisor
     public CustomVisor(
         string id,
         VisorMetadata metadata,
-        Sprite visorSprite,
         VisorData visorData,
         VisorViewData visorViewData,
         PreviewViewData previewData
@@ -15,7 +14,6 @@ public class CustomVisor
     {
         Id = id;
         Metadata = metadata;
-        VisorSprite = visorSprite;
         VisorData = visorData;
         VisorViewData = visorViewData;
         PreviewData = previewData;
@@ -24,8 +22,6 @@ public class CustomVisor
     public string Id { get; }
     
     public VisorMetadata Metadata { get; }
-
-    public Sprite VisorSprite { get; }
 
     public VisorData VisorData { get; }
 

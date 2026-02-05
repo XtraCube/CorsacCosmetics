@@ -99,10 +99,6 @@ public class VisorLoader : BaseLoader
 
         switch (type)
         {
-            case ReferenceType.Sprite:
-                Debug($"Found visor sprite for {id}");
-                handle.Complete(visor.VisorSprite, true, null);
-                return true;
             case ReferenceType.Preview:
                 Debug($"Found visor preview for {id}");
                 handle.Complete(visor.PreviewData, true, null);
@@ -174,7 +170,7 @@ public class VisorLoader : BaseLoader
         visorData.ViewDataRef = new AssetReference(HatLocator.GetGuid(fullId, ReferenceType.VisorViewData));
         visorData.PreviewData = new AssetReference(HatLocator.GetGuid(fullId, ReferenceType.Preview));
 
-        var customVisor = new CustomVisor(fullId, metadata, visorSprite, visorData, visorViewData, previewData);
+        var customVisor = new CustomVisor(fullId, metadata, visorData, visorViewData, previewData);
         CustomVisors.Add(fullId, customVisor);
         
         visorData.ViewDataRef.LoadAsset<VisorViewData>();

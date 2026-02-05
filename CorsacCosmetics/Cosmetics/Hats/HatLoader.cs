@@ -99,10 +99,6 @@ public class HatLoader : BaseLoader
 
         switch (type)
         {
-            case ReferenceType.Sprite:
-                Debug($"Found hat sprite for {id}");
-                handle.Complete(hat.HatSprite, true, null);
-                return true;
             case ReferenceType.Preview:
                 Debug($"Found hat preview for {id}");
                 handle.Complete(hat.PreviewData, true, null);
@@ -180,7 +176,7 @@ public class HatLoader : BaseLoader
         hatData.ViewDataRef = new AssetReference(HatLocator.GetGuid(fullId, ReferenceType.HatViewData));
         hatData.PreviewData = new AssetReference(HatLocator.GetGuid(fullId, ReferenceType.Preview));
 
-        var customHat = new CustomHat(fullId, metadata, hatSprite, hatData, hatViewData, previewData);
+        var customHat = new CustomHat(fullId, metadata, hatData, hatViewData, previewData);
         CustomHats.Add(fullId, customHat);
 
         hatData.ViewDataRef.LoadAsset<HatViewData>();

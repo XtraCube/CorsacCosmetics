@@ -63,7 +63,6 @@ public class CosmeticsLoader
         {
             il2CPPType = type switch
             {
-                ReferenceType.Sprite => Il2CppType.Of<Sprite>(),
                 ReferenceType.Preview => Il2CppType.Of<PreviewViewData>(),
                 _ => null
             };
