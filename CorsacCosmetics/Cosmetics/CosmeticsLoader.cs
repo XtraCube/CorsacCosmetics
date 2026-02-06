@@ -40,16 +40,16 @@ public class CosmeticsLoader
         _nameplateLoader.LoadCosmetics(CosmeticPaths.NameplatePath);
     }
 
-    public void InstallCosmetics(HatManager hatManager)
+    public void InstallCosmetics(ReferenceData referenceData)
     {
         Info("Installing hats...");
-        _hatLoader.InstallCosmetics(hatManager);
+        _hatLoader.InstallCosmetics(referenceData);
 
         Info("Installing visors...");
-        _visorLoader.InstallCosmetics(hatManager);
+        _visorLoader.InstallCosmetics(referenceData);
 
         Info("Installing nameplates");
-        _nameplateLoader.InstallCosmetics(hatManager);
+        _nameplateLoader.InstallCosmetics(referenceData);
     }
 
     public bool LocateCosmetic(

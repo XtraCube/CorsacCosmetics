@@ -23,27 +23,19 @@ public class NamePlateLoader : BaseLoader
         return $"corsac.nameplate.{name}";
     }
 
-    public override void InstallCosmetics(HatManager hatManager)
+    public override void InstallCosmetics(ReferenceData refData)
     {
-        var namePlates = hatManager.allNamePlates.ToList();
-
         foreach (var (id, customNamePlate) in CustomNamePlates)
         {
             try
             {
-                namePlates.Add(customNamePlate.NamePlateData);
+                refData.nameplates.Add(customNamePlate.NamePlateData);
                 Info($"Added nameplate {id} to HatManager");
             }
             catch (Exception e)
             {
                 Error($"Failed to load nameplate {id} with exception:\n{e.ToString()}");
             }
-        }
-
-        hatManager.allNamePlates = new Il2CppReferenceArray<NamePlateData>(namePlates.Count);
-        for (var i = 0; i < namePlates.Count; i++)
-        {
-            hatManager.allNamePlates[i] = namePlates[i];
         }
     }
 

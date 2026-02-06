@@ -23,27 +23,19 @@ public class VisorLoader : BaseLoader
         return $"corsac.visor.{name}";
     }
 
-    public override void InstallCosmetics(HatManager hatManager)
+    public override void InstallCosmetics(ReferenceData refData)
     {
-        var visors = hatManager.allVisors.ToList();
-
         foreach (var (id, customVisor) in CustomVisors)
         {
             try
             {
-                visors.Add(customVisor.VisorData);
+                refData.visors.Add(customVisor.VisorData);
                 Info($"Added visor {id} to HatManager");
             }
             catch (Exception e)
             {
                 Error($"Failed to load visor {id} with exception:\n{e.ToString()}");
             }
-        }
-
-        hatManager.allVisors = new Il2CppReferenceArray<VisorData>(visors.Count);
-        for (var i = 0; i < visors.Count; i++)
-        {
-            hatManager.allVisors[i] = visors[i];
         }
     }
 

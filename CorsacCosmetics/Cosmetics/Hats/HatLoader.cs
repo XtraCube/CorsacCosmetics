@@ -23,27 +23,19 @@ public class HatLoader : BaseLoader
         return $"corsac.hat.{name}";
     }
 
-    public override void InstallCosmetics(HatManager hatManager)
+    public override void InstallCosmetics(ReferenceData refData)
     {
-        var hats = hatManager.allHats.ToList();
-
         foreach (var (id, customHat) in CustomHats)
         {
             try
             {
-                hats.Add(customHat.HatData);
+                refData.hats.Add(customHat.HatData);
                 Info($"Added {id} to HatManager");
             }
             catch (Exception e)
             {
                 Error($"Failed to load hat {id} with exception:\n{e.ToString()}");
             }
-        }
-
-        hatManager.allHats = new Il2CppReferenceArray<HatData>(hats.Count);
-        for (var i = 0; i < hats.Count; i++)
-        {
-            hatManager.allHats[i] = hats[i];
         }
     }
 
