@@ -16,7 +16,8 @@ You can see the example cosmetics included in the repository for reference. Some
 Notes:
 - Right now, only PNG format is supported. This will be expanded in future updates.
 - Only static images are supported; animated cosmetics are not currently implemented.
-- There aren't any templates besides the examples yet.0
+- The mod doesn't support setting specific cosmetic sprites (eg. climbing sprite) yet.
+- There aren't any templates besides the examples yet.
 
 ### File format and naming
 - The loaders currently look for PNG files only ("*.png").
