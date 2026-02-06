@@ -7,6 +7,17 @@ CorsacCosmetics is a client-side BepInEx mod for Among Us that adds support for 
 - Visors: CorsacCosmetics/Visors
 - Nameplates: CorsacCosmetics/Nameplates
 
+### Making your own cosmetics
+You can see the example cosmetics included in the repository for reference. Some tips for creating your own:
+- Dimensions matter! Use the example images as a guide for sizing your cosmetics appropriately.
+- Transparent backgrounds are recommended for hats and visors.
+- Resolution doesn't matter on nameplates because they are scaled, but keep them small for performance.
+
+Notes:
+- Right now, only PNG format is supported. This will be expanded in future updates.
+- Only static images are supported; animated cosmetics are not currently implemented.
+- There aren't any templates besides the examples yet.0
+
 ### File format and naming
 - The loaders currently look for PNG files only ("*.png").
 - Use a unique filename for each cosmetic, for example: my_cool_hat.png
