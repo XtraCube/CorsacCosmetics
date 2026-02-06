@@ -7,6 +7,29 @@ namespace CorsacCosmetics;
 
 public static class SpriteTools
 {
+    public static Sprite EmptySprite
+    {
+        get
+        {
+            if (field != null)
+            {
+                return field;
+            }
+
+            var emptyTexture = new Texture2D(1, 1);
+            emptyTexture.SetPixel(0, 0, Color.clear);
+            emptyTexture.Apply();
+
+            field = Sprite.Create(
+                emptyTexture,
+                new Rect(0, 0, 1, 1),
+                new Vector2(0.5f, 0.5f),
+                100f
+            );
+            return field;
+        }
+    }
+
     public static Sprite? LoadSpriteFromFile(string filePath)
     {
         if (!File.Exists(filePath))

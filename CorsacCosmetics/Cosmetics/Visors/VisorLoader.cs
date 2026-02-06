@@ -144,9 +144,9 @@ public class VisorLoader : BaseLoader
         var visorViewData = ScriptableObject.CreateInstance<VisorViewData>();
         visorViewData.name = metadata.Name;
         visorViewData.MatchPlayerColor = metadata.MatchPlayerColor;
+        visorViewData.ClimbFrame = SpriteTools.EmptySprite;
         visorViewData.IdleFrame
             = visorViewData.LeftIdleFrame
-                = visorViewData.ClimbFrame
                     = visorViewData.FloorFrame
                         = visorSprite;
 
