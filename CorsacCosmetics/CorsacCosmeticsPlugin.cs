@@ -5,6 +5,7 @@ using BepInEx.Unity.IL2CPP;
 using CorsacCosmetics.Unity;
 using HarmonyLib;
 using Reactor;
+using Reactor.Utilities;
 
 namespace CorsacCosmetics;
 
@@ -18,6 +19,8 @@ public partial class CorsacCosmeticsPlugin : BasePlugin
     public override void Load()
     {
         Message("Loading Corsac Cosmetics Plugin...");
+
+        ReactorCredits.Register<CorsacCosmeticsPlugin>(loc => loc is ReactorCredits.Location.MainMenu);
 
         Info("Initializing HatProvider...");
         HatProvider.Initialize();
