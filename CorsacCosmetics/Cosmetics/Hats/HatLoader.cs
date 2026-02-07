@@ -139,20 +139,36 @@ public class HatLoader : BaseLoader
             Error($"Error loading hat {name}");
             return false;
         }
+
+        var climbSpritePath = Path.ChangeExtension(filePath, ".climb.png");
+        var climbSprite = SpriteTools.LoadSpriteFromFile(climbSpritePath);
+        
+        var floorSpritePath = Path.ChangeExtension(filePath, ".floor.png");
+        var floorSprite = SpriteTools.LoadSpriteFromFile(floorSpritePath);
+
+        var backSpritePath = Path.ChangeExtension(filePath, ".back.png");
+        var backSprite = SpriteTools.LoadSpriteFromFile(backSpritePath);
+
+        var leftMainSpritePath = Path.ChangeExtension(filePath, ".left.png");
+        var leftMainSprite = SpriteTools.LoadSpriteFromFile(leftMainSpritePath);
+
+        var leftClimbSpritePath = Path.ChangeExtension(filePath, ".left.climb.png");
+        var leftClimbSprite = SpriteTools.LoadSpriteFromFile(leftClimbSpritePath);
+
+        var leftFloorSpritePath = Path.ChangeExtension(filePath, ".left.floor.png");
+        var leftFloorSprite = SpriteTools.LoadSpriteFromFile(leftFloorSpritePath);
         
         hatSprite.DontUnload().DontDestroy();
         var hatViewData = ScriptableObject.CreateInstance<HatViewData>();
         hatViewData.name = metadata.Name;
         hatViewData.MatchPlayerColor = metadata.MatchPlayerColor;
-        hatViewData.BackImage
-            = hatViewData.ClimbImage
-                = hatViewData.FloorImage
-                    = hatViewData.MainImage
-                        = hatViewData.LeftBackImage
-                            = hatViewData.LeftClimbImage
-                                = hatViewData.LeftFloorImage
-                                    = hatViewData.LeftMainImage
-                                        = hatSprite;
+        hatViewData.MainImage = hatSprite;
+        hatViewData.BackImage = backSprite ?? hatSprite;
+        hatViewData.ClimbImage = climbSprite ?? hatSprite;
+        hatViewData.FloorImage = floorSprite ?? hatSprite;
+        hatViewData.LeftMainImage = leftMainSprite ?? hatSprite;
+        hatViewData.LeftClimbImage = leftClimbSprite ?? leftMainSprite ?? hatSprite;
+        hatViewData.LeftFloorImage = leftFloorSprite ?? leftMainSprite ?? hatSprite;
 
         var previewData = ScriptableObject.CreateInstance<PreviewViewData>();
         previewData.name = metadata.Name;
