@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using CorsacCosmetics.Cosmetics.Hats;
 using CorsacCosmetics.Cosmetics.Nameplates;
 using CorsacCosmetics.Cosmetics.Visors;
@@ -15,6 +16,8 @@ public class CosmeticsLoader
     private CosmeticsLoader()
     {
         EmptyKeys = new Il2CppSystem.Collections.Generic.IEnumerable<Il2CppSystem.Object>(_emptyKeys.Pointer);
+        CosmeticGroup = ScriptableObject.CreateInstance<CosmeticReleaseGroup>();
+        CosmeticGroup.date = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
     }
 
     private static CosmeticsLoader? _cosmeticsLoader;
@@ -24,6 +27,8 @@ public class CosmeticsLoader
 
     public Il2CppSystem.Collections.Generic.IEnumerable<Il2CppSystem.Object> EmptyKeys { get; }
 
+    public CosmeticReleaseGroup CosmeticGroup { get; }
+
     private readonly HatLoader _hatLoader = new();
     private readonly VisorLoader  _visorLoader = new();
     private readonly NamePlateLoader _nameplateLoader = new();
@@ -32,12 +37,24 @@ public class CosmeticsLoader
     {
         Info("Loading hats...");
         _hatLoader.LoadCosmetics(CosmeticPaths.HatPath);
+        foreach (var id in _hatLoader.CustomHats.Keys)
+        {
+            CosmeticGroup.ids.Add(id);
+        }
 
         Info("Loading visors...");
         _visorLoader.LoadCosmetics(CosmeticPaths.VisorPath);
+        foreach (var id in _visorLoader.CustomVisors.Keys)
+        {
+            CosmeticGroup.ids.Add(id);
+        }
 
         Info("Loading nameplates...");
         _nameplateLoader.LoadCosmetics(CosmeticPaths.NameplatePath);
+        foreach (var id in _nameplateLoader.CustomNamePlates.Keys)
+        {
+            CosmeticGroup.ids.Add(id);
+        }
     }
 
     public void InstallCosmetics(ReferenceData referenceData)
@@ -50,6 +67,11 @@ public class CosmeticsLoader
 
         Info("Installing nameplates");
         _nameplateLoader.InstallCosmetics(referenceData);
+
+        Info("Installing cosmetic group...");
+        var newGroups = referenceData.Groups.releaseGroups.ToList();
+        newGroups.Add(CosmeticGroup);
+        referenceData.Groups.releaseGroups = newGroups.ToArray();
     }
 
     public bool LocateCosmetic(
