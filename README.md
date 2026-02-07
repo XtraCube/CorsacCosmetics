@@ -8,10 +8,9 @@ CorsacCosmetics is a client-side BepInEx mod for Among Us that adds support for 
 - Nameplates: CorsacCosmetics/Nameplates
 
 ### Making your own cosmetics
-You can see the example cosmetics included in the repository for reference. Some tips for creating your own:
-- Dimensions matter! Use the example images as a guide for sizing your cosmetics appropriately.
-- Transparent backgrounds are recommended for hats and visors.
-- Resolution doesn't matter on nameplates because they are scaled, but keep them small for performance.
+You can use the Crewmate_Base.png file in the Templates folder as a base layer for cosmetics.
+Player cosmetics should be 270x428 pixels in size. Nameplates can be any size as they are scaled,
+but try to stick to the same aspect ratio as the original nameplate (around 3:1) for best results.
 
 Notes:
 - Right now, only PNG format is supported. This will be expanded in future updates.
