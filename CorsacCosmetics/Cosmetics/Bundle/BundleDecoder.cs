@@ -35,14 +35,23 @@ public static class BundleDecoder
         }
     }
 
+    public static PreviewViewData DecodePreview(BundleSource source)
+    {
+        var previewData = ScriptableObject.CreateInstance<PreviewViewData>();
+        var previewSprite = DecodeSprite(source, "PreviewSprite");
+        previewData.PreviewSprite = previewSprite;
+        return previewData;
+    }
+
     public static void DecodePreview(PreviewViewData previewData, BundleSource source)
     {
         var previewSprite = DecodeSprite(source, "PreviewSprite");
         previewData.PreviewSprite = previewSprite;
     }
 
-    public static void DecodeHat(HatViewData viewData, PreviewViewData previewData, BundleSource source)
+    public static HatViewData DecodeHat(BundleSource source)
     {
+        var viewData = ScriptableObject.CreateInstance<HatViewData>();
         viewData.MainImage = DecodeSprite(source, "MainSprite");
         viewData.BackImage = DecodeSprite(source, "BackSprite");
         viewData.ClimbImage = DecodeSprite(source, "ClimbSprite");
@@ -51,6 +60,7 @@ public static class BundleDecoder
         viewData.LeftBackImage = DecodeSprite(source, "LeftBackSprite");
         viewData.LeftClimbImage = DecodeSprite(source, "LeftClimbSprite");
         viewData.LeftFloorImage = DecodeSprite(source, "LeftFloorSprite");
+        return viewData;
     }
 
     public static void DecodeVisor(VisorViewData viewData, BundleSource source)

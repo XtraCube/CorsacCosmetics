@@ -97,13 +97,6 @@ public class BundleLoaderV2(
     {
         var id = Names.Normalize(manifest.Name, "hat", groupName);
 
-        var hatViewData = ScriptableObject.CreateInstance<HatViewData>();
-        hatViewData.name = manifest.Name;
-        hatViewData.MatchPlayerColor = manifest.MatchPlayerColor;
-
-        var previewData = ScriptableObject.CreateInstance<PreviewViewData>();
-        previewData.name = manifest.Name;
-
         var hatData = ScriptableObject.CreateInstance<HatData>();
         hatData.name = hatData.StoreName = manifest.Name;
         hatData.Free = true;
@@ -125,7 +118,7 @@ public class BundleLoaderV2(
         bundleSource.AddSprite("LeftFloorSprite", manifest.LeftFloorSprite);
         bundleSource.AddSprite("PreviewSprite", manifest.PreviewSprite);
 
-        var customHat = new CustomHat(id, hatData, hatViewData, previewData, bundleSource);
+        var customHat = new CustomHat(id, hatData, bundleSource:bundleSource);
         hatLoader.CustomHats.Add(id, customHat);
     }
 

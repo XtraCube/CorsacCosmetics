@@ -88,27 +88,49 @@ public class HatLoader : BaseLoader
         {
             case ReferenceType.Preview:
                 Debug($"Found hat preview for {id}");
+                PreviewViewData previewData;
                 lock (hat.DecodeLock)
                 {
-                    if (hat.BundleSource != null && hat.PreviewData.PreviewSprite == null)
+                    if (hat.BundleSource != null)
                     {
                         Debug($"Decoding preview for {id}");
-                        BundleDecoder.DecodePreview(hat.PreviewData, hat.BundleSource);
+                        previewData = BundleDecoder.DecodePreview(hat.BundleSource);
+                    }
+                    else if (hat.FileSource != null)
+                    {
+                        Debug($"Decoding preview for {id} from file");
+                        previewData = FileDecoder.DecodePreview(hat.FileSource);
+                    }
+                    else
+                    {
+                        Error($"No source for preview for {id}");
+                        return false;
                     }
                 }
-                handle.Complete(hat.PreviewData, true, null);
+                handle.Complete(previewData, true, null);
                 return true;
             case ReferenceType.HatViewData:
                 Debug($"Found hat view data for {id}");
+                HatViewData hatViewData;
                 lock (hat.DecodeLock)
                 {
-                    if (hat.BundleSource != null && hat.HatViewData.MainImage == null)
+                    if (hat.BundleSource != null)
                     {
                         Debug($"Decoding hat view data for {id}");
-                        BundleDecoder.DecodeHat(hat.HatViewData, hat.PreviewData, hat.BundleSource);
+                        hatViewData = BundleDecoder.DecodeHat(hat.BundleSource);
+                    }
+                    else if (hat.FileSource != null)
+                    {
+                        Debug($"Decoding hat view data for {id} from file");
+                        hatViewData = FileDecoder.DecodeHat(hat.FileSource);
+                    }
+                    else
+                    {
+                        Error($"No source for hat view data for {id}");
+                        return false;
                     }
                 }
-                handle.Complete(hat.HatViewData, true, null);
+                handle.Complete(hatViewData, true, null);
                 return true;
             default:
                 Error("Unknown hat type");
@@ -134,11 +156,25 @@ public class HatLoader : BaseLoader
         {
             case ReferenceType.Preview:
                 Debug($"Releasing hat preview for {realKey}");
-                hat.PreviewData.Unload();
+                if (obj.TryCast<PreviewViewData>() is { } previewData)
+                {
+                    previewData.Unload();
+                }
+                else
+                {
+                    Error($"Object {obj} is not a PreviewViewData, cannot release");
+                }
                 break;
             case ReferenceType.HatViewData:
                 Debug($"Releasing hat view data for {realKey}");
-                hat.HatViewData.Unload();
+                if (obj.TryCast<HatViewData>() is { } hatViewData)
+                {
+                    hatViewData.Unload();
+                }
+                else
+                {
+                    Error($"Object {obj} is not a HatViewData, cannot release");
+                }
                 break;
             default:
                 Info($"Unknown type {typeName}, ignoring release request");
@@ -174,88 +210,6 @@ public class HatLoader : BaseLoader
         }
 
         var fullId = Names.Normalize(name, "hat");
-
-        var hatSprite = SpriteTools.LoadSpriteFromFile(filePath);
-        if (hatSprite == null)
-        {
-            Error($"Error loading hat {name}");
-            return false;
-        }
-
-        hatSprite.DontUnload().DontDestroy();
-
-        var hatViewData = ScriptableObject.CreateInstance<HatViewData>();
-        hatViewData.name = metadata.Name;
-        hatViewData.MatchPlayerColor = metadata.MatchPlayerColor;
-        hatViewData.MainImage = hatSprite;
-
-        var climbSpritePath = Path.ChangeExtension(filePath, ".climb");
-        var climbSprite = SpriteTools.LoadSpriteFromFile(climbSpritePath);
-        if (climbSprite != null)
-        {
-            Info($"Found climb sprite {climbSpritePath}");
-            climbSprite.DontUnload().DontDestroy();
-            hatViewData.ClimbImage = climbSprite;
-        }
-
-        var floorSpritePath = Path.ChangeExtension(filePath, ".floor");
-        var floorSprite = SpriteTools.LoadSpriteFromFile(floorSpritePath);
-        if (floorSprite != null)
-        {
-            Info($"Found floor sprite {floorSpritePath}");
-            floorSprite.DontUnload().DontDestroy();
-            hatViewData.FloorImage = floorSprite;
-        }
-
-        var backSpritePath = Path.ChangeExtension(filePath, ".back");
-        var backSprite = SpriteTools.LoadSpriteFromFile(backSpritePath);
-        if (backSprite != null)
-        {
-            Info($"Found back sprite {backSpritePath}");
-            backSprite.DontUnload().DontDestroy();
-            hatViewData.BackImage = backSprite;
-        }
-
-        var leftMainSpritePath = Path.ChangeExtension(filePath, ".left");
-        var leftMainSprite = SpriteTools.LoadSpriteFromFile(leftMainSpritePath);
-        if (leftMainSprite != null)
-        {
-            Info($"Found left main sprite {leftMainSpritePath}");
-            leftMainSprite.DontUnload().DontDestroy();
-            hatViewData.LeftMainImage = leftMainSprite;
-        }
-
-        var leftBackSpritePath = Path.ChangeExtension(filePath, ".leftback");
-        var leftBackSprite = SpriteTools.LoadSpriteFromFile(leftBackSpritePath);
-        if (leftBackSprite != null)
-        {
-            Info($"Found left back sprite {leftBackSpritePath}");
-            leftBackSprite.DontUnload().DontDestroy();
-            hatViewData.LeftBackImage = leftBackSprite;
-        }
-
-        var leftClimbSpritePath = Path.ChangeExtension(filePath, ".leftclimb");
-        var leftClimbSprite = SpriteTools.LoadSpriteFromFile(leftClimbSpritePath);
-        if (leftClimbSprite != null)
-        {
-            Info($"Found left climb sprite {leftClimbSpritePath}");
-            leftClimbSprite.DontUnload().DontDestroy();
-            hatViewData.LeftClimbImage = leftClimbSprite;
-        }
-
-        var leftFloorSpritePath = Path.ChangeExtension(filePath, ".leftfloor");
-        var leftFloorSprite = SpriteTools.LoadSpriteFromFile(leftFloorSpritePath);
-        if (leftFloorSprite != null)
-        {
-            Info($"Found left floor sprite {leftFloorSpritePath}");
-            leftFloorSprite.DontUnload().DontDestroy();
-            hatViewData.LeftFloorImage = leftFloorSprite;
-        }
-
-        var previewData = ScriptableObject.CreateInstance<PreviewViewData>();
-        previewData.name = metadata.Name;
-        previewData.PreviewSprite = hatSprite;
-
         var hatData = ScriptableObject.CreateInstance<HatData>();
         hatData.name = hatData.StoreName = metadata.Name;
         hatData.Free = true;
@@ -267,11 +221,8 @@ public class HatLoader : BaseLoader
         hatData.ViewDataRef = new AssetReference(HatLocator.GetGuid(fullId, ReferenceType.HatViewData));
         hatData.PreviewData = new AssetReference(HatLocator.GetGuid(fullId, ReferenceType.Preview));
 
-        var customHat = new CustomHat(fullId, hatData, hatViewData, previewData);
+        var customHat = new CustomHat(fullId, hatData, fileSource: filePath);
         CustomHats.Add(fullId, customHat);
-
-        hatData.ViewDataRef.LoadAsset<HatViewData>();
-        hatData.PreviewData.LoadAsset<PreviewViewData>();
         return true;
     }
 }

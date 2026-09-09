@@ -8,6 +8,7 @@ public static class CosmeticExtensions
         {
             previewData.PreviewSprite.CleanUp();
             previewData.PreviewSprite = null;
+            previewData.DestroyImmediate();
         }
     }
 
@@ -31,6 +32,7 @@ public static class CosmeticExtensions
             hatViewData.LeftClimbImage = null;
             hatViewData.LeftFloorImage.CleanUp();
             hatViewData.LeftFloorImage = null;
+            hatViewData.DestroyImmediate();
         }
     }
 
@@ -46,6 +48,7 @@ public static class CosmeticExtensions
             visorViewData.FloorFrame = null;
             visorViewData.ClimbFrame.CleanUp();
             visorViewData.ClimbFrame = null;
+            visorViewData.DestroyImmediate();
         }
     }
 
@@ -55,6 +58,7 @@ public static class CosmeticExtensions
         {
             nameplateViewData.Image.CleanUp();
             nameplateViewData.Image = null;
+            nameplateViewData.DestroyImmediate();
         }
     }
 }
