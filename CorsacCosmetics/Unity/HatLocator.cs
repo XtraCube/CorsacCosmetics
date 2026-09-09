@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using CorsacCosmetics.Cosmetics;
 using Il2CppInterop.Runtime.Injection;
 using UnityEngine.AddressableAssets;
@@ -12,6 +13,8 @@ public class HatLocator : Il2CppSystem.Object
 
     private static HatLocator? _instance;
     private static IResourceLocator? _locator;
+
+    private static readonly Dictionary<string, Il2CppSystem.Collections.Generic.IList<IResourceLocation>> _locationCache = [];
 
     public static string GetGuid(string hatId, string type)
     {
@@ -74,6 +77,12 @@ public class HatLocator : Il2CppSystem.Object
 
         Debug($"Found cosmetic {realKey}, type {typeName}, il2cpp tyle {il2CPPType.NameOrDefault}");
 
+        if (_locationCache.TryGetValue(keyString, out var cachedLocations))
+        {
+            locations = cachedLocations;
+            return true;
+        }
+
         var location = new ResourceLocationBase(
             keyString,
             keyString,
@@ -85,6 +94,7 @@ public class HatLocator : Il2CppSystem.Object
         il2CPPList.Add(location);
         // pointer magic cuz il2cpp interfaces are broken
         locations = new Il2CppSystem.Collections.Generic.IList<IResourceLocation>(il2CPPList.Pointer);
+        _locationCache.Add(keyString, locations);
 
         return true;
     }
