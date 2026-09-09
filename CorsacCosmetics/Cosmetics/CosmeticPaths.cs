@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using BepInEx;
-using UnityEngine;
 
 namespace CorsacCosmetics.Cosmetics;
 

@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-namespace CorsacCosmetics.Cosmetics.Hats;
+﻿namespace CorsacCosmetics.Cosmetics.Hats;
 
 
 public struct HatMetadata()

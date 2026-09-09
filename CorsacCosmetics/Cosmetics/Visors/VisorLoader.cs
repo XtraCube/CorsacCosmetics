@@ -2,12 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Linq;
 using System.Text.Json;
+using CorsacCosmetics.Cosmetics.Bundle;
 using CorsacCosmetics.Tools;
 using CorsacCosmetics.Unity;
 using Il2CppInterop.Runtime;
-using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.ResourceProviders;
@@ -82,6 +81,14 @@ public class VisorLoader : BaseLoader
         if (!CustomVisors.TryGetValue(id, out var visor))
         {
             return false;
+        }
+
+        // Lazy decode from bundle on first access. The bundle file stays open for the
+        // lifetime of the mod, so subsequent decodes for this cosmetic are no-ops and
+        // decodes for other cosmetics in the same bundle are cheap seeks.
+        if (visor.BundleSource != null && visor.VisorViewData.IdleFrame == null)
+        {
+            BundleDecoder.DecodeVisor(visor.VisorViewData, visor.PreviewData, visor.BundleSource);
         }
 
         switch (type)
