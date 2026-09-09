@@ -118,8 +118,19 @@ public class BundleLoaderV2(
         bundleSource.AddSprite("LeftFloorSprite", manifest.LeftFloorSprite);
         bundleSource.AddSprite("PreviewSprite", manifest.PreviewSprite);
 
-        var customHat = new CustomHat(id, hatData, bundleSource:bundleSource);
+        var customHat = new CustomHat(id, hatData, CreatePreviewViewData, CreateHatViewData);
         hatLoader.CustomHats.Add(id, customHat);
+        return;
+
+        PreviewViewData CreatePreviewViewData()
+        {
+            return BundleDecoder.DecodePreview(bundleSource);
+        }
+
+        HatViewData CreateHatViewData()
+        {
+            return BundleDecoder.DecodeHat(bundleSource);
+        }
     }
 
     private void LoadVisor(VisorManifest manifest, long start, string groupName, string bundlePath)
@@ -140,8 +151,19 @@ public class BundleLoaderV2(
         bundleSource.AddSprite("ClimbSprite", manifest.ClimbSprite);
         bundleSource.AddSprite("PreviewSprite", manifest.PreviewSprite);
 
-        var customVisor = new CustomVisor(id, visorData, bundleSource: bundleSource);
+        var customVisor = new CustomVisor(id, visorData, CreatePreviewViewData, CreateVisorViewData);
         visorLoader.CustomVisors.Add(id, customVisor);
+        return;
+
+        PreviewViewData CreatePreviewViewData()
+        {
+            return BundleDecoder.DecodePreview(bundleSource);
+        }
+
+        VisorViewData CreateVisorViewData()
+        {
+            return BundleDecoder.DecodeVisor(bundleSource);
+        }
     }
 
     private void LoadNameplate(NameplateManifest manifest, long start, string groupName, string bundlePath)
@@ -158,7 +180,18 @@ public class BundleLoaderV2(
         bundleSource.AddSprite("NameplateSprite", manifest.NameplateSprite);
         bundleSource.AddSprite("PreviewSprite", manifest.PreviewSprite);
 
-        var customNamePlate = new CustomNamePlate(id, namePlateData, bundleSource: bundleSource);
+        var customNamePlate = new CustomNamePlate(id, namePlateData, CreatePreviewViewData, CreateNamePlateViewData);
         nameplateLoader.CustomNamePlates.Add(id, customNamePlate);
+        return;
+
+        PreviewViewData CreatePreviewViewData()
+        {
+            return BundleDecoder.DecodePreview(bundleSource);
+        }
+
+        NamePlateViewData CreateNamePlateViewData()
+        {
+            return BundleDecoder.DecodeNameplate(bundleSource);
+        }
     }
 }

@@ -1,37 +1,32 @@
-using CorsacCosmetics.Cosmetics.Bundle;
+using System;
 
 namespace CorsacCosmetics.Cosmetics.Visors;
 
-public class CustomVisor
+public class CustomVisor(
+    string id,
+    VisorData visorData,
+    Func<PreviewViewData> previewViewDataFactory,
+    Func<VisorViewData> visorViewDataFactory)
 {
-    public CustomVisor(
-        string id,
-        VisorData visorData,
-        BundleSource? bundleSource = null,
-        string? fileSource = null
-        )
-    {
-        Id = id;
-        VisorData = visorData;
-        BundleSource = bundleSource;
-        FileSource = fileSource;
-    }
-
-    public string Id { get; }
-
-    public VisorData VisorData { get; }
+    /// <summary>
+    /// Gets the unique ID generated for this visor.
+    /// </summary>
+    public string Id { get; } = id;
 
     /// <summary>
-    /// When set, this visor's sprites are lazily decoded from the bundle file on first access.
-    /// Null for folder-loaded cosmetics.
+    /// Gets the vanilla VisorData object associated with this visor.
     /// </summary>
-    public BundleSource? BundleSource { get; }
+    public VisorData VisorData { get; } = visorData;
 
     /// <summary>
-    /// When set, this visor's sprites are lazily decoded from the file path on first access.
-    /// Null for bundle-loaded cosmetics.
+    /// Gets the factory function to create a PreviewViewData for this visor.
     /// </summary>
-    public string? FileSource { get; }
+    public Func<PreviewViewData> PreviewViewDataFactory { get; } = previewViewDataFactory;
+
+    /// <summary>
+    /// Gets the factory function to create a VisorViewData for this visor
+    /// </summary>
+    public Func<VisorViewData> VisorViewDataFactory { get; } = visorViewDataFactory;
 
     /// <summary>
     /// A lock object to ensure thread-safe decoding of the visor's sprites.

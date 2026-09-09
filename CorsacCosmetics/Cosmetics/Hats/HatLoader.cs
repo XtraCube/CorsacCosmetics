@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text.Json;
-using CorsacCosmetics.Cosmetics.Bundle;
 using CorsacCosmetics.Unity;
 using Il2CppInterop.Runtime;
 using UnityEngine;
@@ -90,21 +89,8 @@ public class HatLoader : BaseLoader
                 PreviewViewData previewData;
                 lock (hat.DecodeLock)
                 {
-                    if (hat.BundleSource != null)
-                    {
-                        Debug($"Decoding preview for {id}");
-                        previewData = BundleDecoder.DecodePreview(hat.BundleSource);
-                    }
-                    else if (hat.FileSource != null)
-                    {
-                        Debug($"Decoding preview for {id} from file");
-                        previewData = FileDecoder.DecodePreview(hat.FileSource);
-                    }
-                    else
-                    {
-                        Error($"No source for preview for {id}");
-                        return false;
-                    }
+                    Debug($"Decoding preview for {id}");
+                    previewData = hat.PreviewViewDataFactory();
                 }
                 handle.Complete(previewData, true, null);
                 return true;
@@ -113,21 +99,8 @@ public class HatLoader : BaseLoader
                 HatViewData hatViewData;
                 lock (hat.DecodeLock)
                 {
-                    if (hat.BundleSource != null)
-                    {
-                        Debug($"Decoding hat view data for {id}");
-                        hatViewData = BundleDecoder.DecodeHat(hat.BundleSource);
-                    }
-                    else if (hat.FileSource != null)
-                    {
-                        Debug($"Decoding hat view data for {id} from file");
-                        hatViewData = FileDecoder.DecodeHat(hat.FileSource);
-                    }
-                    else
-                    {
-                        Error($"No source for hat view data for {id}");
-                        return false;
-                    }
+                    Debug($"Decoding hat for {id}");
+                    hatViewData = hat.HatViewDataFactory();
                 }
                 handle.Complete(hatViewData, true, null);
                 return true;
@@ -220,8 +193,18 @@ public class HatLoader : BaseLoader
         hatData.ViewDataRef = new AssetReference(HatLocator.GetGuid(fullId, ReferenceType.HatViewData));
         hatData.PreviewData = new AssetReference(HatLocator.GetGuid(fullId, ReferenceType.Preview));
 
-        var customHat = new CustomHat(fullId, hatData, fileSource: filePath);
+        var customHat = new CustomHat(fullId, hatData, CreatePreviewViewData, CreateHatViewData);
         CustomHats.Add(fullId, customHat);
         return true;
+
+        PreviewViewData CreatePreviewViewData()
+        {
+            return FileDecoder.DecodePreview(filePath);
+        }
+
+        HatViewData CreateHatViewData()
+        {
+            return FileDecoder.DecodeHat(filePath);
+        }
     }
 }

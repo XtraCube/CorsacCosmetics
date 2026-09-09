@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text.Json;
-using CorsacCosmetics.Cosmetics.Bundle;
 using CorsacCosmetics.Unity;
 using Il2CppInterop.Runtime;
 using UnityEngine;
@@ -90,21 +89,8 @@ public class NameplateLoader : BaseLoader
                 PreviewViewData previewViewData;
                 lock (nameplate.DecodeLock)
                 {
-                    if (nameplate.BundleSource != null)
-                    {
-                        Debug($"Decoding preview for {id}");
-                        previewViewData = BundleDecoder.DecodePreview(nameplate.BundleSource);
-                    }
-                    else if (nameplate.FileSource != null)
-                    {
-                        Debug($"Decoding preview for {id}");
-                        previewViewData = FileDecoder.DecodePreview(nameplate.FileSource);
-                    }
-                    else
-                    {
-                        Error($"No source for preview for {id}");
-                        return false;
-                    }
+                    Debug($"Decoding preview for {id}");
+                    previewViewData = nameplate.PreviewViewDataFactory();
                 }
                 handle.Complete(previewViewData, true, null);
                 return true;
@@ -113,21 +99,8 @@ public class NameplateLoader : BaseLoader
                 NamePlateViewData viewData;
                 lock (nameplate.DecodeLock)
                 {
-                    if (nameplate.BundleSource != null)
-                    {
-                        Debug($"Decoding nameplate for {id}");
-                        viewData = BundleDecoder.DecodeNameplate(nameplate.BundleSource);
-                    }
-                    else if (nameplate.FileSource != null)
-                    {
-                        Debug($"Decoding nameplate for {id}");
-                        viewData = FileDecoder.DecodeNameplate(nameplate.FileSource);
-                    }
-                    else
-                    {
-                        Error($"No source for nameplate for {id}");
-                        return false;
-                    }
+                    Debug($"Decoding nameplate for {id}");
+                    viewData = nameplate.NamePlateViewDataFactory();
                 }
                 handle.Complete(viewData, true, null);
                 return true;
@@ -216,12 +189,22 @@ public class NameplateLoader : BaseLoader
         namePlateData.ViewDataRef = new AssetReference(HatLocator.GetGuid(fullId, ReferenceType.NamePlateViewData));
         namePlateData.PreviewData = new AssetReference(HatLocator.GetGuid(fullId, ReferenceType.Preview));
 
-        var customNamePlate = new CustomNamePlate(fullId, namePlateData, fileSource: filePath);
+        var customNamePlate = new CustomNamePlate(fullId, namePlateData, CreatePreviewViewData, CreateNamePlateViewData);
         CustomNamePlates.Add(fullId, customNamePlate);
         
         namePlateData.ViewDataRef.LoadAsset<NamePlateViewData>();
         namePlateData.PreviewData.LoadAsset<PreviewViewData>();
 
         return true;
+
+        PreviewViewData CreatePreviewViewData()
+        {
+            return FileDecoder.DecodePreview(filePath);
+        }
+
+        NamePlateViewData CreateNamePlateViewData()
+        {
+            return FileDecoder.DecodeNameplate(filePath);
+        }
     }
 }

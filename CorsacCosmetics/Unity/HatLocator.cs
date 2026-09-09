@@ -13,7 +13,7 @@ public class HatLocator : Il2CppSystem.Object
     private static HatLocator? _instance;
     private static IResourceLocator? _locator;
 
-    private static readonly Dictionary<string, Il2CppSystem.Collections.Generic.IList<IResourceLocation>> _locationCache = [];
+    private static readonly Dictionary<string, Il2CppSystem.Collections.Generic.IList<IResourceLocation>> LocationCache = [];
     public static string ProviderId { get; } = typeof(HatProvider).FullName!;
 
     public static string GetGuid(string hatId, string type)
@@ -23,12 +23,6 @@ public class HatLocator : Il2CppSystem.Object
 
     public static (string?, string?) GetIdAndType(IResourceLocation location)
     {
-        if (location == null)
-        {
-            Error("Location is null");
-            return (null, null);
-        }
-
         if (location.ProviderId != ProviderId)
         {
             Error($"Invalid provider ID: {location.ProviderId}");
@@ -70,12 +64,10 @@ public class HatLocator : Il2CppSystem.Object
 
     public string LocatorId => GetType().FullName!;
 
-    public Il2CppSystem.Collections.Generic.IEnumerable<Il2CppSystem.Object>
-        Keys => CosmeticsLoader.Instance.EmptyKeys;
+    public Il2CppSystem.Collections.Generic.IEnumerable<Il2CppSystem.Object> Keys => CosmeticsLoader.Instance.EmptyKeys;
 
 
-    public bool Locate(Il2CppSystem.Object key, Il2CppSystem.Type type,
-        out Il2CppSystem.Collections.Generic.IList<IResourceLocation> locations)
+    public bool Locate(Il2CppSystem.Object key, Il2CppSystem.Type type, out Il2CppSystem.Collections.Generic.IList<IResourceLocation> locations)
     {
         locations = null!;
 
@@ -107,7 +99,7 @@ public class HatLocator : Il2CppSystem.Object
 
         Debug($"Found cosmetic {realKey}, type {typeName}, il2cpp type {il2CPPType.NameOrDefault}");
 
-        if (_locationCache.TryGetValue(keyString, out var cachedLocations))
+        if (LocationCache.TryGetValue(keyString, out var cachedLocations))
         {
             locations = cachedLocations;
             return true;
@@ -124,7 +116,7 @@ public class HatLocator : Il2CppSystem.Object
         il2CPPList.Add(location);
         // pointer magic cuz il2cpp interfaces are broken
         locations = new Il2CppSystem.Collections.Generic.IList<IResourceLocation>(il2CPPList.Pointer);
-        _locationCache.Add(keyString, locations);
+        LocationCache.Add(keyString, locations);
 
         return true;
     }

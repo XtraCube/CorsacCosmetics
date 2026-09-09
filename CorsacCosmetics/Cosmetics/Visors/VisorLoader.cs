@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text.Json;
-using CorsacCosmetics.Cosmetics.Bundle;
 using CorsacCosmetics.Unity;
 using Il2CppInterop.Runtime;
 using UnityEngine;
@@ -90,21 +89,8 @@ public class VisorLoader : BaseLoader
                 PreviewViewData previewData;
                 lock (visor.DecodeLock)
                 {
-                    if (visor.BundleSource != null)
-                    {
-                        Debug($"Decoding preview for {id}");
-                        previewData = BundleDecoder.DecodePreview(visor.BundleSource);
-                    }
-                    else if (visor.FileSource != null)
-                    {
-                        Debug($"Decoding preview for {id}");
-                        previewData = FileDecoder.DecodePreview(visor.FileSource);
-                    }
-                    else
-                    {
-                        Error($"No source for preview for {id}");
-                        return false;
-                    }
+                    Debug($"Decoding preview for {id}");
+                    previewData = visor.PreviewViewDataFactory();
                 }
                 handle.Complete(previewData, true, null);
                 return true;
@@ -113,21 +99,8 @@ public class VisorLoader : BaseLoader
                 VisorViewData viewData;
                 lock (visor.DecodeLock)
                 {
-                    if (visor.BundleSource != null)
-                    {
-                        Debug($"Decoding visor data for {id}");
-                        viewData = BundleDecoder.DecodeVisor(visor.BundleSource);
-                    }
-                    else if (visor.FileSource != null)
-                    {
-                        Debug($"Decoding preview for {id}");
-                        viewData = FileDecoder.DecodeVisor(visor.FileSource);
-                    }
-                    else
-                    {
-                        Error($"No source for preview for {id}");
-                        return false;
-                    }
+                    Debug($"Decoding visor for {id}");
+                    viewData = visor.VisorViewDataFactory();
                 }
                 handle.Complete(viewData, true, null);
                 return true;
@@ -218,8 +191,18 @@ public class VisorLoader : BaseLoader
         visorData.ViewDataRef = new AssetReference(HatLocator.GetGuid(fullId, ReferenceType.VisorViewData));
         visorData.PreviewData = new AssetReference(HatLocator.GetGuid(fullId, ReferenceType.Preview));
 
-        var customVisor = new CustomVisor(fullId, visorData, fileSource: filePath);
+        var customVisor = new CustomVisor(fullId, visorData, CreatePreviewViewData, CreateVisorViewData);
         CustomVisors.Add(fullId, customVisor);
         return true;
+
+        PreviewViewData CreatePreviewViewData()
+        {
+            return FileDecoder.DecodePreview(filePath);
+        }
+
+        VisorViewData CreateVisorViewData()
+        {
+            return FileDecoder.DecodeVisor(filePath);
+        }
     }
 }

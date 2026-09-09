@@ -1,37 +1,35 @@
-using CorsacCosmetics.Cosmetics.Bundle;
+using System;
 
 namespace CorsacCosmetics.Cosmetics.Nameplates;
 
-public class CustomNamePlate
+/// <summary>
+/// Represents a custom nameplate object.
+/// </summary>
+public class CustomNamePlate(
+    string id,
+    NamePlateData namePlateData,
+    Func<PreviewViewData> previewViewDataFactory,
+    Func<NamePlateViewData> namePlateViewDataFactory)
 {
-    public CustomNamePlate(
-        string id,
-        NamePlateData namePlateData,
-        BundleSource? bundleSource = null,
-        string? fileSource = null
-        )
-    {
-        Id = id;
-        NamePlateData = namePlateData;
-        BundleSource = bundleSource;
-        FileSource = fileSource;
-    }
-
-    public string Id { get; }
-
-    public NamePlateData NamePlateData { get; }
+    /// <summary>
+    /// Gets the unique ID generated for this nameplate.
+    /// </summary>
+    public string Id { get; } = id;
 
     /// <summary>
-    /// When set, this nameplate's sprites are lazily decoded from the bundle file on first access.
-    /// Null for folder-loaded cosmetics.
+    /// Gets the vanilla NamePlateData object associated with this nameplate.
     /// </summary>
-    public BundleSource? BundleSource { get; }
+    public NamePlateData NamePlateData { get; } = namePlateData;
 
     /// <summary>
-    /// When set, this nameplate's sprites are lazily decoded from the file path on first access.
-    /// Null for bundle-loaded cosmetics.
+    /// Gets the factory function to create a PreviewViewData for this nameplate.
     /// </summary>
-    public string? FileSource { get; }
+    public Func<PreviewViewData> PreviewViewDataFactory { get; } = previewViewDataFactory;
+
+    /// <summary>
+    /// Gets the factory function to create a NamePlateViewData for this nameplate.
+    /// </summary>
+    public Func<NamePlateViewData> NamePlateViewDataFactory { get; } = namePlateViewDataFactory;
 
     /// <summary>
     /// A lock object to ensure thread-safe decoding of the nameplate's sprites.

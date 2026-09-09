@@ -1,36 +1,35 @@
-﻿using CorsacCosmetics.Cosmetics.Bundle;
+﻿using System;
 
 namespace CorsacCosmetics.Cosmetics.Hats;
 
-public class CustomHat
+/// <summary>
+/// Represents a custom hat object.
+/// </summary>
+public class CustomHat(
+    string id,
+    HatData hatData,
+    Func<PreviewViewData> previewViewDataFactory,
+    Func<HatViewData> hatViewDataFactory)
 {
-    public CustomHat(
-        string id,
-        HatData hatData,
-        BundleSource? bundleSource = null,
-        string? fileSource = null
-        )
-    {
-        Id = id;
-        HatData = hatData;
-        BundleSource = bundleSource;
-        FileSource = fileSource;
-    }
-
-    public string Id { get; }
-    public HatData HatData { get; }
+    /// <summary>
+    /// Gets the unique ID generated for this hat.
+    /// </summary>
+    public string Id { get; } = id;
 
     /// <summary>
-    /// When set, this hat's sprites are lazily decoded from the bundle file on first access.
-    /// Null for folder-loaded cosmetics.
+    /// Gets the vanilla HatData object associated with this hat.
     /// </summary>
-    public BundleSource? BundleSource { get; }
+    public HatData HatData { get; } = hatData;
 
     /// <summary>
-    /// When set, this hat's sprites are lazily decoded from the png file on first access.
-    /// Null for bundle-loaded cosmetics.
+    /// Gets the factory function to create a PreviewViewData for this hat.
     /// </summary>
-    public string? FileSource { get; }
+    public Func<PreviewViewData> PreviewViewDataFactory { get; } = previewViewDataFactory;
+
+    /// <summary>
+    /// Gets the factory function to create a HatViewData for this hat.
+    /// </summary>
+    public Func<HatViewData> HatViewDataFactory { get; } = hatViewDataFactory;
 
     /// <summary>
     /// A lock object to ensure thread-safe decoding of the hat's sprites.
