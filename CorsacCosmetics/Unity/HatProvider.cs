@@ -74,6 +74,13 @@ public class HatProvider : ResourceProviderBase
 
     public override void Release(IResourceLocation location, Il2CppSystem.Object obj)
     {
-        Warning("I don't know how to release cosmetic yet");
+        if (CosmeticsLoader.Instance.ReleaseCosmetic(location, obj))
+        {
+            Debug($"Successfully released cosmetic for location {location} and object {obj}");
+        }
+        else
+        {
+            Error($"Failed to release cosmetic for location {location} and object {obj}");
+        }
     }
 }

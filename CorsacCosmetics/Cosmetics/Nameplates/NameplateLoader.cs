@@ -9,6 +9,7 @@ using CorsacCosmetics.Unity;
 using Il2CppInterop.Runtime;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.ResourceLocations;
 using UnityEngine.ResourceManagement.ResourceProviders;
 
 namespace CorsacCosmetics.Cosmetics.Nameplates;
@@ -88,6 +89,7 @@ public class NameplateLoader : BaseLoader
         // decodes for other cosmetics in the same bundle are cheap seeks.
         if (nameplate.BundleSource != null && nameplate.NamePlateViewData.Image == null)
         {
+            Info($"Decoding nameplate bundle for {id}");
             BundleDecoder.DecodeNameplate(nameplate.NamePlateViewData, nameplate.PreviewData, nameplate.BundleSource);
         }
 
@@ -105,6 +107,38 @@ public class NameplateLoader : BaseLoader
                 Error("Unknown nameplate type");
                 return false;
         }
+    }
+
+    public override bool ReleaseCosmetic(IResourceLocation location, Il2CppSystem.Object obj)
+    {
+        var (realKey, typeName) = HatLocator.GetIdAndType(location);
+        if (realKey == null || typeName == null)
+        {
+            Error($"Invalid location {location.InternalId}, cannot release cosmetic");
+            return false;
+        }
+
+        if (!CustomNamePlates.TryGetValue(realKey, out var nameplate))
+        {
+            Info($"No custom nameplate found for key {realKey}, ignoring release request");
+            return false;
+        }
+
+        switch (typeName)
+        {
+            case ReferenceType.Preview:
+                Debug($"Releasing nameplate preview for {realKey}");
+                nameplate.PreviewData.Unload();
+                break;
+            case ReferenceType.NamePlateViewData:
+                Debug($"Releasing nameplate view data for {realKey}");
+                nameplate.NamePlateViewData.Unload();
+                break;
+            default:
+                Info($"Unknown type {typeName}, ignoring release request");
+                break;
+        }
+        return true;
     }
 
     private bool LoadNamePlate(string filePath)

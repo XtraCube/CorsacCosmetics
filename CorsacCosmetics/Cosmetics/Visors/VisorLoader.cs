@@ -9,6 +9,7 @@ using CorsacCosmetics.Unity;
 using Il2CppInterop.Runtime;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.ResourceLocations;
 using UnityEngine.ResourceManagement.ResourceProviders;
 
 namespace CorsacCosmetics.Cosmetics.Visors;
@@ -88,6 +89,7 @@ public class VisorLoader : BaseLoader
         // decodes for other cosmetics in the same bundle are cheap seeks.
         if (visor.BundleSource != null && visor.VisorViewData.IdleFrame == null)
         {
+            Info($"Decoding visor bundle for {id}");
             BundleDecoder.DecodeVisor(visor.VisorViewData, visor.PreviewData, visor.BundleSource);
         }
 
@@ -105,6 +107,38 @@ public class VisorLoader : BaseLoader
                 Error("Unknown visor type");
                 return false;
         }
+    }
+
+    public override bool ReleaseCosmetic(IResourceLocation location, Il2CppSystem.Object obj)
+    {
+        var (realKey, typeName) = HatLocator.GetIdAndType(location);
+        if (realKey == null || typeName == null)
+        {
+            Error($"Invalid location {location.InternalId}, cannot release cosmetic");
+            return false;
+        }
+
+        if (!CustomVisors.TryGetValue(realKey, out var visor))
+        {
+            Info($"No custom visor found for key {realKey}, ignoring release request");
+            return false;
+        }
+
+        switch (typeName)
+        {
+            case ReferenceType.Preview:
+                Debug($"Releasing visor preview for {realKey}");
+                visor.PreviewData.Unload();
+                break;
+            case ReferenceType.VisorViewData:
+                Debug($"Releasing visor view data for {realKey}");
+                visor.VisorViewData.Unload();
+                break;
+            default:
+                Info($"Unknown type {typeName}, ignoring release request");
+                break;
+        }
+        return true;
     }
 
     private bool LoadVisor(string filePath)

@@ -11,6 +11,7 @@ using CorsacCosmetics.Unity;
 using Il2CppInterop.Runtime;
 using Il2CppSystem.IO;
 using UnityEngine;
+using UnityEngine.ResourceManagement.ResourceLocations;
 using UnityEngine.ResourceManagement.ResourceProviders;
 
 namespace CorsacCosmetics.Cosmetics;
@@ -161,6 +162,22 @@ public class CosmeticsLoader
             Error($"Unexpected error while locating cosmetic {id}:\n{e}");
             return false;
         }
+    }
+
+    public bool ReleaseCosmetic(
+        IResourceLocation location,
+        Il2CppSystem.Object obj
+    )
+    {
+        if (_hatLoader.ReleaseCosmetic(location, obj) 
+            || _visorLoader.ReleaseCosmetic(location, obj) 
+            || _nameplateLoader.ReleaseCosmetic(location, obj))
+        {
+            return true;
+        }
+
+        Error($"Failed to release cosmetic for location {location} and object {obj}");        
+        return false;
     }
 
     public bool ProvideCosmetic(

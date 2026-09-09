@@ -9,6 +9,7 @@ using CorsacCosmetics.Unity;
 using Il2CppInterop.Runtime;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.ResourceLocations;
 using UnityEngine.ResourceManagement.ResourceProviders;
 
 namespace CorsacCosmetics.Cosmetics.Hats;
@@ -88,6 +89,7 @@ public class HatLoader : BaseLoader
         // decodes for other cosmetics in the same bundle are cheap seeks.
         if (hat.BundleSource != null && hat.HatViewData.MainImage == null)
         {
+            Info($"Decoding hat bundle for {id}");
             BundleDecoder.DecodeHat(hat.HatViewData, hat.PreviewData, hat.BundleSource);
         }
 
@@ -105,6 +107,38 @@ public class HatLoader : BaseLoader
                 Error("Unknown hat type");
                 return false;
         }
+    }
+
+    public override bool ReleaseCosmetic(IResourceLocation location, Il2CppSystem.Object obj)
+    {
+        var (realKey, typeName) = HatLocator.GetIdAndType(location);
+        if (realKey == null || typeName == null)
+        {
+            Error($"Invalid location {location.InternalId}, cannot release cosmetic");
+            return false;
+        }
+
+        if (!CustomHats.TryGetValue(realKey, out var hat))
+        {
+            Info($"No custom hat found for key {realKey}, ignoring release request");
+            return false;
+        }
+
+        switch (typeName)
+        {
+            case ReferenceType.Preview:
+                Debug($"Releasing hat preview for {realKey}");
+                hat.PreviewData.Unload();
+                break;
+            case ReferenceType.HatViewData:
+                Debug($"Releasing hat view data for {realKey}");
+                hat.HatViewData.Unload();
+                break;
+            default:
+                Info($"Unknown type {typeName}, ignoring release request");
+                break;
+        }
+        return true;
     }
 
     private bool LoadHat(string filePath)

@@ -10,15 +10,46 @@ namespace CorsacCosmetics.Unity;
 
 public class HatLocator : Il2CppSystem.Object
 {
-
     private static HatLocator? _instance;
     private static IResourceLocator? _locator;
 
     private static readonly Dictionary<string, Il2CppSystem.Collections.Generic.IList<IResourceLocation>> _locationCache = [];
+    public static string ProviderId { get; } = typeof(HatProvider).FullName!;
 
     public static string GetGuid(string hatId, string type)
     {
         return $"{hatId}/{type}";
+    }
+
+    public static (string?, string?) GetIdAndType(IResourceLocation location)
+    {
+        if (location == null)
+        {
+            Error("Location is null");
+            return (null, null);
+        }
+
+        if (location.ProviderId != ProviderId)
+        {
+            Error($"Invalid provider ID: {location.ProviderId}");
+            return (null, null);
+        }
+
+        var internalId = location.InternalId;
+        if (!internalId.StartsWith("corsac."))
+        {
+            Error($"Invalid internal ID: {internalId}");
+            return (null, null);
+        }
+
+        var split = internalId.Split("/");
+        if (split.Length != 2)
+        {
+            Error($"Invalid internal ID format: {internalId}");
+            return (null, null);
+        }
+
+        return (split[0], split[1]);
     }
 
     public static void Initialize()
@@ -31,7 +62,7 @@ public class HatLocator : Il2CppSystem.Object
     public HatLocator(IntPtr ptr) : base(ptr)
     {
     }
-    
+
     public HatLocator() : base(ClassInjector.DerivedConstructorPointer<HatLocator>())
     {
         ClassInjector.DerivedConstructorBody(this);
@@ -42,7 +73,6 @@ public class HatLocator : Il2CppSystem.Object
     public Il2CppSystem.Collections.Generic.IEnumerable<Il2CppSystem.Object>
         Keys => CosmeticsLoader.Instance.EmptyKeys;
 
-    private string ProviderId { get; } = typeof(HatProvider).FullName!;
 
     public bool Locate(Il2CppSystem.Object key, Il2CppSystem.Type type,
         out Il2CppSystem.Collections.Generic.IList<IResourceLocation> locations)
@@ -75,7 +105,7 @@ public class HatLocator : Il2CppSystem.Object
             return false;
         }
 
-        Debug($"Found cosmetic {realKey}, type {typeName}, il2cpp tyle {il2CPPType.NameOrDefault}");
+        Debug($"Found cosmetic {realKey}, type {typeName}, il2cpp type {il2CPPType.NameOrDefault}");
 
         if (_locationCache.TryGetValue(keyString, out var cachedLocations))
         {
