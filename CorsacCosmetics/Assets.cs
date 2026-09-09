@@ -19,7 +19,7 @@ public static class Assets
                 ?? throw new Exception("Assembly could not be found.");
 
             {
-                var stream = assembly.GetManifestResourceStream("CorsacCosmetics.Resources.NextButton.png")
+                using var stream = assembly.GetManifestResourceStream("CorsacCosmetics.Resources.NextButton.png")
                     ?? throw new Exception("Could not load NextButton! Resource stream was null.");
                 NextButton = SpriteTools.LoadSpriteFromStream(stream)
                     ?? throw new Exception("Could not load NextButton! Sprite was null.");
@@ -27,7 +27,7 @@ public static class Assets
             }
 
             {
-                var stream = assembly.GetManifestResourceStream("CorsacCosmetics.Resources.NextButtonActive.png")
+                using var stream = assembly.GetManifestResourceStream("CorsacCosmetics.Resources.NextButtonActive.png")
                     ?? throw new Exception("Could not load NextButtonActive! Resource stream was null.");
                 NextButtonActive = SpriteTools.LoadSpriteFromStream(stream)
                     ?? throw new Exception("Could not load NextButtonActive! Sprite was null.");
