@@ -13,7 +13,7 @@ public static class FileDecoder
         return viewData;
     }
 
-    public static HatViewData DecodeHat(string filePath)
+    public static HatViewData DecodeHat(string filePath, bool matchPlayerColor)
     {
         var viewData = ScriptableObject.CreateInstance<HatViewData>();
         viewData.MainImage = SpriteTools.LoadSpriteFromFile(filePath);
@@ -24,10 +24,11 @@ public static class FileDecoder
         viewData.LeftClimbImage = SpriteTools.LoadSpriteFromFile(Path.ChangeExtension(filePath, ".leftclimb"));
         viewData.LeftFloorImage = SpriteTools.LoadSpriteFromFile(Path.ChangeExtension(filePath, ".leftfloor"));
         viewData.LeftBackImage = SpriteTools.LoadSpriteFromFile(Path.ChangeExtension(filePath, ".leftback"));
+        viewData.MatchPlayerColor = matchPlayerColor;
         return viewData;
     }
 
-    public static VisorViewData DecodeVisor(string filePath)
+    public static VisorViewData DecodeVisor(string filePath, bool matchPlayerColor)
     {
         var viewData = ScriptableObject.CreateInstance<VisorViewData>();
         viewData.IdleFrame = SpriteTools.LoadSpriteFromFile(filePath);
@@ -40,6 +41,7 @@ public static class FileDecoder
         viewData.FloorFrame =
             SpriteTools.LoadSpriteFromFile(Path.ChangeExtension(filePath, ".floor"))
             ?? viewData.IdleFrame;
+        viewData.MatchPlayerColor = matchPlayerColor;
         return viewData;
     }
 

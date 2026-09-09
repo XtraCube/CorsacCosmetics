@@ -204,7 +204,7 @@ public class HatLoader : BaseLoader
 
         HatViewData CreateHatViewData()
         {
-            return FileDecoder.DecodeHat(filePath);
+            return FileDecoder.DecodeHat(filePath, metadata.MatchPlayerColor);
         }
     }
 }

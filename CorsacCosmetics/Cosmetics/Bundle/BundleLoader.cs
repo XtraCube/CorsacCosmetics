@@ -124,7 +124,7 @@ public class BundleLoader(HatLoader hatLoader, VisorLoader visorLoader, Nameplat
 
         HatViewData CreateHatViewData()
         {
-            return BundleDecoder.DecodeHat(bundleSource);
+            return BundleDecoder.DecodeHat(bundleSource, manifest.MatchPlayerColor);
         }
     }
 
@@ -158,7 +158,7 @@ public class BundleLoader(HatLoader hatLoader, VisorLoader visorLoader, Nameplat
 
         VisorViewData CreateVisorViewData()
         {
-            return BundleDecoder.DecodeVisor(bundleSource);
+            return BundleDecoder.DecodeVisor(bundleSource, manifest.MatchPlayerColor);
         }
     }
 

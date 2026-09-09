@@ -202,7 +202,7 @@ public class VisorLoader : BaseLoader
 
         VisorViewData CreateVisorViewData()
         {
-            return FileDecoder.DecodeVisor(filePath);
+            return FileDecoder.DecodeVisor(filePath, metadata.MatchPlayerColor);
         }
     }
 }

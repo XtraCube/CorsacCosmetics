@@ -43,13 +43,7 @@ public static class BundleDecoder
         return previewData;
     }
 
-    public static void DecodePreview(PreviewViewData previewData, BundleSource source)
-    {
-        var previewSprite = DecodeSprite(source, "PreviewSprite");
-        previewData.PreviewSprite = previewSprite;
-    }
-
-    public static HatViewData DecodeHat(BundleSource source)
+    public static HatViewData DecodeHat(BundleSource source, bool matchPlayerColor)
     {
         var viewData = ScriptableObject.CreateInstance<HatViewData>();
         viewData.MainImage = DecodeSprite(source, "MainSprite");
@@ -60,16 +54,18 @@ public static class BundleDecoder
         viewData.LeftBackImage = DecodeSprite(source, "LeftBackSprite");
         viewData.LeftClimbImage = DecodeSprite(source, "LeftClimbSprite");
         viewData.LeftFloorImage = DecodeSprite(source, "LeftFloorSprite");
+        viewData.MatchPlayerColor = matchPlayerColor;
         return viewData;
     }
 
-    public static VisorViewData DecodeVisor(BundleSource source)
+    public static VisorViewData DecodeVisor(BundleSource source, bool matchPlayerColor)
     {
         var viewData = ScriptableObject.CreateInstance<VisorViewData>();
         viewData.IdleFrame = DecodeSprite(source, "IdleSprite");
         viewData.LeftIdleFrame = DecodeSprite(source, "LeftIdleSprite");
         viewData.FloorFrame = DecodeSprite(source, "FloorSprite");
         viewData.ClimbFrame = DecodeSprite(source, "ClimbSprite");
+        viewData.MatchPlayerColor = matchPlayerColor;
         return viewData;
     }
 
