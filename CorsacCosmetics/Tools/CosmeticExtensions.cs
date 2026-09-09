@@ -6,7 +6,7 @@ public static class CosmeticExtensions
     {
         public void Unload()
         {
-            previewData.PreviewSprite.DestroyImmediate();
+            previewData.PreviewSprite.CleanUp();
             previewData.PreviewSprite = null;
         }
     }
@@ -15,21 +15,21 @@ public static class CosmeticExtensions
     {
         public void Unload()
         {
-            hatViewData.MainImage.DestroyImmediate();
+            hatViewData.MainImage.CleanUp();
             hatViewData.MainImage = null;
-            hatViewData.BackImage.DestroyImmediate();
+            hatViewData.BackImage.CleanUp();
             hatViewData.BackImage = null;
-            hatViewData.ClimbImage.DestroyImmediate();
+            hatViewData.ClimbImage.CleanUp();
             hatViewData.ClimbImage = null;
-            hatViewData.FloorImage.DestroyImmediate();
+            hatViewData.FloorImage.CleanUp();
             hatViewData.FloorImage = null;
-            hatViewData.LeftMainImage.DestroyImmediate();
+            hatViewData.LeftMainImage.CleanUp();
             hatViewData.LeftMainImage = null;
-            hatViewData.LeftBackImage.DestroyImmediate();
+            hatViewData.LeftBackImage.CleanUp();
             hatViewData.LeftBackImage = null;
-            hatViewData.LeftClimbImage.DestroyImmediate();
+            hatViewData.LeftClimbImage.CleanUp();
             hatViewData.LeftClimbImage = null;
-            hatViewData.LeftFloorImage.DestroyImmediate();
+            hatViewData.LeftFloorImage.CleanUp();
             hatViewData.LeftFloorImage = null;
         }
     }
@@ -38,13 +38,13 @@ public static class CosmeticExtensions
     {
         public void Unload()
         {
-            visorViewData.IdleFrame.DestroyImmediate();
+            visorViewData.IdleFrame.CleanUp();
             visorViewData.IdleFrame = null;
-            visorViewData.LeftIdleFrame.DestroyImmediate();
+            visorViewData.LeftIdleFrame.CleanUp();
             visorViewData.LeftIdleFrame = null;
-            visorViewData.FloorFrame.DestroyImmediate();
+            visorViewData.FloorFrame.CleanUp();
             visorViewData.FloorFrame = null;
-            visorViewData.ClimbFrame.DestroyImmediate();
+            visorViewData.ClimbFrame.CleanUp();
             visorViewData.ClimbFrame = null;
         }
     }
@@ -53,7 +53,7 @@ public static class CosmeticExtensions
     {
         public void Unload()
         {
-            nameplateViewData.Image.DestroyImmediate();
+            nameplateViewData.Image.CleanUp();
             nameplateViewData.Image = null;
         }
     }

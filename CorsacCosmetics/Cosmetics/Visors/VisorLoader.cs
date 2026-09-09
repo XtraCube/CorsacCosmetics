@@ -88,19 +88,25 @@ public class VisorLoader : BaseLoader
         {
             case ReferenceType.Preview:
                 Debug($"Found visor preview for {id}");
-                if (visor.BundleSource != null && visor.PreviewData.PreviewSprite == null)
+                lock (visor.DecodeLock)
                 {
-                    Info($"Decoding preview for {id}");
-                    BundleDecoder.DecodePreview(visor.PreviewData, visor.BundleSource);
+                    if (visor.BundleSource != null && visor.PreviewData.PreviewSprite == null)
+                    {
+                        Info($"Decoding preview for {id}");
+                        BundleDecoder.DecodePreview(visor.PreviewData, visor.BundleSource);
+                    }
                 }
                 handle.Complete(visor.PreviewData, true, null);
                 return true;
             case ReferenceType.VisorViewData:
                 Debug($"Found visor view data for {id}");
-                if (visor.BundleSource != null && visor.VisorViewData.IdleFrame == null)
+                lock (visor.DecodeLock)
                 {
-                    Info($"Decoding visor view data for {id}");
-                    BundleDecoder.DecodeVisor(visor.VisorViewData, visor.BundleSource);
+                    if (visor.BundleSource != null && visor.VisorViewData.IdleFrame == null)
+                    {
+                        Info($"Decoding visor view data for {id}");
+                        BundleDecoder.DecodeVisor(visor.VisorViewData, visor.BundleSource);
+                    }
                 }
                 handle.Complete(visor.VisorViewData, true, null);
                 return true;

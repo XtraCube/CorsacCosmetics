@@ -32,4 +32,9 @@ public class CustomNamePlate
     /// Null for folder-loaded cosmetics, which are decoded eagerly.
     /// </summary>
     public BundleSource? BundleSource { get; }
+
+    /// <summary>
+    /// A lock object to ensure thread-safe decoding of the nameplate's sprites.
+    /// </summary>
+    public readonly object DecodeLock = new();
 }

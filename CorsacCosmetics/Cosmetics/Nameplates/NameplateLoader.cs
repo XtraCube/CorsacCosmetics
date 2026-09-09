@@ -88,19 +88,25 @@ public class NameplateLoader : BaseLoader
         {
             case ReferenceType.Preview:
                 Debug($"Found nameplate preview for {id}");
-                if (nameplate.BundleSource != null && nameplate.PreviewData.PreviewSprite == null)
+                lock (nameplate.DecodeLock)
                 {
-                    Info($"Decoding preview for {id}");
-                    BundleDecoder.DecodePreview(nameplate.PreviewData, nameplate.BundleSource);
+                    if (nameplate.BundleSource != null && nameplate.PreviewData.PreviewSprite == null)
+                    {
+                        Info($"Decoding preview for {id}");
+                        BundleDecoder.DecodePreview(nameplate.PreviewData, nameplate.BundleSource);
+                    }
                 }
                 handle.Complete(nameplate.PreviewData, true, null);
                 return true;
             case ReferenceType.NamePlateViewData:
                 Debug($"Found nameplate view data for {id}");
-                if (nameplate.BundleSource != null && nameplate.NamePlateViewData.Image == null)
+                lock (nameplate.DecodeLock)
                 {
-                    Info($"Decoding nameplate view data for {id}");
-                    BundleDecoder.DecodeNameplate(nameplate.NamePlateViewData, nameplate.BundleSource);
+                    if (nameplate.BundleSource != null && nameplate.NamePlateViewData.Image == null)
+                    {
+                        Info($"Decoding nameplate view data for {id}");
+                        BundleDecoder.DecodeNameplate(nameplate.NamePlateViewData, nameplate.BundleSource);
+                    }
                 }
                 handle.Complete(nameplate.NamePlateViewData, true, null);
                 return true;

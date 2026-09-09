@@ -88,21 +88,27 @@ public class HatLoader : BaseLoader
         {
             case ReferenceType.Preview:
                 Debug($"Found hat preview for {id}");
-                if (hat.BundleSource != null && hat.PreviewData.PreviewSprite == null)
+                lock (hat.DecodeLock)
                 {
-                    Info($"Decoding preview for {id}");
-                    BundleDecoder.DecodePreview(hat.PreviewData, hat.BundleSource);
+                    if (hat.BundleSource != null && hat.PreviewData.PreviewSprite == null)
+                    {
+                        Info($"Decoding preview for {id}");
+                        BundleDecoder.DecodePreview(hat.PreviewData, hat.BundleSource);
+                    }
                 }
                 handle.Complete(hat.PreviewData, true, null);
                 return true;
             case ReferenceType.HatViewData:
                 Debug($"Found hat view data for {id}");
-                handle.Complete(hat.HatViewData, true, null);
-                if (hat.BundleSource != null && hat.HatViewData.MainImage == null)
+                lock (hat.DecodeLock)
                 {
-                    Info($"Decoding hat view data for {id}");
-                    BundleDecoder.DecodeHat(hat.HatViewData, hat.PreviewData, hat.BundleSource);
+                    if (hat.BundleSource != null && hat.HatViewData.MainImage == null)
+                    {
+                        Info($"Decoding hat view data for {id}");
+                        BundleDecoder.DecodeHat(hat.HatViewData, hat.PreviewData, hat.BundleSource);
+                    }
                 }
+                handle.Complete(hat.HatViewData, true, null);
                 return true;
             default:
                 Error("Unknown hat type");
@@ -178,7 +184,7 @@ public class HatLoader : BaseLoader
         }
 
         hatSprite.DontUnload().DontDestroy();
-        
+
         var hatViewData = ScriptableObject.CreateInstance<HatViewData>();
         hatViewData.name = metadata.Name;
         hatViewData.MatchPlayerColor = metadata.MatchPlayerColor;
@@ -192,7 +198,7 @@ public class HatLoader : BaseLoader
             climbSprite.DontUnload().DontDestroy();
             hatViewData.ClimbImage = climbSprite;
         }
-        
+
         var floorSpritePath = Path.ChangeExtension(filePath, ".floor");
         var floorSprite = SpriteTools.LoadSpriteFromFile(floorSpritePath);
         if (floorSprite != null)
