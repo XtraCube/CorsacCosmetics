@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Buffers;
 using System.IO;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 
@@ -24,24 +23,16 @@ public static class Il2CppExtensions
         }
 
         /// <summary>
-        /// Fast memory copy from a stream to an Il2CppStructArray.
+        /// Reads directly from the stream into the native Il2CppStructArray, avoiding an intermediate managed buffer.
         /// </summary>
         /// <param name="stream"></param>
         /// <param name="length"></param>
         /// <exception cref="EndOfStreamException"></exception>
-        public void CopyFromStream(Stream stream, int length)
+        public unsafe void CopyFromStream(Stream stream, int length)
         {
-            var buffer = ArrayPool<byte>.Shared.Rent(length);
-            try
-            {
-                if (stream.Read(buffer, 0, length) != length)
-                    throw new EndOfStreamException("Could not read the expected number of bytes from the stream.");
-                destination.CopyFrom(buffer, length);
-            }
-            finally
-            {
-                ArrayPool<byte>.Shared.Return(buffer);
-            }
+            var destPtr = (byte*)IntPtr.Add(destination.Pointer, 4 * IntPtr.Size).ToPointer();
+            if (stream.Read(new Span<byte>(destPtr, length)) != length)
+                throw new EndOfStreamException("Could not read the expected number of bytes from the stream.");
         }
     }
 }
