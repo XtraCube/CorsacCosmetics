@@ -14,6 +14,12 @@ public static class ReactorCompat
         try
         {
             var creditsType = AccessTools.TypeByName("Reactor.Utilities.ReactorCredits");
+            if (creditsType == null)
+            {
+                Warning("Reactor not found!");
+                return;
+            }
+
             var registerMethod = AccessTools
                 .GetDeclaredMethods(creditsType)
                 .Single(m => m.Name == "Register" && m.IsGenericMethodDefinition)
@@ -21,7 +27,7 @@ public static class ReactorCompat
 
             if (registerMethod == null)
             {
-                Error("Could not register credits with Reactor! The method was not found.");
+                Warning("Reactor found, but could not find Register method!");
                 return;
             }
 
