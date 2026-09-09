@@ -84,24 +84,25 @@ public class HatLoader : BaseLoader
             return false;
         }
 
-        // Lazy decode from bundle on first access. The bundle file stays open for the
-        // lifetime of the mod, so subsequent decodes for this cosmetic are no-ops and
-        // decodes for other cosmetics in the same bundle are cheap seeks.
-        if (hat.BundleSource != null && hat.HatViewData.MainImage == null)
-        {
-            Info($"Decoding hat bundle for {id}");
-            BundleDecoder.DecodeHat(hat.HatViewData, hat.PreviewData, hat.BundleSource);
-        }
-
         switch (type)
         {
             case ReferenceType.Preview:
                 Debug($"Found hat preview for {id}");
+                if (hat.BundleSource != null && hat.PreviewData.PreviewSprite == null)
+                {
+                    Info($"Decoding preview for {id}");
+                    BundleDecoder.DecodePreview(hat.PreviewData, hat.BundleSource);
+                }
                 handle.Complete(hat.PreviewData, true, null);
                 return true;
             case ReferenceType.HatViewData:
                 Debug($"Found hat view data for {id}");
                 handle.Complete(hat.HatViewData, true, null);
+                if (hat.BundleSource != null && hat.HatViewData.MainImage == null)
+                {
+                    Info($"Decoding hat view data for {id}");
+                    BundleDecoder.DecodeHat(hat.HatViewData, hat.PreviewData, hat.BundleSource);
+                }
                 return true;
             default:
                 Error("Unknown hat type");

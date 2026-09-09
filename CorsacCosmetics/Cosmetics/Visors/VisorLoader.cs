@@ -84,23 +84,24 @@ public class VisorLoader : BaseLoader
             return false;
         }
 
-        // Lazy decode from bundle on first access. The bundle file stays open for the
-        // lifetime of the mod, so subsequent decodes for this cosmetic are no-ops and
-        // decodes for other cosmetics in the same bundle are cheap seeks.
-        if (visor.BundleSource != null && visor.VisorViewData.IdleFrame == null)
-        {
-            Info($"Decoding visor bundle for {id}");
-            BundleDecoder.DecodeVisor(visor.VisorViewData, visor.PreviewData, visor.BundleSource);
-        }
-
         switch (type)
         {
             case ReferenceType.Preview:
                 Debug($"Found visor preview for {id}");
+                if (visor.BundleSource != null && visor.PreviewData.PreviewSprite == null)
+                {
+                    Info($"Decoding preview for {id}");
+                    BundleDecoder.DecodePreview(visor.PreviewData, visor.BundleSource);
+                }
                 handle.Complete(visor.PreviewData, true, null);
                 return true;
             case ReferenceType.VisorViewData:
                 Debug($"Found visor view data for {id}");
+                if (visor.BundleSource != null && visor.VisorViewData.IdleFrame == null)
+                {
+                    Info($"Decoding visor view data for {id}");
+                    BundleDecoder.DecodeVisor(visor.VisorViewData, visor.BundleSource);
+                }
                 handle.Complete(visor.VisorViewData, true, null);
                 return true;
             default:

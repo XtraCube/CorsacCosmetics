@@ -35,6 +35,12 @@ public static class BundleDecoder
         }
     }
 
+    public static void DecodePreview(PreviewViewData previewData, BundleSource source)
+    {
+        var previewSprite = DecodeSprite(source, "PreviewSprite");
+        previewData.PreviewSprite = previewSprite;
+    }
+
     public static void DecodeHat(HatViewData viewData, PreviewViewData previewData, BundleSource source)
     {
         viewData.MainImage = DecodeSprite(source, "MainSprite");
@@ -45,28 +51,19 @@ public static class BundleDecoder
         viewData.LeftBackImage = DecodeSprite(source, "LeftBackSprite");
         viewData.LeftClimbImage = DecodeSprite(source, "LeftClimbSprite");
         viewData.LeftFloorImage = DecodeSprite(source, "LeftFloorSprite");
-
-        var previewSprite = DecodeSprite(source, "PreviewSprite");
-        previewData.PreviewSprite = previewSprite ?? viewData.MainImage;
     }
 
-    public static void DecodeVisor(VisorViewData viewData, PreviewViewData previewData, BundleSource source)
+    public static void DecodeVisor(VisorViewData viewData, BundleSource source)
     {
         viewData.IdleFrame = DecodeSprite(source, "IdleSprite");
         viewData.LeftIdleFrame = DecodeSprite(source, "LeftIdleSprite");
         viewData.FloorFrame = DecodeSprite(source, "FloorSprite");
         viewData.ClimbFrame = DecodeSprite(source, "ClimbSprite");
-
-        var previewSprite = DecodeSprite(source, "PreviewSprite");
-        previewData.PreviewSprite = previewSprite ?? viewData.IdleFrame;
     }
 
-    public static void DecodeNameplate(NamePlateViewData viewData, PreviewViewData previewData, BundleSource source)
+    public static void DecodeNameplate(NamePlateViewData viewData, BundleSource source)
     {
         viewData.Image = DecodeSprite(source, "NameplateSprite");
-
-        var previewSprite = DecodeSprite(source, "PreviewSprite");
-        previewData.PreviewSprite = previewSprite ?? viewData.Image;
     }
 
     public static void CloseAll()

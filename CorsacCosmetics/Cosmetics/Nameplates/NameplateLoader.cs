@@ -84,23 +84,24 @@ public class NameplateLoader : BaseLoader
             return false;
         }
 
-        // Lazy decode from bundle on first access. The bundle file stays open for the
-        // lifetime of the mod, so subsequent decodes for this cosmetic are no-ops and
-        // decodes for other cosmetics in the same bundle are cheap seeks.
-        if (nameplate.BundleSource != null && nameplate.NamePlateViewData.Image == null)
-        {
-            Info($"Decoding nameplate bundle for {id}");
-            BundleDecoder.DecodeNameplate(nameplate.NamePlateViewData, nameplate.PreviewData, nameplate.BundleSource);
-        }
-
         switch (type)
         {
             case ReferenceType.Preview:
                 Debug($"Found nameplate preview for {id}");
+                if (nameplate.BundleSource != null && nameplate.PreviewData.PreviewSprite == null)
+                {
+                    Info($"Decoding preview for {id}");
+                    BundleDecoder.DecodePreview(nameplate.PreviewData, nameplate.BundleSource);
+                }
                 handle.Complete(nameplate.PreviewData, true, null);
                 return true;
             case ReferenceType.NamePlateViewData:
                 Debug($"Found nameplate view data for {id}");
+                if (nameplate.BundleSource != null && nameplate.NamePlateViewData.Image == null)
+                {
+                    Info($"Decoding nameplate view data for {id}");
+                    BundleDecoder.DecodeNameplate(nameplate.NamePlateViewData, nameplate.BundleSource);
+                }
                 handle.Complete(nameplate.NamePlateViewData, true, null);
                 return true;
             default:
