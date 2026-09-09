@@ -49,7 +49,7 @@ public class BundleLoaderV2(
             return false;
         }
 
-        var manifest = JsonSerializer.Deserialize<BundleManifestV2>(manifestBytes);
+        var manifest = JsonSerializer.Deserialize(manifestBytes, BundleManifestV2Context.Default.BundleManifestV2);
         if (manifest.Groups == null)
         {
             Error($"Manifest in {file} does not contain any groups. Skipping bundle.");

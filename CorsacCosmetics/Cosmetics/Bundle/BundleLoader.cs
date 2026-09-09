@@ -59,7 +59,7 @@ public class BundleLoader(HatLoader hatLoader, VisorLoader visorLoader, Nameplat
             return false;
         }
 
-        var manifest = JsonSerializer.Deserialize<BundleManifest>(manifestBytes);
+        var manifest = JsonSerializer.Deserialize(manifestBytes, BundleManifestContext.Default.BundleManifest);
         if (manifest.Hats == null)
         {
             Error("Bundle data cannot be null!");
