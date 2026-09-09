@@ -92,7 +92,7 @@ public class HatLoader : BaseLoader
                 {
                     if (hat.BundleSource != null && hat.PreviewData.PreviewSprite == null)
                     {
-                        Info($"Decoding preview for {id}");
+                        Debug($"Decoding preview for {id}");
                         BundleDecoder.DecodePreview(hat.PreviewData, hat.BundleSource);
                     }
                 }
@@ -104,7 +104,7 @@ public class HatLoader : BaseLoader
                 {
                     if (hat.BundleSource != null && hat.HatViewData.MainImage == null)
                     {
-                        Info($"Decoding hat view data for {id}");
+                        Debug($"Decoding hat view data for {id}");
                         BundleDecoder.DecodeHat(hat.HatViewData, hat.PreviewData, hat.BundleSource);
                     }
                 }
@@ -127,7 +127,6 @@ public class HatLoader : BaseLoader
 
         if (!CustomHats.TryGetValue(realKey, out var hat))
         {
-            Info($"No custom hat found for key {realKey}, ignoring release request");
             return false;
         }
 

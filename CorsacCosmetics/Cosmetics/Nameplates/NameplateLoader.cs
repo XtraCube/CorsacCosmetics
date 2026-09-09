@@ -92,7 +92,7 @@ public class NameplateLoader : BaseLoader
                 {
                     if (nameplate.BundleSource != null && nameplate.PreviewData.PreviewSprite == null)
                     {
-                        Info($"Decoding preview for {id}");
+                        Debug($"Decoding preview for {id}");
                         BundleDecoder.DecodePreview(nameplate.PreviewData, nameplate.BundleSource);
                     }
                 }
@@ -104,7 +104,7 @@ public class NameplateLoader : BaseLoader
                 {
                     if (nameplate.BundleSource != null && nameplate.NamePlateViewData.Image == null)
                     {
-                        Info($"Decoding nameplate view data for {id}");
+                        Debug($"Decoding nameplate view data for {id}");
                         BundleDecoder.DecodeNameplate(nameplate.NamePlateViewData, nameplate.BundleSource);
                     }
                 }
@@ -127,7 +127,6 @@ public class NameplateLoader : BaseLoader
 
         if (!CustomNamePlates.TryGetValue(realKey, out var nameplate))
         {
-            Info($"No custom nameplate found for key {realKey}, ignoring release request");
             return false;
         }
 

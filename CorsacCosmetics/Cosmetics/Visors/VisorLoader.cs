@@ -92,7 +92,7 @@ public class VisorLoader : BaseLoader
                 {
                     if (visor.BundleSource != null && visor.PreviewData.PreviewSprite == null)
                     {
-                        Info($"Decoding preview for {id}");
+                        Debug($"Decoding preview for {id}");
                         BundleDecoder.DecodePreview(visor.PreviewData, visor.BundleSource);
                     }
                 }
@@ -104,7 +104,7 @@ public class VisorLoader : BaseLoader
                 {
                     if (visor.BundleSource != null && visor.VisorViewData.IdleFrame == null)
                     {
-                        Info($"Decoding visor view data for {id}");
+                        Debug($"Decoding visor view data for {id}");
                         BundleDecoder.DecodeVisor(visor.VisorViewData, visor.BundleSource);
                     }
                 }
@@ -127,7 +127,6 @@ public class VisorLoader : BaseLoader
 
         if (!CustomVisors.TryGetValue(realKey, out var visor))
         {
-            Info($"No custom visor found for key {realKey}, ignoring release request");
             return false;
         }
 
