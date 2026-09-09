@@ -43,7 +43,8 @@ public static class SpriteTools
         il2CppBytes.CopyFromStream(stream, (int)length);
 
         var texture = new Texture2D(2, 2);
-        texture.LoadImage(il2CppBytes);
+        // markNonReadable: true -- we never read pixels back from managed code
+        texture.LoadImage(il2CppBytes, markNonReadable: true);
         return texture;
     }
 
