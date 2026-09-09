@@ -7,6 +7,15 @@ namespace CorsacCosmetics.Tools;
 
 public static class SpriteTools
 {
+    public static void CleanUp(this Sprite sprite)
+    {
+        if (sprite == null) return;
+
+        var texture = sprite.texture;
+        sprite.DestroyImmediate(); 
+        texture?.DestroyImmediate();
+    }
+
     public static Sprite EmptySprite
     {
         get
