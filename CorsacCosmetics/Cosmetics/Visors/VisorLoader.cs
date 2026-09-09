@@ -4,7 +4,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text.Json;
 using CorsacCosmetics.Cosmetics.Bundle;
-using CorsacCosmetics.Tools;
 using CorsacCosmetics.Unity;
 using Il2CppInterop.Runtime;
 using UnityEngine;
@@ -29,7 +28,7 @@ public class VisorLoader : BaseLoader
             }
             catch (Exception e)
             {
-                Error($"Failed to load visor {id} with exception:\n{e.ToString()}");
+                Error($"Failed to load visor {id} with exception:\n{e}");
             }
         }
     }
@@ -88,27 +87,49 @@ public class VisorLoader : BaseLoader
         {
             case ReferenceType.Preview:
                 Debug($"Found visor preview for {id}");
+                PreviewViewData previewData;
                 lock (visor.DecodeLock)
                 {
-                    if (visor.BundleSource != null && visor.PreviewData.PreviewSprite == null)
+                    if (visor.BundleSource != null)
                     {
                         Debug($"Decoding preview for {id}");
-                        BundleDecoder.DecodePreview(visor.PreviewData, visor.BundleSource);
+                        previewData = BundleDecoder.DecodePreview(visor.BundleSource);
+                    }
+                    else if (visor.FileSource != null)
+                    {
+                        Debug($"Decoding preview for {id}");
+                        previewData = FileDecoder.DecodePreview(visor.FileSource);
+                    }
+                    else
+                    {
+                        Error($"No source for preview for {id}");
+                        return false;
                     }
                 }
-                handle.Complete(visor.PreviewData, true, null);
+                handle.Complete(previewData, true, null);
                 return true;
             case ReferenceType.VisorViewData:
-                Debug($"Found visor view data for {id}");
+                Debug($"Found visor view data for {id}"); 
+                VisorViewData viewData;
                 lock (visor.DecodeLock)
                 {
-                    if (visor.BundleSource != null && visor.VisorViewData.IdleFrame == null)
+                    if (visor.BundleSource != null)
                     {
-                        Debug($"Decoding visor view data for {id}");
-                        BundleDecoder.DecodeVisor(visor.VisorViewData, visor.BundleSource);
+                        Debug($"Decoding visor data for {id}");
+                        viewData = BundleDecoder.DecodeVisor(visor.BundleSource);
+                    }
+                    else if (visor.FileSource != null)
+                    {
+                        Debug($"Decoding preview for {id}");
+                        viewData = FileDecoder.DecodeVisor(visor.FileSource);
+                    }
+                    else
+                    {
+                        Error($"No source for preview for {id}");
+                        return false;
                     }
                 }
-                handle.Complete(visor.VisorViewData, true, null);
+                handle.Complete(viewData, true, null);
                 return true;
             default:
                 Error("Unknown visor type");
@@ -125,7 +146,7 @@ public class VisorLoader : BaseLoader
             return false;
         }
 
-        if (!CustomVisors.TryGetValue(realKey, out var visor))
+        if (!CustomVisors.ContainsKey(realKey))
         {
             return false;
         }
@@ -134,11 +155,25 @@ public class VisorLoader : BaseLoader
         {
             case ReferenceType.Preview:
                 Debug($"Releasing visor preview for {realKey}");
-                visor.PreviewData.Unload();
+                if (obj.TryCast<PreviewViewData>() is { } previewData)
+                {
+                    previewData.Unload();
+                }
+                else
+                {
+                    Error($"Object {obj} is not a PreviewViewData, cannot release");
+                }
                 break;
             case ReferenceType.VisorViewData:
                 Debug($"Releasing visor view data for {realKey}");
-                visor.VisorViewData.Unload();
+                if (obj.TryCast<VisorViewData>() is { } visorData)
+                {
+                    visorData.Unload();
+                }
+                else
+                {
+                    Error($"Object {obj} is not a VisorViewData, cannot release");
+                }
                 break;
             default:
                 Info($"Unknown type {typeName}, ignoring release request");
@@ -174,28 +209,6 @@ public class VisorLoader : BaseLoader
         }
 
         var fullId = Names.Normalize(name, "nameplate");
-
-        var visorSprite = SpriteTools.LoadSpriteFromFile(filePath);
-        if (visorSprite == null)
-        {
-            Error($"Error loading visor sprite {name}");
-            return false;
-        }
-        
-        visorSprite.DontUnload().DontDestroy();
-        var visorViewData = ScriptableObject.CreateInstance<VisorViewData>();
-        visorViewData.name = metadata.Name;
-        visorViewData.MatchPlayerColor = metadata.MatchPlayerColor;
-        visorViewData.ClimbFrame = SpriteTools.EmptySprite;
-        visorViewData.IdleFrame
-            = visorViewData.LeftIdleFrame
-                    = visorViewData.FloorFrame
-                        = visorSprite;
-
-        var previewData = ScriptableObject.CreateInstance<PreviewViewData>();
-        previewData.name = metadata.Name;
-        previewData.PreviewSprite = visorSprite;
-
         var visorData = ScriptableObject.CreateInstance<VisorData>();
         visorData.name = metadata.Name;
         visorData.Free = true;
@@ -205,12 +218,8 @@ public class VisorLoader : BaseLoader
         visorData.ViewDataRef = new AssetReference(HatLocator.GetGuid(fullId, ReferenceType.VisorViewData));
         visorData.PreviewData = new AssetReference(HatLocator.GetGuid(fullId, ReferenceType.Preview));
 
-        var customVisor = new CustomVisor(fullId, visorData, visorViewData, previewData);
+        var customVisor = new CustomVisor(fullId, visorData, fileSource: filePath);
         CustomVisors.Add(fullId, customVisor);
-        
-        visorData.ViewDataRef.LoadAsset<VisorViewData>();
-        visorData.PreviewData.LoadAsset<PreviewViewData>();
-
         return true;
     }
 }

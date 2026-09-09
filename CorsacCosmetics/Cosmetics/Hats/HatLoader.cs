@@ -4,7 +4,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text.Json;
 using CorsacCosmetics.Cosmetics.Bundle;
-using CorsacCosmetics.Tools;
 using CorsacCosmetics.Unity;
 using Il2CppInterop.Runtime;
 using UnityEngine;
@@ -29,7 +28,7 @@ public class HatLoader : BaseLoader
             }
             catch (Exception e)
             {
-                Error($"Failed to load hat {id} with exception:\n{e.ToString()}");
+                Error($"Failed to load hat {id} with exception:\n{e}");
             }
         }
     }
@@ -147,7 +146,7 @@ public class HatLoader : BaseLoader
             return false;
         }
 
-        if (!CustomHats.TryGetValue(realKey, out var hat))
+        if (!CustomHats.ContainsKey(realKey))
         {
             return false;
         }

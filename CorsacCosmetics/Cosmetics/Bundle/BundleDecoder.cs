@@ -14,8 +14,8 @@ namespace CorsacCosmetics.Cosmetics.Bundle;
 /// </summary>
 public static class BundleDecoder
 {
-    private static readonly Dictionary<string, FileStream> _streams = new();
-    private static readonly object _lock = new();
+    private static readonly Dictionary<string, FileStream> Streams = new();
+    private static readonly object Lock = new();
 
     public static Sprite? DecodeSprite(BundleSource source, string slot)
     {
@@ -24,12 +24,12 @@ public static class BundleDecoder
             return null;
         }
 
-        lock (_lock)
+        lock (Lock)
         {
-            if (!_streams.TryGetValue(source.BundlePath, out var stream))
+            if (!Streams.TryGetValue(source.BundlePath, out var stream))
             {
                 stream = new FileStream(source.BundlePath, FileMode.Open, FileAccess.Read, FileShare.Read, 8192, FileOptions.RandomAccess);
-                _streams[source.BundlePath] = stream;
+                Streams[source.BundlePath] = stream;
             }
             return SpriteTools.LoadSpriteFromStream(stream, source.DataStart + data.Offset, data.Size);
         }
@@ -63,28 +63,32 @@ public static class BundleDecoder
         return viewData;
     }
 
-    public static void DecodeVisor(VisorViewData viewData, BundleSource source)
+    public static VisorViewData DecodeVisor(BundleSource source)
     {
+        var viewData = ScriptableObject.CreateInstance<VisorViewData>();
         viewData.IdleFrame = DecodeSprite(source, "IdleSprite");
         viewData.LeftIdleFrame = DecodeSprite(source, "LeftIdleSprite");
         viewData.FloorFrame = DecodeSprite(source, "FloorSprite");
         viewData.ClimbFrame = DecodeSprite(source, "ClimbSprite");
+        return viewData;
     }
 
-    public static void DecodeNameplate(NamePlateViewData viewData, BundleSource source)
+    public static NamePlateViewData DecodeNameplate(BundleSource source)
     {
+        var viewData = ScriptableObject.CreateInstance<NamePlateViewData>();
         viewData.Image = DecodeSprite(source, "NameplateSprite");
+        return viewData;
     }
 
     public static void CloseAll()
     {
-        lock (_lock)
+        lock (Lock)
         {
-            foreach (var stream in _streams.Values)
+            foreach (var stream in Streams.Values)
             {
                 stream.Dispose();
             }
-            _streams.Clear();
+            Streams.Clear();
         }
     }
 }

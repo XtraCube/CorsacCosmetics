@@ -4,7 +4,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text.Json;
 using CorsacCosmetics.Cosmetics.Bundle;
-using CorsacCosmetics.Tools;
 using CorsacCosmetics.Unity;
 using Il2CppInterop.Runtime;
 using UnityEngine;
@@ -29,7 +28,7 @@ public class NameplateLoader : BaseLoader
             }
             catch (Exception e)
             {
-                Error($"Failed to load nameplate {id} with exception:\n{e.ToString()}");
+                Error($"Failed to load nameplate {id} with exception:\n{e}");
             }
         }
     }
@@ -88,27 +87,49 @@ public class NameplateLoader : BaseLoader
         {
             case ReferenceType.Preview:
                 Debug($"Found nameplate preview for {id}");
+                PreviewViewData previewViewData;
                 lock (nameplate.DecodeLock)
                 {
-                    if (nameplate.BundleSource != null && nameplate.PreviewData.PreviewSprite == null)
+                    if (nameplate.BundleSource != null)
                     {
                         Debug($"Decoding preview for {id}");
-                        BundleDecoder.DecodePreview(nameplate.PreviewData, nameplate.BundleSource);
+                        previewViewData = BundleDecoder.DecodePreview(nameplate.BundleSource);
+                    }
+                    else if (nameplate.FileSource != null)
+                    {
+                        Debug($"Decoding preview for {id}");
+                        previewViewData = FileDecoder.DecodePreview(nameplate.FileSource);
+                    }
+                    else
+                    {
+                        Error($"No source for preview for {id}");
+                        return false;
                     }
                 }
-                handle.Complete(nameplate.PreviewData, true, null);
+                handle.Complete(previewViewData, true, null);
                 return true;
             case ReferenceType.NamePlateViewData:
                 Debug($"Found nameplate view data for {id}");
+                NamePlateViewData viewData;
                 lock (nameplate.DecodeLock)
                 {
-                    if (nameplate.BundleSource != null && nameplate.NamePlateViewData.Image == null)
+                    if (nameplate.BundleSource != null)
                     {
-                        Debug($"Decoding nameplate view data for {id}");
-                        BundleDecoder.DecodeNameplate(nameplate.NamePlateViewData, nameplate.BundleSource);
+                        Debug($"Decoding nameplate for {id}");
+                        viewData = BundleDecoder.DecodeNameplate(nameplate.BundleSource);
+                    }
+                    else if (nameplate.FileSource != null)
+                    {
+                        Debug($"Decoding nameplate for {id}");
+                        viewData = FileDecoder.DecodeNameplate(nameplate.FileSource);
+                    }
+                    else
+                    {
+                        Error($"No source for nameplate for {id}");
+                        return false;
                     }
                 }
-                handle.Complete(nameplate.NamePlateViewData, true, null);
+                handle.Complete(viewData, true, null);
                 return true;
             default:
                 Error("Unknown nameplate type");
@@ -125,7 +146,7 @@ public class NameplateLoader : BaseLoader
             return false;
         }
 
-        if (!CustomNamePlates.TryGetValue(realKey, out var nameplate))
+        if (!CustomNamePlates.ContainsKey(realKey))
         {
             return false;
         }
@@ -134,11 +155,25 @@ public class NameplateLoader : BaseLoader
         {
             case ReferenceType.Preview:
                 Debug($"Releasing nameplate preview for {realKey}");
-                nameplate.PreviewData.Unload();
+                if (obj.TryCast<PreviewViewData>() is { } previewData)
+                {
+                    previewData.Unload();
+                }
+                else
+                {
+                    Error($"Object {obj} is not a PreviewViewData, cannot release");
+                }
                 break;
             case ReferenceType.NamePlateViewData:
                 Debug($"Releasing nameplate view data for {realKey}");
-                nameplate.NamePlateViewData.Unload();
+                if (obj.TryCast<NamePlateViewData>() is { } viewData)
+                {
+                    viewData.Unload();
+                }
+                else
+                {
+                    Error($"Object {obj} is not a NamePlateViewData, cannot release");
+                }
                 break;
             default:
                 Info($"Unknown type {typeName}, ignoring release request");
@@ -174,23 +209,6 @@ public class NameplateLoader : BaseLoader
         }
 
         var fullId = Names.Normalize(name, "nameplate");
-
-        var namePlateSprite = SpriteTools.LoadSpriteFromFile(filePath);
-        if (namePlateSprite == null)
-        {
-            Error($"Error loading nameplate sprite {name}");
-            return false;
-        }
-        
-        namePlateSprite.DontUnload().DontDestroy();
-        var namePlateViewData = ScriptableObject.CreateInstance<NamePlateViewData>();
-        namePlateViewData.name = metadata.Name;
-        namePlateViewData.Image = namePlateSprite;
-
-        var previewData = ScriptableObject.CreateInstance<PreviewViewData>();
-        previewData.name = metadata.Name;
-        previewData.PreviewSprite = namePlateSprite;
-
         var namePlateData = ScriptableObject.CreateInstance<NamePlateData>();
         namePlateData.name = metadata.Name;
         namePlateData.Free = true;
@@ -198,7 +216,7 @@ public class NameplateLoader : BaseLoader
         namePlateData.ViewDataRef = new AssetReference(HatLocator.GetGuid(fullId, ReferenceType.NamePlateViewData));
         namePlateData.PreviewData = new AssetReference(HatLocator.GetGuid(fullId, ReferenceType.Preview));
 
-        var customNamePlate = new CustomNamePlate(fullId, namePlateData, namePlateViewData, previewData);
+        var customNamePlate = new CustomNamePlate(fullId, namePlateData, fileSource: filePath);
         CustomNamePlates.Add(fullId, customNamePlate);
         
         namePlateData.ViewDataRef.LoadAsset<NamePlateViewData>();

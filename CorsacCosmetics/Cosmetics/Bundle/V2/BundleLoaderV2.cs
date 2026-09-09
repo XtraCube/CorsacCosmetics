@@ -73,19 +73,19 @@ public class BundleLoaderV2(
             
             foreach (var hatManifest in group.Hats)
             {
-                LoadHat(hatManifest, fs, start, name, file);
+                LoadHat(hatManifest, start, name, file);
                 Info($"Loaded {hatManifest.Name} from bundle");
             }
 
             foreach (var visorManifest in group.Visors)
             {
-                LoadVisor(visorManifest, fs, start, name, file);
+                LoadVisor(visorManifest, start, name, file);
                 Info($"Loaded {visorManifest.Name} from bundle");
             }
 
             foreach (var nameplateManifest in group.Nameplates)
             {
-                LoadNameplate(nameplateManifest, fs, start, name, file);
+                LoadNameplate(nameplateManifest, start, name, file);
                 Info($"Loaded {nameplateManifest.Name} from bundle");
             }
         }
@@ -93,7 +93,7 @@ public class BundleLoaderV2(
         return true;
     }
 
-    private void LoadHat(HatManifest manifest, FileStream fs, long start, string groupName, string bundlePath)
+    private void LoadHat(HatManifest manifest, long start, string groupName, string bundlePath)
     {
         var id = Names.Normalize(manifest.Name, "hat", groupName);
 
@@ -122,17 +122,9 @@ public class BundleLoaderV2(
         hatLoader.CustomHats.Add(id, customHat);
     }
 
-    private void LoadVisor(VisorManifest manifest, FileStream fs, long start, string groupName, string bundlePath)
+    private void LoadVisor(VisorManifest manifest, long start, string groupName, string bundlePath)
     {
         var id = Names.Normalize(manifest.Name, "visor", groupName);
-
-        var visorViewData = ScriptableObject.CreateInstance<VisorViewData>();
-        visorViewData.name = manifest.Name;
-        visorViewData.MatchPlayerColor = manifest.MatchPlayerColor;
-
-        var previewData = ScriptableObject.CreateInstance<PreviewViewData>();
-        previewData.name = manifest.Name;
-
         var visorData = ScriptableObject.CreateInstance<VisorData>();
         visorData.name = manifest.Name;
         visorData.Free = true;
@@ -148,20 +140,13 @@ public class BundleLoaderV2(
         bundleSource.AddSprite("ClimbSprite", manifest.ClimbSprite);
         bundleSource.AddSprite("PreviewSprite", manifest.PreviewSprite);
 
-        var customVisor = new CustomVisor(id, visorData, visorViewData, previewData, bundleSource);
+        var customVisor = new CustomVisor(id, visorData, bundleSource: bundleSource);
         visorLoader.CustomVisors.Add(id, customVisor);
     }
 
-    private void LoadNameplate(NameplateManifest manifest, FileStream fs, long start, string groupName, string bundlePath)
+    private void LoadNameplate(NameplateManifest manifest, long start, string groupName, string bundlePath)
     {
         var id = Names.Normalize(manifest.Name, "nameplate", groupName);
-
-        var namePlateViewData = ScriptableObject.CreateInstance<NamePlateViewData>();
-        namePlateViewData.name = manifest.Name;
-
-        var previewData = ScriptableObject.CreateInstance<PreviewViewData>();
-        previewData.name = manifest.Name;
-
         var namePlateData = ScriptableObject.CreateInstance<NamePlateData>();
         namePlateData.name = manifest.Name;
         namePlateData.Free = true;
@@ -173,7 +158,7 @@ public class BundleLoaderV2(
         bundleSource.AddSprite("NameplateSprite", manifest.NameplateSprite);
         bundleSource.AddSprite("PreviewSprite", manifest.PreviewSprite);
 
-        var customNamePlate = new CustomNamePlate(id, namePlateData, namePlateViewData, previewData, bundleSource);
+        var customNamePlate = new CustomNamePlate(id, namePlateData, bundleSource: bundleSource);
         nameplateLoader.CustomNamePlates.Add(id, customNamePlate);
     }
 }
