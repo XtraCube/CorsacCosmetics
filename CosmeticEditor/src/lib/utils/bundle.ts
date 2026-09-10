@@ -30,6 +30,7 @@ import type {
 	NameplateEntry,
 	NameplateManifest,
 	SpriteData,
+	SpriteSlot,
 } from '$lib/types';
 import {
 	DEFAULT_BUNDLE_GROUP_NAME,
@@ -174,6 +175,16 @@ export interface AssembledBundle {
 	warnings: string[];
 }
 
+function areBytesEqual(a: Uint8Array | Buffer, b: Uint8Array | Buffer): boolean {
+	if (a === b) return true;
+	if (a.byteLength !== b.byteLength) return false;
+
+	for (let i = 0; i < a.byteLength; i++) {
+		if (a[i] !== b[i]) return false;
+	}
+	return true;
+}
+
 /**
  * Assemble a complete .ccb bundle from lists of HatEntry and VisorEntry objects.
  *
@@ -200,68 +211,45 @@ export function assembleBundle(
 	const dataParts: Uint8Array[] = [];
 	let runningOffset = 0;
 
-	const resolvedHats = hats.map((hat) => {
-		const manifest = { ...hat.manifest };
+	function processCosmetics(items: any[], typeName: string, slotsArray: string[]) {
+		return items.map((item) => {
+			const manifest = { ...item.manifest };
 
-		if (!manifest.Name || manifest.Name.trim() === '') {
-			warnings.push(`A hat has an empty name — it will default to "Custom Hat".`);
-			manifest.Name = 'Custom Hat';
-		}
-
-		for (const slot of SPRITE_SLOTS) {
-			const bytes = hat.imageBytes[slot];
-			if (bytes && bytes.byteLength > 0) {
-				manifest[slot] = { Size: bytes.byteLength, Offset: runningOffset } as SpriteData;
-				dataParts.push(bytes);
-				runningOffset += bytes.byteLength;
-			} else {
-				manifest[slot] = createEmptySpriteData();
+			if (!manifest.Name || manifest.Name.trim() === '') {
+				warnings.push(`A ${typeName.toLowerCase()} has an empty name — it will default to "Custom ${typeName}".`);
+				manifest.Name = `Custom ${typeName}`;
 			}
-		}
-		return { manifest, groupId: hat.groupId };
-	});
+			const localSpriteCache: { bytes: Uint8Array | Buffer; spriteData: SpriteData }[] = [];
 
-	const resolvedVisors = visors.map((visor) => {
-		const manifest = { ...visor.manifest };
+			for (const slot of slotsArray) {
+				const bytes = item.imageBytes[slot];
 
-		if (!manifest.Name || manifest.Name.trim() === '') {
-			warnings.push(`A visor has an empty name — it will default to "Custom Visor".`);
-			manifest.Name = 'Custom Visor';
-		}
+				if (bytes && bytes.byteLength > 0) {
+					const cached = localSpriteCache.find(entry => areBytesEqual(entry.bytes, bytes));
 
-		for (const slot of VISOR_SPRITE_SLOTS) {
-			const bytes = visor.imageBytes[slot];
-			if (bytes && bytes.byteLength > 0) {
-				manifest[slot] = { Size: bytes.byteLength, Offset: runningOffset } as SpriteData;
-				dataParts.push(bytes);
-				runningOffset += bytes.byteLength;
-			} else {
-				manifest[slot] = createEmptySpriteData();
+					if (cached) {
+						manifest[slot] = { Size: cached.spriteData.Size, Offset: cached.spriteData.Offset } as SpriteData;
+					} else {
+						const spriteData = { Size: bytes.byteLength, Offset: runningOffset } as SpriteData;
+
+						localSpriteCache.push({ bytes, spriteData });
+						dataParts.push(bytes);
+						runningOffset += bytes.byteLength;
+
+						manifest[slot] = spriteData;
+					}
+				} else {
+					manifest[slot] = createEmptySpriteData();
+				}
 			}
-		}
-		return { manifest, groupId: visor.groupId };
-	});
 
-	const resolvedNameplates = nameplates.map((nameplate) => {
-		const manifest = { ...nameplate.manifest };
+			return { manifest, groupId: item.groupId };
+		});
+	}
 
-		if (!manifest.Name || manifest.Name.trim() === '') {
-			warnings.push(`A nameplate has an empty name — it will default to "Custom Nameplate".`);
-			manifest.Name = 'Custom Nameplate';
-		}
-
-		for (const slot of NAMEPLATE_SPRITE_SLOTS) {
-			const bytes = nameplate.imageBytes[slot];
-			if (bytes && bytes.byteLength > 0) {
-				manifest[slot] = { Size: bytes.byteLength, Offset: runningOffset } as SpriteData;
-				dataParts.push(bytes);
-				runningOffset += bytes.byteLength;
-			} else {
-				manifest[slot] = createEmptySpriteData();
-			}
-		}
-		return { manifest, groupId: nameplate.groupId };
-	});
+	const resolvedHats = processCosmetics(hats, 'Hat', SPRITE_SLOTS);
+	const resolvedVisors = processCosmetics(visors, 'Visor', VISOR_SPRITE_SLOTS);
+	const resolvedNameplates = processCosmetics(nameplates, 'Nameplate', NAMEPLATE_SPRITE_SLOTS);
 
 	const dataLength = runningOffset;
 	const resolvedGroups = normalizeEditorGroups(groups, resolvedHats, resolvedVisors, resolvedNameplates);
