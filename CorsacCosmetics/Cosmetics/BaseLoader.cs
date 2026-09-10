@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using UnityEngine.ResourceManagement.ResourceLocations;
 using UnityEngine.ResourceManagement.ResourceProviders;
 

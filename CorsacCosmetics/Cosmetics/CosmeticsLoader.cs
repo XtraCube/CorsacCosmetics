@@ -7,8 +7,6 @@ using CorsacCosmetics.Cosmetics.Bundle.V2;
 using CorsacCosmetics.Cosmetics.Hats;
 using CorsacCosmetics.Cosmetics.Nameplates;
 using CorsacCosmetics.Cosmetics.Visors;
-using CorsacCosmetics.Unity;
-using Il2CppInterop.Runtime;
 using Il2CppSystem.IO;
 using UnityEngine;
 using UnityEngine.ResourceManagement.ResourceLocations;
