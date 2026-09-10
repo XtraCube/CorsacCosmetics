@@ -111,7 +111,9 @@ public class BundleLoader(HatLoader hatLoader, VisorLoader visorLoader, Nameplat
         bundleSource.AddSprite("LeftBackSprite", manifest.LeftBackSprite);
         bundleSource.AddSprite("LeftClimbSprite", manifest.LeftClimbSprite);
         bundleSource.AddSprite("LeftFloorSprite", manifest.LeftFloorSprite);
-        bundleSource.AddSprite("PreviewSprite", manifest.PreviewSprite);
+
+        var previewSprite = manifest.PreviewSprite.HasData ? manifest.PreviewSprite : manifest.MainSprite;
+        bundleSource.AddSprite("PreviewSprite", previewSprite);
 
         var customHat = new CustomHat(id, hatData, CreatePreviewViewData, CreateHatViewData);
         hatLoader.CustomHats.Add(id, customHat);
@@ -145,7 +147,9 @@ public class BundleLoader(HatLoader hatLoader, VisorLoader visorLoader, Nameplat
         bundleSource.AddSprite("LeftIdleSprite", manifest.LeftIdleSprite);
         bundleSource.AddSprite("FloorSprite", manifest.FloorSprite);
         bundleSource.AddSprite("ClimbSprite", manifest.ClimbSprite);
-        bundleSource.AddSprite("PreviewSprite", manifest.PreviewSprite);
+
+        var previewSprite = manifest.PreviewSprite.HasData ? manifest.PreviewSprite : manifest.IdleSprite;
+        bundleSource.AddSprite("PreviewSprite", previewSprite);
 
         var customVisor = new CustomVisor(id, visorData, CreatePreviewViewData, CreateVisorViewData);
         visorLoader.CustomVisors.Add(id, customVisor);
