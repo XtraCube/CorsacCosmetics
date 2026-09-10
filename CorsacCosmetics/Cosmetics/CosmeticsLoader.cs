@@ -139,29 +139,18 @@ public class CosmeticsLoader
 
     public bool LocateCosmetic(
         string id,
-        string type,
-        [NotNullWhen(true)] out Il2CppSystem.Type? il2CPPType
+        Il2CppSystem.Type type
     )
     {
-        il2CPPType = null;
-        try
+        if (_hatLoader.LocateCosmetic(id, type)
+            || _visorLoader.LocateCosmetic(id, type)
+            || _nameplateLoader.LocateCosmetic(id, type))
         {
-            il2CPPType = type switch
-            {
-                ReferenceType.Preview => Il2CppType.Of<PreviewViewData>(),
-                _ => null
-            };
+            return true;
+        }
 
-            return il2CPPType != null
-                   || _hatLoader.LocateCosmetic(id, type, out il2CPPType)
-                   || _visorLoader.LocateCosmetic(id, type, out il2CPPType)
-                   || _nameplateLoader.LocateCosmetic(id, type, out il2CPPType);
-        }
-        catch (Exception e)
-        {
-            Error($"Unexpected error while locating cosmetic {id}:\n{e}");
-            return false;
-        }
+        Error($"Failed to locate cosmetic for id {id} and type {type.FullName}");
+        return false;
     }
 
     public bool ReleaseCosmetic(
@@ -183,7 +172,7 @@ public class CosmeticsLoader
     public bool ProvideCosmetic(
         ProvideHandle provideHandle,
         string id,
-        string type,
+        Il2CppSystem.Type type,
         [NotNullWhen(false)] out Exception? exception
         )
     {

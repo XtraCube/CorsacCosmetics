@@ -39,26 +39,16 @@ public class HatProvider : ResourceProviderBase
 
     public override void Provide(ProvideHandle provideHandle)
     {
-        string internalId = provideHandle.Location.InternalId;
-        Debug($"Processing {internalId}");
+        var id = provideHandle.Location.InternalId;
+        var type = provideHandle.Location.ResourceType;
+        Debug($"Processing {id} of type {type.FullName}");
 
-        if (!internalId.StartsWith("corsac"))
+        if (!id.StartsWith("corsac"))
         {
-            Error($"{internalId} is not a Corsac cosmetic");
+            Error($"{id} is not a Corsac cosmetic");
             provideHandle.Complete<UnityEngine.Object>(null!, false, new Il2CppSystem.Exception("Not a Corsac cosmetic"));
             return;
         }
-
-        var idAndType = internalId.Split("/");
-        if (idAndType.Length != 2) 
-        {
-            Error($"Invalid identifier: {idAndType}");
-            provideHandle.Complete<UnityEngine.Object>(null!, false, new Il2CppSystem.Exception("Invalid Corsac ID"));
-            return;
-        }
-
-        var id = idAndType[0];
-        var type = idAndType[1];
 
         if (CosmeticsLoader.Instance.ProvideCosmetic(provideHandle, id, type, out var exception))
         {

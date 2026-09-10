@@ -10,9 +10,9 @@ public abstract class BaseLoader
 
     public abstract void LoadCosmetics(string directory);
 
-    public abstract bool LocateCosmetic(string id, string type, [NotNullWhen(true)] out Il2CppSystem.Type? il2CPPType);
+    public abstract bool LocateCosmetic(string id, Il2CppSystem.Type type);
 
-    public abstract bool ProvideCosmetic(ProvideHandle handle, string id, string type);
+    public abstract bool ProvideCosmetic(ProvideHandle handle, string id, Il2CppSystem.Type type);
 
     public abstract bool ReleaseCosmetic(IResourceLocation location, Il2CppSystem.Object obj);
 }

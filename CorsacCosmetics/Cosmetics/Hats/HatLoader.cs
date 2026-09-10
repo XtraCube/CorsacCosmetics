@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text.Json;
 using CorsacCosmetics.Tools;
-using CorsacCosmetics.Unity;
 using Il2CppInterop.Runtime;
-using UnityEngine;
-using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.ResourceLocations;
 using UnityEngine.ResourceManagement.ResourceProviders;
 
@@ -64,96 +60,97 @@ public class HatLoader : BaseLoader
         }
     }
 
-    public override bool LocateCosmetic(string id, string type, [NotNullWhen(true)] out Il2CppSystem.Type? il2CPPType)
+    public override bool LocateCosmetic(string id, Il2CppSystem.Type type)
     {
-        il2CPPType = null;
         if (!CustomHats.ContainsKey(id))
         {
             return false;
         }
 
-        il2CPPType = type == ReferenceType.HatViewData ? Il2CppType.Of<HatViewData>() : null;
-        return il2CPPType != null;
+        return type == Il2CppType.Of<HatViewData>() || type == Il2CppType.Of<PreviewViewData>();
     }
 
-    public override bool ProvideCosmetic(ProvideHandle handle, string id, string type)
+    public override bool ProvideCosmetic(ProvideHandle handle, string id, Il2CppSystem.Type type)
     {
         if (!CustomHats.TryGetValue(id, out var hat))
         {
             return false;
         }
 
-        switch (type)
+        Debug($"Processing data for {id} and type {type.FullName}");
+        if (type == Il2CppType.Of<HatViewData>())
         {
-            case ReferenceType.Preview:
-                Debug($"Found hat preview for {id}");
-                PreviewViewData previewData;
-                lock (hat.DecodeLock)
-                {
-                    Debug($"Decoding preview for {id}");
-                    previewData = hat.PreviewViewDataFactory();
-                }
-                handle.Complete(previewData, true, null);
-                return true;
-            case ReferenceType.HatViewData:
-                Debug($"Found hat view data for {id}");
-                HatViewData hatViewData;
-                lock (hat.DecodeLock)
-                {
-                    Debug($"Decoding hat for {id}");
-                    hatViewData = hat.HatViewDataFactory();
-                }
-                handle.Complete(hatViewData, true, null);
-                return true;
-            default:
-                Error("Unknown hat type");
-                return false;
+            Debug($"Found hat view data for {id}");
+            HatViewData viewData;
+            lock (hat.DecodeLock)
+            {
+                Debug($"Decoding hat for {id}");
+                viewData = hat.HatViewDataFactory();
+            }
+
+            handle.Complete(viewData, true, null);
+            return true;
         }
+
+        if (type == Il2CppType.Of<PreviewViewData>())
+        {
+            Debug($"Found hat preview for {id}");
+            PreviewViewData previewData;
+            lock (hat.DecodeLock)
+            {
+                Debug($"Decoding preview for {id}");
+                previewData = hat.PreviewViewDataFactory();
+            }
+            handle.Complete(previewData, true, null);
+            return true;
+        }
+
+        Warning($"Could not locate hat data for id {id} and type {type.FullName}");
+        return false;
     }
 
     public override bool ReleaseCosmetic(IResourceLocation location, Il2CppSystem.Object obj)
     {
-        var (realKey, typeName) = HatLocator.GetIdAndType(location);
-        if (realKey == null || typeName == null)
-        {
-            Error($"Invalid location {location.InternalId}, cannot release cosmetic");
-            return false;
-        }
+        var key = location.InternalId;
+        var type = location.ResourceType;
 
-        if (!CustomHats.ContainsKey(realKey))
+        if (!CustomHats.ContainsKey(key))
         {
             return false;
         }
 
-        switch (typeName)
+        if (type == Il2CppType.Of<PreviewViewData>())
         {
-            case ReferenceType.Preview:
-                Debug($"Releasing hat preview for {realKey}");
-                if (obj.TryCast<PreviewViewData>() is { } previewData)
-                {
-                    previewData.Unload();
-                }
-                else
-                {
-                    Error($"Object {obj.GetIl2CppType().NameOrDefault} is not a PreviewViewData, cannot release");
-                }
-                break;
-            case ReferenceType.HatViewData:
-                Debug($"Releasing hat view data for {realKey}");
-                if (obj.TryCast<HatViewData>() is { } hatViewData)
-                {
-                    hatViewData.Unload();
-                }
-                else
-                {
-                    Error($"Object {obj.GetIl2CppType().NameOrDefault} is not a HatViewData, cannot release");
-                }
-                break;
-            default:
-                Info($"Unknown type {typeName}, ignoring release request");
-                break;
+            Debug($"Releasing hat preview for {key}");
+            if (obj.TryCast<PreviewViewData>() is { } previewData)
+            {
+                previewData.Unload();
+            }
+            else
+            {
+                Error($"Object {obj.GetIl2CppType().NameOrDefault} is not a PreviewViewData, cannot release");
+            }
+
+            return true;
         }
-        return true;
+
+        if (type == Il2CppType.Of<HatViewData>())
+        {
+            Debug($"Releasing hat view data for {key}");
+            if (obj.TryCast<HatViewData>() is { } viewData)
+            {
+                viewData.Unload();
+            }
+            else
+            {
+                Error($"Object {obj.GetIl2CppType().NameOrDefault} is not a HatViewData, cannot release");
+            }
+
+            return true;
+        }
+
+        Warning($"Could not release hat data for id {key} and type {type.FullName}");
+        return false;
     }
 
     private bool LoadHat(string filePath)
@@ -183,16 +180,14 @@ public class HatLoader : BaseLoader
         }
 
         var fullId = Names.Normalize(name, "hat");
-        var hatData = ScriptableObject.CreateInstance<HatData>();
-        hatData.name = hatData.StoreName = metadata.Name;
-        hatData.Free = true;
-        hatData.ProductId = fullId;
-        hatData.BlocksVisors = metadata.BlocksVisors;
-        hatData.NoBounce = metadata.NoBounce;
-        hatData.InFront = metadata.InFront;
-        hatData.PreviewCrewmateColor = metadata.MatchPlayerColor;
-        hatData.ViewDataRef = new AssetReference(HatLocator.GetGuid(fullId, ReferenceType.HatViewData));
-        hatData.PreviewData = new AssetReference(HatLocator.GetGuid(fullId, ReferenceType.Preview));
+        var hatData = new HatDataBuilder()
+            .SetName(metadata.Name)
+            .SetId(fullId)
+            .SetMatchPlayerColor(metadata.MatchPlayerColor)
+            .SetBlocksVisors(metadata.BlocksVisors)
+            .SetInFront(metadata.InFront)
+            .SetNoBounce(metadata.NoBounce)
+            .Build();
 
         var customHat = new CustomHat(fullId, hatData, CreatePreviewViewData, CreateHatViewData);
         CustomHats.Add(fullId, customHat);

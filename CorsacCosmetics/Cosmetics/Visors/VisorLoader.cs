@@ -1,13 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text.Json;
 using CorsacCosmetics.Tools;
-using CorsacCosmetics.Unity;
 using Il2CppInterop.Runtime;
-using UnityEngine;
-using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.ResourceLocations;
 using UnityEngine.ResourceManagement.ResourceProviders;
 
@@ -64,96 +60,96 @@ public class VisorLoader : BaseLoader
         }
     }
 
-    public override bool LocateCosmetic(string id, string type, [NotNullWhen(true)] out Il2CppSystem.Type? il2CPPType)
+    public override bool LocateCosmetic(string id, Il2CppSystem.Type type)
     {
-        il2CPPType = null;
         if (!CustomVisors.ContainsKey(id))
         {
             return false;
         }
 
-        il2CPPType = type == ReferenceType.VisorViewData ? Il2CppType.Of<VisorViewData>() : null;
-        return il2CPPType != null;
+        return type == Il2CppType.Of<VisorViewData>() || type == Il2CppType.Of<PreviewViewData>();
     }
 
-    public override bool ProvideCosmetic(ProvideHandle handle, string id, string type)
+    public override bool ProvideCosmetic(ProvideHandle handle, string id, Il2CppSystem.Type type)
     {
         if (!CustomVisors.TryGetValue(id, out var visor))
         {
             return false;
         }
 
-        switch (type)
+        if (type == Il2CppType.Of<PreviewViewData>())
         {
-            case ReferenceType.Preview:
-                Debug($"Found visor preview for {id}");
-                PreviewViewData previewData;
-                lock (visor.DecodeLock)
-                {
-                    Debug($"Decoding preview for {id}");
-                    previewData = visor.PreviewViewDataFactory();
-                }
-                handle.Complete(previewData, true, null);
-                return true;
-            case ReferenceType.VisorViewData:
-                Debug($"Found visor view data for {id}"); 
-                VisorViewData viewData;
-                lock (visor.DecodeLock)
-                {
-                    Debug($"Decoding visor for {id}");
-                    viewData = visor.VisorViewDataFactory();
-                }
-                handle.Complete(viewData, true, null);
-                return true;
-            default:
-                Error("Unknown visor type");
-                return false;
+            Debug($"Found visor preview for {id}");
+            PreviewViewData previewData;
+            lock (visor.DecodeLock)
+            {
+                Debug($"Decoding preview for {id}");
+                previewData = visor.PreviewViewDataFactory();
+            }
+            handle.Complete(previewData, true, null);
+            return true;
         }
+
+        if (type == Il2CppType.Of<VisorViewData>())
+        {
+            Debug($"Found visor view data for {id}");
+            VisorViewData viewData;
+            lock (visor.DecodeLock)
+            {
+                Debug($"Decoding visor for {id}");
+                viewData = visor.VisorViewDataFactory();
+            }
+
+            handle.Complete(viewData, true, null);
+            return true;
+        }
+
+        Warning($"Could not locate visor data for id {id} and type {type.FullName}");
+        return false;
     }
 
     public override bool ReleaseCosmetic(IResourceLocation location, Il2CppSystem.Object obj)
     {
-        var (realKey, typeName) = HatLocator.GetIdAndType(location);
-        if (realKey == null || typeName == null)
-        {
-            Error($"Invalid location {location.InternalId}, cannot release cosmetic");
-            return false;
-        }
+        var key = location.InternalId;
+        var type = location.ResourceType;
 
-        if (!CustomVisors.ContainsKey(realKey))
+        if (!CustomVisors.ContainsKey(key))
         {
             return false;
         }
 
-        switch (typeName)
+        if (type == Il2CppType.Of<PreviewViewData>())
         {
-            case ReferenceType.Preview:
-                Debug($"Releasing visor preview for {realKey}");
-                if (obj.TryCast<PreviewViewData>() is { } previewData)
-                {
-                    previewData.Unload();
-                }
-                else
-                {
-                    Error($"Object {obj.GetIl2CppType().NameOrDefault} is not a PreviewViewData, cannot release");
-                }
-                break;
-            case ReferenceType.VisorViewData:
-                Debug($"Releasing visor view data for {realKey}");
-                if (obj.TryCast<VisorViewData>() is { } visorData)
-                {
-                    visorData.Unload();
-                }
-                else
-                {
-                    Error($"Object {obj.GetIl2CppType().NameOrDefault} is not a VisorViewData, cannot release");
-                }
-                break;
-            default:
-                Info($"Unknown type {typeName}, ignoring release request");
-                break;
+            Debug($"Releasing visor preview for {key}");
+            if (obj.TryCast<PreviewViewData>() is { } previewData)
+            {
+                previewData.Unload();
+            }
+            else
+            {
+                Error($"Object {obj.GetIl2CppType().NameOrDefault} is not a PreviewViewData, cannot release");
+            }
+
+            return true;
         }
-        return true;
+
+        if (type == Il2CppType.Of<VisorViewData>())
+        {
+            Debug($"Releasing visor view data for {key}");
+            if (obj.TryCast<VisorViewData>() is { } visorData)
+            {
+                visorData.Unload();
+            }
+            else
+            {
+                Error($"Object {obj.GetIl2CppType().NameOrDefault} is not a VisorViewData, cannot release");
+            }
+
+            return true;
+        }
+
+        Warning($"Could not release visor data for id {key} and type {type.FullName}");
+        return false;
     }
 
     private bool LoadVisor(string filePath)
@@ -182,15 +178,12 @@ public class VisorLoader : BaseLoader
             return false;
         }
 
-        var fullId = Names.Normalize(name, "nameplate");
-        var visorData = ScriptableObject.CreateInstance<VisorData>();
-        visorData.name = metadata.Name;
-        visorData.Free = true;
-        visorData.ProductId = fullId;
-        visorData.behindHats = metadata.BehindHats;
-        visorData.PreviewCrewmateColor = metadata.MatchPlayerColor;
-        visorData.ViewDataRef = new AssetReference(HatLocator.GetGuid(fullId, ReferenceType.VisorViewData));
-        visorData.PreviewData = new AssetReference(HatLocator.GetGuid(fullId, ReferenceType.Preview));
+        var fullId = Names.Normalize(name, "visor");
+        var visorData = new VisorDataBuilder()
+            .SetId(fullId)
+            .SetName(metadata.Name)
+            .SetMatchPlayerColor(metadata.MatchPlayerColor)
+            .Build();
 
         var customVisor = new CustomVisor(fullId, visorData, CreatePreviewViewData, CreateVisorViewData);
         CustomVisors.Add(fullId, customVisor);

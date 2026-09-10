@@ -5,9 +5,6 @@ using System.Text.Json;
 using CorsacCosmetics.Cosmetics.Hats;
 using CorsacCosmetics.Cosmetics.Nameplates;
 using CorsacCosmetics.Cosmetics.Visors;
-using CorsacCosmetics.Unity;
-using UnityEngine;
-using UnityEngine.AddressableAssets;
 
 namespace CorsacCosmetics.Cosmetics.Bundle.V2;
 
@@ -96,17 +93,14 @@ public class BundleLoaderV2(
     private void LoadHat(HatManifest manifest, long start, string groupName, string bundlePath)
     {
         var id = Names.Normalize(manifest.Name, "hat", groupName);
-
-        var hatData = ScriptableObject.CreateInstance<HatData>();
-        hatData.name = hatData.StoreName = manifest.Name;
-        hatData.Free = true;
-        hatData.ProductId = id;
-        hatData.BlocksVisors = manifest.BlocksVisors;
-        hatData.NoBounce = manifest.NoBounce;
-        hatData.InFront = manifest.InFront;
-        hatData.PreviewCrewmateColor = manifest.MatchPlayerColor;
-        hatData.ViewDataRef = new AssetReference(HatLocator.GetGuid(id, ReferenceType.HatViewData));
-        hatData.PreviewData = new AssetReference(HatLocator.GetGuid(id, ReferenceType.Preview));
+        var hatData = new HatDataBuilder()
+            .SetId(id)
+            .SetName(manifest.Name)
+            .SetBlocksVisors(manifest.BlocksVisors)
+            .SetInFront(manifest.InFront)
+            .SetNoBounce(manifest.NoBounce)
+            .SetMatchPlayerColor(manifest.MatchPlayerColor)
+            .Build();
 
         var bundleSource = new BundleSource(bundlePath, start);
         bundleSource.AddSprite("MainSprite", manifest.MainSprite);
@@ -139,14 +133,12 @@ public class BundleLoaderV2(
     private void LoadVisor(VisorManifest manifest, long start, string groupName, string bundlePath)
     {
         var id = Names.Normalize(manifest.Name, "visor", groupName);
-        var visorData = ScriptableObject.CreateInstance<VisorData>();
-        visorData.name = manifest.Name;
-        visorData.Free = true;
-        visorData.ProductId = id;
-        visorData.behindHats = manifest.BehindHats;
-        visorData.PreviewCrewmateColor = manifest.MatchPlayerColor;
-        visorData.ViewDataRef = new AssetReference(HatLocator.GetGuid(id, ReferenceType.VisorViewData));
-        visorData.PreviewData = new AssetReference(HatLocator.GetGuid(id, ReferenceType.Preview));
+        var visorData = new VisorDataBuilder()
+            .SetId(id)
+            .SetName(manifest.Name)
+            .SetBehindHats(manifest.BehindHats)
+            .SetMatchPlayerColor(manifest.MatchPlayerColor)
+            .Build();
 
         var bundleSource = new BundleSource(bundlePath, start);
         bundleSource.AddSprite("IdleSprite", manifest.IdleSprite);
@@ -175,12 +167,10 @@ public class BundleLoaderV2(
     private void LoadNameplate(NameplateManifest manifest, long start, string groupName, string bundlePath)
     {
         var id = Names.Normalize(manifest.Name, "nameplate", groupName);
-        var namePlateData = ScriptableObject.CreateInstance<NamePlateData>();
-        namePlateData.name = manifest.Name;
-        namePlateData.Free = true;
-        namePlateData.ProductId = id;
-        namePlateData.ViewDataRef = new AssetReference(HatLocator.GetGuid(id, ReferenceType.NamePlateViewData));
-        namePlateData.PreviewData = new AssetReference(HatLocator.GetGuid(id, ReferenceType.Preview));
+        var namePlateData = new NamePlateDataBuilder()
+            .SetId(id)
+            .SetName(manifest.Name)
+            .Build();
 
         var bundleSource = new BundleSource(bundlePath, start);
         bundleSource.AddSprite("NameplateSprite", manifest.NameplateSprite);

@@ -16,36 +16,6 @@ public class HatLocator : Il2CppSystem.Object
     private static readonly Dictionary<string, Il2CppSystem.Collections.Generic.IList<IResourceLocation>> LocationCache = [];
     public static string ProviderId { get; } = typeof(HatProvider).FullName!;
 
-    public static string GetGuid(string hatId, string type)
-    {
-        return $"{hatId}/{type}";
-    }
-
-    public static (string?, string?) GetIdAndType(IResourceLocation location)
-    {
-        if (location.ProviderId != ProviderId)
-        {
-            Error($"Invalid provider ID: {location.ProviderId}");
-            return (null, null);
-        }
-
-        var internalId = location.InternalId;
-        if (!internalId.StartsWith("corsac."))
-        {
-            Error($"Invalid internal ID: {internalId}");
-            return (null, null);
-        }
-
-        var split = internalId.Split("/");
-        if (split.Length != 2)
-        {
-            Error($"Invalid internal ID format: {internalId}");
-            return (null, null);
-        }
-
-        return (split[0], split[1]);
-    }
-
     public static void Initialize()
     {
         _instance = new HatLocator();
@@ -81,25 +51,16 @@ public class HatLocator : Il2CppSystem.Object
             return false;
         }
 
-        var split = keyString.Split('/');
-        if (split.Length != 2)
+        if (!CosmeticsLoader.Instance.LocateCosmetic(keyString, type))
         {
-            Error($"Invalid format: {keyString}");
+            Error($"{keyString} not found in custom cosmetics.");
             return false;
         }
 
-        var realKey = split[0];
-        var typeName = split[1];
+        Debug($"Found cosmetic {keyString}, type {type.FullName}");
 
-        if (!CosmeticsLoader.Instance.LocateCosmetic(realKey, typeName, out var il2CPPType))
-        {
-            Error($"{realKey} not found in custom cosmetics.");
-            return false;
-        }
-
-        Debug($"Found cosmetic {realKey}, type {typeName}, il2cpp type {il2CPPType.NameOrDefault}");
-
-        if (LocationCache.TryGetValue(keyString, out var cachedLocations))
+        var cacheKey = keyString + type.FullName;
+        if (LocationCache.TryGetValue(cacheKey, out var cachedLocations))
         {
             locations = cachedLocations;
             return true;
@@ -109,14 +70,14 @@ public class HatLocator : Il2CppSystem.Object
             keyString,
             keyString,
             ProviderId,
-            il2CPPType
+            type
         );
 
         var il2CPPList = new Il2CppSystem.Collections.Generic.List<ResourceLocationBase>();
         il2CPPList.Add(location);
         // pointer magic cuz il2cpp interfaces are broken
         locations = new Il2CppSystem.Collections.Generic.IList<IResourceLocation>(il2CPPList.Pointer);
-        LocationCache.Add(keyString, locations);
+        LocationCache.Add(cacheKey, locations);
 
         return true;
     }

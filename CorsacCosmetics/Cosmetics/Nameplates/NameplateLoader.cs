@@ -64,86 +64,68 @@ public class NameplateLoader : BaseLoader
         }
     }
 
-    public override bool LocateCosmetic(string id, string type, [NotNullWhen(true)] out Il2CppSystem.Type? il2CPPType)
+    public override bool LocateCosmetic(string id, Il2CppSystem.Type type)
     {
-        il2CPPType = null;
         if (!CustomNamePlates.ContainsKey(id))
         {
             return false;
         }
 
-        il2CPPType = type == ReferenceType.NamePlateViewData ? Il2CppType.Of<NamePlateViewData>() : null;
-        return il2CPPType != null;
+        return type == Il2CppType.Of<NamePlateViewData>();
     }
 
-    public override bool ProvideCosmetic(ProvideHandle handle, string id, string type)
+    public override bool ProvideCosmetic(ProvideHandle handle, string id, Il2CppSystem.Type type)
     {
-        if (!CustomNamePlates.TryGetValue(id, out var nameplate))
+        if (!CustomNamePlates.TryGetValue(id, out var namePlate))
         {
             return false;
         }
 
-        switch (type)
+        if (type == Il2CppType.Of<NamePlateViewData>())
         {
-            case ReferenceType.NamePlateViewData:
-                Debug($"Found nameplate view data for {id}");
-                NamePlateViewData viewData;
-                lock (nameplate.DecodeLock)
-                {
-                    Debug($"Decoding nameplate for {id}");
-                    viewData = nameplate.NamePlateViewDataFactory();
-                }
-                handle.Complete(viewData, true, null);
-                return true;
-            default:
-                Error("Unknown nameplate type");
-                return false;
+            Debug($"Found nameplate view data for {id}");
+            NamePlateViewData viewData;
+            lock (namePlate.DecodeLock)
+            {
+                Debug($"Decoding nameplate for {id}");
+                viewData = namePlate.NamePlateViewDataFactory();
+            }
+
+            handle.Complete(viewData, true, null);
+            return true;
         }
+
+        Warning($"Could not locate nameplate data for id {id} and type {type.FullName}");
+        return false;
     }
 
     public override bool ReleaseCosmetic(IResourceLocation location, Il2CppSystem.Object obj)
     {
-        var (realKey, typeName) = HatLocator.GetIdAndType(location);
-        if (realKey == null || typeName == null)
-        {
-            Error($"Invalid location {location.InternalId}, cannot release cosmetic");
-            return false;
-        }
+        var key = location.InternalId;
+        var type = location.ResourceType;
 
-        if (!CustomNamePlates.ContainsKey(realKey))
+        if (!CustomNamePlates.ContainsKey(key))
         {
             return false;
         }
 
-        switch (typeName)
+        if (type == Il2CppType.Of<NamePlateViewData>())
         {
-            case ReferenceType.Preview:
-                Debug($"Releasing nameplate preview for {realKey}");
-                if (obj.TryCast<PreviewViewData>() is { } previewData)
-                {
-                    previewData.Unload();
-                }
-                else
-                {
-                    Error($"Object {obj.GetIl2CppType().NameOrDefault} is not a PreviewViewData, cannot release");
-                }
-                break;
-            case ReferenceType.NamePlateViewData:
-                Debug($"Releasing nameplate view data for {realKey}");
-                if (obj.TryCast<NamePlateViewData>() is { } viewData)
-                {
-                    viewData.Unload();
-                }
-                else
-                {
-                    Error($"Object {obj.GetIl2CppType().NameOrDefault} is not a NamePlateViewData, cannot release");
-                }
-                break;
-            default:
-                Info($"Unknown type {typeName}, ignoring release request");
-                break;
+            Debug($"Releasing nameplate view data for {key}");
+            if (obj.TryCast<NamePlateViewData>() is { } viewData)
+            {
+                viewData.Unload();
+            }
+            else
+            {
+                Error($"Object {obj.GetIl2CppType().NameOrDefault} is not a NamePlateViewData, cannot release");
+            }
+
+            return true;
         }
-        return true;
+
+        Warning($"Could not release nameplate data for id {key} and type {type.FullName}");
+        return false;
     }
 
     private bool LoadNamePlate(string filePath)
@@ -173,12 +155,10 @@ public class NameplateLoader : BaseLoader
         }
 
         var fullId = Names.Normalize(name, "nameplate");
-        var namePlateData = ScriptableObject.CreateInstance<NamePlateData>();
-        namePlateData.name = metadata.Name;
-        namePlateData.Free = true;
-        namePlateData.ProductId = fullId;
-        namePlateData.ViewDataRef = new AssetReference(HatLocator.GetGuid(fullId, ReferenceType.NamePlateViewData));
-        namePlateData.PreviewData = new AssetReference(HatLocator.GetGuid(fullId, ReferenceType.Preview));
+        var namePlateData = new NamePlateDataBuilder()
+            .SetName(metadata.Name)
+            .SetId(fullId)
+            .Build();
 
         var customNamePlate = new CustomNamePlate(fullId, namePlateData, CreateNamePlateViewData);
         CustomNamePlates.Add(fullId, customNamePlate);
