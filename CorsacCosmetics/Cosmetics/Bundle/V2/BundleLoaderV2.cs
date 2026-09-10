@@ -104,6 +104,7 @@ public class BundleLoaderV2(
         hatData.BlocksVisors = manifest.BlocksVisors;
         hatData.NoBounce = manifest.NoBounce;
         hatData.InFront = manifest.InFront;
+        hatData.PreviewCrewmateColor = manifest.MatchPlayerColor;
         hatData.ViewDataRef = new AssetReference(HatLocator.GetGuid(id, ReferenceType.HatViewData));
         hatData.PreviewData = new AssetReference(HatLocator.GetGuid(id, ReferenceType.Preview));
 
@@ -143,6 +144,7 @@ public class BundleLoaderV2(
         visorData.Free = true;
         visorData.ProductId = id;
         visorData.behindHats = manifest.BehindHats;
+        visorData.PreviewCrewmateColor = manifest.MatchPlayerColor;
         visorData.ViewDataRef = new AssetReference(HatLocator.GetGuid(id, ReferenceType.VisorViewData));
         visorData.PreviewData = new AssetReference(HatLocator.GetGuid(id, ReferenceType.Preview));
 
