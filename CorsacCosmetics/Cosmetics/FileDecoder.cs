@@ -32,15 +32,9 @@ public static class FileDecoder
     {
         var viewData = ScriptableObject.CreateInstance<VisorViewData>();
         viewData.IdleFrame = SpriteTools.LoadSpriteFromFile(filePath);
-        viewData.LeftIdleFrame =
-            SpriteTools.LoadSpriteFromFile(Path.ChangeExtension(filePath, ".leftidle"))
-            ?? viewData.IdleFrame;
-        viewData.ClimbFrame =
-            SpriteTools.LoadSpriteFromFile(Path.ChangeExtension(filePath, ".climb"))
-            ?? viewData.IdleFrame;
-        viewData.FloorFrame =
-            SpriteTools.LoadSpriteFromFile(Path.ChangeExtension(filePath, ".floor"))
-            ?? viewData.IdleFrame;
+        viewData.LeftIdleFrame = SpriteTools.LoadSpriteFromFile(Path.ChangeExtension(filePath, ".leftidle"));
+        viewData.ClimbFrame = SpriteTools.LoadSpriteFromFile(Path.ChangeExtension(filePath, ".climb"));
+        viewData.FloorFrame = SpriteTools.LoadSpriteFromFile(Path.ChangeExtension(filePath, ".floor"));
         viewData.MatchPlayerColor = matchPlayerColor;
         return viewData;
     }
