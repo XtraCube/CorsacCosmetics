@@ -136,7 +136,6 @@ export const VISOR_SPRITE_SLOT_LABELS: Record<VisorSpriteSlot, string> = {
 
 /** Nameplate sprite slot keys in deterministic order used when building the data section. */
 export const NAMEPLATE_SPRITE_SLOTS = [
-	'PreviewSprite',
 	'NameplateSprite',
 ] as const;
 
@@ -144,7 +143,6 @@ export type NameplateSpriteSlot = (typeof NAMEPLATE_SPRITE_SLOTS)[number];
 
 /** Human-readable labels for each nameplate sprite slot shown in the UI. */
 export const NAMEPLATE_SPRITE_SLOT_LABELS: Record<NameplateSpriteSlot, string> = {
-	PreviewSprite: 'Preview',
 	NameplateSprite: 'Nameplate',
 };
 
