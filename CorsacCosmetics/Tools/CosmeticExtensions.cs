@@ -1,4 +1,4 @@
-using CorsacCosmetics.Tools;
+namespace CorsacCosmetics.Tools;
 
 public static class CosmeticExtensions
 {

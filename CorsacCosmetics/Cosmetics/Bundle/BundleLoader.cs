@@ -178,16 +178,10 @@ public class BundleLoader(HatLoader hatLoader, VisorLoader visorLoader, Nameplat
 
         var bundleSource = new BundleSource(bundlePath, start);
         bundleSource.AddSprite("NameplateSprite", manifest.NameplateSprite);
-        bundleSource.AddSprite("PreviewSprite", manifest.PreviewSprite);
 
-        var customNamePlate = new CustomNamePlate(id, namePlateData, CreatePreviewViewData, CreateNamePlateViewData);
+        var customNamePlate = new CustomNamePlate(id, namePlateData, CreateNamePlateViewData);
         nameplateLoader.CustomNamePlates.Add(id, customNamePlate);
         return;
-
-        PreviewViewData CreatePreviewViewData()
-        {
-            return BundleDecoder.DecodePreview(bundleSource);
-        }
 
         NamePlateViewData CreateNamePlateViewData()
         {

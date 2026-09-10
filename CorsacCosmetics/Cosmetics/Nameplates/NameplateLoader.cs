@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text.Json;
+using CorsacCosmetics.Tools;
 using CorsacCosmetics.Unity;
 using Il2CppInterop.Runtime;
 using UnityEngine;
@@ -84,16 +85,6 @@ public class NameplateLoader : BaseLoader
 
         switch (type)
         {
-            case ReferenceType.Preview:
-                Debug($"Found nameplate preview for {id}");
-                PreviewViewData previewViewData;
-                lock (nameplate.DecodeLock)
-                {
-                    Debug($"Decoding preview for {id}");
-                    previewViewData = nameplate.PreviewViewDataFactory();
-                }
-                handle.Complete(previewViewData, true, null);
-                return true;
             case ReferenceType.NamePlateViewData:
                 Debug($"Found nameplate view data for {id}");
                 NamePlateViewData viewData;
@@ -189,18 +180,9 @@ public class NameplateLoader : BaseLoader
         namePlateData.ViewDataRef = new AssetReference(HatLocator.GetGuid(fullId, ReferenceType.NamePlateViewData));
         namePlateData.PreviewData = new AssetReference(HatLocator.GetGuid(fullId, ReferenceType.Preview));
 
-        var customNamePlate = new CustomNamePlate(fullId, namePlateData, CreatePreviewViewData, CreateNamePlateViewData);
+        var customNamePlate = new CustomNamePlate(fullId, namePlateData, CreateNamePlateViewData);
         CustomNamePlates.Add(fullId, customNamePlate);
-        
-        namePlateData.ViewDataRef.LoadAsset<NamePlateViewData>();
-        namePlateData.PreviewData.LoadAsset<PreviewViewData>();
-
         return true;
-
-        PreviewViewData CreatePreviewViewData()
-        {
-            return FileDecoder.DecodePreview(filePath);
-        }
 
         NamePlateViewData CreateNamePlateViewData()
         {

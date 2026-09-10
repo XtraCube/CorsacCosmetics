@@ -8,7 +8,6 @@ namespace CorsacCosmetics.Cosmetics.Nameplates;
 public class CustomNamePlate(
     string id,
     NamePlateData namePlateData,
-    Func<PreviewViewData> previewViewDataFactory,
     Func<NamePlateViewData> namePlateViewDataFactory)
 {
     /// <summary>
@@ -20,11 +19,6 @@ public class CustomNamePlate(
     /// Gets the vanilla NamePlateData object associated with this nameplate.
     /// </summary>
     public NamePlateData NamePlateData { get; } = namePlateData;
-
-    /// <summary>
-    /// Gets the factory function to create a PreviewViewData for this nameplate.
-    /// </summary>
-    public Func<PreviewViewData> PreviewViewDataFactory { get; } = previewViewDataFactory;
 
     /// <summary>
     /// Gets the factory function to create a NamePlateViewData for this nameplate.
