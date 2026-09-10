@@ -134,7 +134,7 @@ public class VisorLoader : BaseLoader
                 }
                 else
                 {
-                    Error($"Object {obj} is not a PreviewViewData, cannot release");
+                    Error($"Object {obj.GetIl2CppType().NameOrDefault} is not a PreviewViewData, cannot release");
                 }
                 break;
             case ReferenceType.VisorViewData:
@@ -145,7 +145,7 @@ public class VisorLoader : BaseLoader
                 }
                 else
                 {
-                    Error($"Object {obj} is not a VisorViewData, cannot release");
+                    Error($"Object {obj.GetIl2CppType().NameOrDefault} is not a VisorViewData, cannot release");
                 }
                 break;
             default:

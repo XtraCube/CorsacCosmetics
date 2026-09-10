@@ -176,7 +176,7 @@ public class CosmeticsLoader
             return true;
         }
 
-        Error($"Failed to release cosmetic for location {location} and object {obj}");        
+        Error($"Failed to release cosmetic for location {location.InternalId} and object {obj.GetIl2CppType().NameOrDefault}");        
         return false;
     }
 

@@ -134,7 +134,7 @@ public class NameplateLoader : BaseLoader
                 }
                 else
                 {
-                    Error($"Object {obj} is not a PreviewViewData, cannot release");
+                    Error($"Object {obj.GetIl2CppType().NameOrDefault} is not a PreviewViewData, cannot release");
                 }
                 break;
             case ReferenceType.NamePlateViewData:
@@ -145,7 +145,7 @@ public class NameplateLoader : BaseLoader
                 }
                 else
                 {
-                    Error($"Object {obj} is not a NamePlateViewData, cannot release");
+                    Error($"Object {obj.GetIl2CppType().NameOrDefault} is not a NamePlateViewData, cannot release");
                 }
                 break;
             default:

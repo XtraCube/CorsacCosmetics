@@ -134,7 +134,7 @@ public class HatLoader : BaseLoader
                 }
                 else
                 {
-                    Error($"Object {obj} is not a PreviewViewData, cannot release");
+                    Error($"Object {obj.GetIl2CppType().NameOrDefault} is not a PreviewViewData, cannot release");
                 }
                 break;
             case ReferenceType.HatViewData:
@@ -145,7 +145,7 @@ public class HatLoader : BaseLoader
                 }
                 else
                 {
-                    Error($"Object {obj} is not a HatViewData, cannot release");
+                    Error($"Object {obj.GetIl2CppType().NameOrDefault} is not a HatViewData, cannot release");
                 }
                 break;
             default:

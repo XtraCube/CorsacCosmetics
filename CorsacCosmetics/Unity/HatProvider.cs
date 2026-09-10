@@ -66,7 +66,7 @@ public class HatProvider : ResourceProviderBase
         }
         else
         {
-            Error($"Failed to provide cosmetic {id} of type {type}:\n{exception.ToString()}");
+            Error($"Failed to provide cosmetic {id} of type {type}:\n{exception}");
             provideHandle.Complete<UnityEngine.Object>(null!, false, 
                 new Il2CppSystem.Exception(exception.ToString()));
         }
@@ -76,11 +76,11 @@ public class HatProvider : ResourceProviderBase
     {
         if (CosmeticsLoader.Instance.ReleaseCosmetic(location, obj))
         {
-            Debug($"Successfully released cosmetic for location {location} and object {obj}");
+            Debug($"Successfully released cosmetic for location {location.InternalId} and object {obj.GetIl2CppType().NameOrDefault}");
         }
         else
         {
-            Error($"Failed to release cosmetic for location {location} and object {obj}");
+            Error($"Failed to release cosmetic for location {location.InternalId} and object {obj.GetIl2CppType().NameOrDefault}");
         }
     }
 }

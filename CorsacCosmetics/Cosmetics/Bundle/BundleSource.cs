@@ -8,17 +8,12 @@ namespace CorsacCosmetics.Cosmetics.Bundle;
 /// the per-slot SpriteData (offset/size). Sprites are decoded on first access via
 /// BundleDecoder, which keeps the bundle file open for the lifetime of the mod.
 /// </summary>
-public class BundleSource
+public class BundleSource(string bundlePath, long dataStart)
 {
-    public string BundlePath { get; }
-    public long DataStart { get; }
-    private readonly Dictionary<string, SpriteData> _sprites = new();
+    public string BundlePath { get; } = bundlePath;
+    public long DataStart { get; } = dataStart;
 
-    public BundleSource(string bundlePath, long dataStart)
-    {
-        BundlePath = bundlePath;
-        DataStart = dataStart;
-    }
+    private readonly Dictionary<string, SpriteData> _sprites = new();
 
     public void AddSprite(string slot, SpriteData data)
     {
