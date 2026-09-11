@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using BepInEx.Unity.IL2CPP;
 using HarmonyLib;
 
 namespace CorsacCosmetics.Tools;
@@ -13,29 +14,25 @@ public static class ReactorCompat
     {
         try
         {
-            var creditsType = AccessTools.TypeByName("Reactor.Utilities.ReactorCredits");
-            if (creditsType == null)
+            if (!IL2CPPChainloader.Instance.Plugins.TryGetValue(ReactorID, out var value))
             {
-                Warning("Reactor not found!");
+                Info("Reactor not found, skipping credits registration.");
                 return;
             }
 
+            var reactorPlugin = (value.Instance as BasePlugin)!;
+            var reactorAssembly = reactorPlugin.GetType().Assembly;
+            var reactorTypes = AccessTools.GetTypesFromAssembly(reactorAssembly);
+            var reactorCreds = reactorTypes.First(t => t.Name == "ReactorCredits");
             var registerMethod = AccessTools
-                .GetDeclaredMethods(creditsType)
+                .GetDeclaredMethods(reactorCreds)
                 .Single(m => m.Name == "Register" && m.IsGenericMethodDefinition)
                 ?.MakeGenericMethod(typeof(CorsacCosmeticsPlugin));
 
-            if (registerMethod == null)
-            {
-                Warning("Reactor found, but could not find Register method!");
-                return;
-            }
-
-            var showCreditsType = registerMethod.GetParameters().First().ParameterType;
+            var showCreditsType = registerMethod!.GetParameters().First().ParameterType;
             var showCreditsDelegate = Delegate.CreateDelegate(showCreditsType, ShowCredits.Target, ShowCredits.Method);
-
             registerMethod.Invoke(null, [showCreditsDelegate]);
-            Info("Registered credits with Reactor!");
+            Message("Reactor was detected and Corsac was registered successfully.");
         }
         catch (Exception e)
         {
