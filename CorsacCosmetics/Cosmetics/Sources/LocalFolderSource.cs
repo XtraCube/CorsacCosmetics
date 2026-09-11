@@ -33,6 +33,7 @@ public class LocalFolderSource(string basePath) : ICosmeticSource
         descriptors.AddRange(Directory.EnumerateFiles(namePlatePath, "*.png")
             .Select(pngFile => LoadCosmetic<NamePlateMetadata>(pngFile, CosmeticType.NamePlate)));
 
+        Info($"Loaded {descriptors.Count} cosmetics from {basePath}.");
         return Task.FromResult(descriptors.AsEnumerable());
     }
 
