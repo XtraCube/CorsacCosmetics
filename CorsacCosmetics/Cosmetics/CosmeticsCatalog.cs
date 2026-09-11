@@ -4,9 +4,8 @@ namespace CorsacCosmetics.Cosmetics;
 
 public class CosmeticsCatalog
 {
-    private static CosmeticsCatalog _instance = null!;
-    public static CosmeticsCatalog Instance => _instance;
-    
+    public static CosmeticsCatalog Instance { get; private set; } = null!;
+
     private readonly Dictionary<string, CosmeticDescriptor> _descriptorsById = new();
 
     // ID -> Name
@@ -19,7 +18,7 @@ public class CosmeticsCatalog
 
     public CosmeticsCatalog()
     {
-        _instance = this;
+        Instance = this;
 
         CustomGroups = [];
         CustomGroups.Add("default", "Custom Cosmetics");

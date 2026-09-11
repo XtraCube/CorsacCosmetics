@@ -23,8 +23,8 @@ public static class VisorsTabPatches
             name = CosmeticsCatalog.Instance.VisorGroups.GetGroupNameByIndex(_pagination.CurrentTab - 1);
         }
 
-        var max = CosmeticsCatalog.Instance.VisorGroups.Count;
-        return $"{name} ({_pagination.CurrentTab} / {max})";
+        var max = CosmeticsCatalog.Instance.VisorGroups.Count + 1;
+        return $"{name} ({_pagination.CurrentTab + 1} / {max})";
     }
 
     private static bool ShowOnPage(string id)

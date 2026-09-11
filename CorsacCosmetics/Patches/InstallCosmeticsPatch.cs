@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
 using BepInEx.Unity.IL2CPP.Utils.Collections;
+using CorsacCosmetics.Cosmetics;
+using CorsacCosmetics.Cosmetics.Sources;
 using CorsacCosmetics.Tools;
 using HarmonyLib;
 using UnityEngine;
@@ -26,7 +28,7 @@ public static class InstallCosmeticsPatch
             yield return original.Current;
         }
 
-        var discoveryTask = CorsacCosmeticsPlugin.Instance.SourceRegistry.DiscoverAllAsync();
+        var discoveryTask = SourceRegistry.Instance.DiscoverAllAsync();
         yield return discoveryTask.AsIEnumerator();
 
         var cosmeticGroup = ScriptableObject.CreateInstance<CosmeticReleaseGroup>();
@@ -35,21 +37,29 @@ public static class InstallCosmeticsPatch
         var discoveredCosmetics = discoveryTask.Result;
         foreach (var cosmetic in discoveredCosmetics)
         {
-            cosmeticGroup.ids.Add(cosmetic.Id);
-            CorsacCosmeticsPlugin.Instance.CosmeticsCatalog.Register(cosmetic);
-            switch (cosmetic.Type)
+            try
             {
-                case Cosmetics.CosmeticType.Hat:
-                    referenceDataManager.Refdata.hats.Add(cosmetic.ToCosmeticData<HatData>());
-                    break;
-                case Cosmetics.CosmeticType.Visor:
-                    referenceDataManager.Refdata.visors.Add(cosmetic.ToCosmeticData<VisorData>());
-                    break;
-                case Cosmetics.CosmeticType.NamePlate:
-                    referenceDataManager.Refdata.nameplates.Add(cosmetic.ToCosmeticData<NamePlateData>());
-                    break;
-                default:
-                    throw new InvalidOperationException();
+                Info($"Installing {cosmetic.DisplayName}...");
+                cosmeticGroup.ids.Add(cosmetic.Id);
+                CosmeticsCatalog.Instance.Register(cosmetic);
+                switch (cosmetic.Type)
+                {
+                    case Cosmetics.CosmeticType.Hat:
+                        referenceDataManager.Refdata.hats.Add(cosmetic.ToCosmeticData<HatData>());
+                        break;
+                    case Cosmetics.CosmeticType.Visor:
+                        referenceDataManager.Refdata.visors.Add(cosmetic.ToCosmeticData<VisorData>());
+                        break;
+                    case Cosmetics.CosmeticType.NamePlate:
+                        referenceDataManager.Refdata.nameplates.Add(cosmetic.ToCosmeticData<NamePlateData>());
+                        break;
+                    default:
+                        throw new InvalidOperationException();
+                }
+            }
+            catch (Exception e)
+            {
+                Error($"Failed to install {cosmetic.DisplayName}, type {cosmetic.Type}, metadata {cosmetic.Metadata} : {e}");
             }
         }
     }

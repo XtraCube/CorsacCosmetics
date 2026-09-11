@@ -6,7 +6,14 @@ namespace CorsacCosmetics.Cosmetics.Sources;
 
 public class SourceRegistry
 {
+    public static SourceRegistry Instance { get; private set; } = null!;
+
     private readonly List<ICosmeticSource> _sources = [];
+
+    public SourceRegistry()
+    {
+        Instance = this;
+    }
 
     public void RegisterSource(ICosmeticSource source) => _sources.Add(source);
 

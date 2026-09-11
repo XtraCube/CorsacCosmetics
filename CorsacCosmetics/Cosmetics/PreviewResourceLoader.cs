@@ -12,7 +12,8 @@ public class PreviewResourceLoader : BaseCosmeticResourceLoader<PreviewViewData>
     {
         var viewData = ScriptableObject.CreateInstance<PreviewViewData>();
         viewData.name = descriptor.DisplayName;
-        viewData.PreviewSprite = await descriptor.AssetReader.LoadSpriteAsync("");
+        viewData.PreviewSprite = await descriptor.AssetReader.LoadSpriteAsync("preview");
+        viewData.PreviewSprite ??= await descriptor.AssetReader.LoadSpriteAsync("");
         return viewData;
     }
 

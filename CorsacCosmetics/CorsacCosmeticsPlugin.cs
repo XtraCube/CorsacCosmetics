@@ -1,4 +1,5 @@
 ﻿global using static CorsacCosmetics.Tools.Logger;
+using System.IO;
 using System.Reflection;
 using BepInEx;
 using BepInEx.Unity.IL2CPP;
@@ -27,16 +28,10 @@ public partial class CorsacCosmeticsPlugin : BasePlugin
 
     public static CorsacCosmeticsPlugin Instance { get; private set; } = null!;
 
-    public CosmeticsCatalog CosmeticsCatalog { get; }
-    public SourceRegistry SourceRegistry { get; }
-
     public CorsacCosmeticsPlugin()
     {
         Instance = this;
-
-        CosmeticsCatalog = new CosmeticsCatalog();
-        SourceRegistry = new SourceRegistry();
-        SourceRegistry.RegisterSource(new LocalFolderSource(CosmeticPaths.BasePath));
+        CosmeticPaths.EnsureDirectoriesExist();
     }
 
     public override void Load()
@@ -60,19 +55,26 @@ public partial class CorsacCosmeticsPlugin : BasePlugin
         });
         Info("Injected IL2CPP types");
 
+        var cosmeticsCatalog = new CosmeticsCatalog();
+        var sourceRegistry = new SourceRegistry();
+        sourceRegistry.RegisterSource(new LocalFolderSource(CosmeticPaths.BasePath));
+        foreach (var file in Directory.EnumerateFiles(CosmeticPaths.BundlePath, "*.ccb"))
+        {
+            sourceRegistry.RegisterSource(new LocalBundleSource(file));
+        }
+
         var factoryRegistry = new ViewDataLoaderRegistry();
         factoryRegistry.RegisterLoader(new PreviewResourceLoader());
         factoryRegistry.RegisterLoader(new HatResourceLoader());
         factoryRegistry.RegisterLoader(new VisorResourceLoader());
         factoryRegistry.RegisterLoader(new NamePlateResourceLoader());
 
-        var provider = new CosmeticsProvider(CosmeticsCatalog, factoryRegistry);
+        var provider = new CosmeticsProvider(cosmeticsCatalog, factoryRegistry);
         Addressables.ResourceManager.ResourceProviders.Insert(0, new(provider.Pointer));
 
-        var locator = new CosmeticsLocator(CosmeticsCatalog);
+        var locator = new CosmeticsLocator(cosmeticsCatalog);
         Addressables.AddResourceLocator(new(locator.Pointer));
 
-        CosmeticPaths.EnsureDirectoriesExist();
         Info("Necessary directories created");
 
         Harmony.PatchAll(Assembly.GetExecutingAssembly());
