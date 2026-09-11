@@ -33,8 +33,10 @@ public static class InstallCosmeticsPatch
             yield return coroutine;
         }
 
+        Info("Starting discovery task...");
         var discoveryTask = SourceRegistry.Instance.DiscoverAllAsync();
         yield return discoveryTask.AsIEnumerator();
+        Info("Finished discovery task");
 
         var cosmeticGroup = ScriptableObject.CreateInstance<CosmeticReleaseGroup>();
         cosmeticGroup.date = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");

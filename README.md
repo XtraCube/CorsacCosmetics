@@ -46,29 +46,30 @@ CorsacCosmetics provides a `PluginCompat` static class that allows other mods to
 
 #### Downloading resources at runtime
 
-If you are downloading resources at runtime, you should do it before Corsac discovers and installs cosmetics. Use `QueueDiscoveryCoroutine` to register a coroutine that Corsac will wait for before proceeding:
+If you are downloading resources at runtime, you should do it before Corsac discovers and installs cosmetics. Use `QueueDiscoveryTask` to register an async task that Corsac will wait for before proceeding:
 
 ```csharp
-IEnumerator DownloadCosmetics()
+async Task DownloadCosmetics()
 {
-    // Example: download files from a web server
-    using var www = UnityWebRequest.Get("https://example.com/my_cosmetics.ccb");
-    yield return www.SendWebRequest();
-    
-    if (www.result == UnityWebRequest.Result.Success)
-    {
-        File.WriteAllBytes(@"path\to\save\location.ccb", www.downloadHandler.data);
-    }
-    
-    // If you save cosmetics to your own folder, add it as a source
-    PluginCompat.AddBundleSource(@"path\to\save\location.ccb");
+    using var httpClient = new HttpClient();
+    var bytes = await httpClient.GetByteArrayAsync("https://example.com/my_cosmetics.ccb");
+    var outputPath = Path.Combine(CosmeticPaths.BundlePath, "my_cosmetics.ccb");
+    await File.WriteAllBytesAsync(outputPath, bytes);
 }
 
-// Queue the coroutine before Corsac runs discovery (for example, in Plugin Load)
-PluginCompat.QueueDiscoveryCoroutine(DownloadCosmetics());
+// Queue the task before Corsac runs discovery (for example, in Plugin Load)
+PluginCompat.QueueDiscoveryTask(DownloadCosmetics());
 ```
 
-This ensures your resources are fully downloaded and saved before Corsac attempts to load cosmetics. Multiple coroutines can be queued and they will be executed in order.
+This ensures your resources are fully downloaded and saved before Corsac attempts to load cosmetics. Multiple tasks can be queued and they will be executed in order.
+
+##### Downloading bundles
+
+For convenience, you can use `QueueBundleDownload` to download a `.ccb` bundle from a URL. The bundle will be automatically saved to the `CorsacCosmetics/Bundles` folder with the filename from the URL:
+
+```csharp
+PluginCompat.QueueBundleDownload("https://example.com/my_bundle.ccb");
+```
 
 #### Adding a folder source
 

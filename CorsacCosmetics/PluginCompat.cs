@@ -2,7 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Net.Http;
+using System.Threading.Tasks;
+using CorsacCosmetics.Cosmetics;
 using CorsacCosmetics.Cosmetics.Sources;
+using CorsacCosmetics.Tools;
 
 namespace CorsacCosmetics;
 
@@ -12,7 +16,7 @@ namespace CorsacCosmetics;
 /// </summary>
 public static class PluginCompat
 {
-    internal static Queue<IEnumerator> BeforeDiscoveryCoroutines = [];
+    internal static readonly Queue<IEnumerator> BeforeDiscoveryCoroutines = [];
 
     /// <summary>
     /// Adds a coroutine to run before Corsac discovers and installs cosmetics.
@@ -21,6 +25,49 @@ public static class PluginCompat
     public static void QueueDiscoveryCoroutine(IEnumerator coroutine)
     {
         BeforeDiscoveryCoroutines.Enqueue(coroutine);
+    }
+
+    /// <summary>
+    /// Adds an asynchronous task to wait for before Corsac discovers and installs cosmetics.
+    /// </summary>
+    /// <param name="asyncTask">The task to wait upon.</param>
+    public static void QueueDiscoveryTask(Task asyncTask)
+    {
+        BeforeDiscoveryCoroutines.Enqueue(asyncTask.AsIEnumerator());
+    }
+
+    /// <summary>
+    /// Downloads a bundle from a URL and queues it to be added as a source before discovery.
+    /// The bundle is saved to the CorsacCosmetics/Bundles folder with the filename from the URL.
+    /// </summary>
+    /// <param name="url">The URL of the .ccb bundle file to download.</param>
+    public static void QueueBundleDownload(string url)
+    {
+        var outputFolder = CosmeticPaths.BundlePath;
+        var outputPath = Path.Combine(outputFolder, Path.GetFileName(url));
+        QueueDiscoveryTask(DownloadBundle(url, outputPath));
+    }
+
+    /// <summary>
+    /// Downloads a bundle from a URL and saves it to the specified output path.
+    /// </summary>
+    /// <param name="url">The URL of the .ccb bundle file to download.</param>
+    /// <param name="outputPath">The local file path where the bundle will be saved.</param>
+    /// <returns>A task representing the asynchronous download operation.</returns>
+    public static async Task DownloadBundle(string url, string outputPath)
+    {
+        try
+        {
+            using var httpClient = new HttpClient();
+            var bytes = await httpClient.GetByteArrayAsync(url);
+            await File.WriteAllBytesAsync(outputPath, bytes);
+            AddBundleSource(outputPath);
+            Info($"Saved bundle from {url} to {outputPath}");
+        }
+        catch (Exception e)
+        {
+            Error(e.Message);
+        }
     }
 
     /// <summary>

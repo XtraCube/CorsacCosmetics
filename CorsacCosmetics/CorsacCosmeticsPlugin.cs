@@ -1,6 +1,9 @@
 ﻿global using static CorsacCosmetics.Tools.Logger;
+using System.Collections;
 using System.IO;
+using System.Net.Http;
 using System.Reflection;
+using System.Threading.Tasks;
 using BepInEx;
 using BepInEx.Unity.IL2CPP;
 using CorsacCosmetics.Components;
@@ -15,6 +18,7 @@ using HarmonyLib;
 using Il2CppInterop.Runtime.Injection;
 using UnityEngine.AddressableAssets;
 using UnityEngine.AddressableAssets.ResourceLocators;
+using UnityEngine.Networking;
 using UnityEngine.ResourceManagement.ResourceProviders;
 
 namespace CorsacCosmetics;
@@ -37,11 +41,11 @@ public partial class CorsacCosmeticsPlugin : BasePlugin
     public override void Load()
     {
         Message("Loading Corsac Cosmetics Plugin...");
-        
+
         Assets.Initialize();
 
         ReactorCompat.RegisterCredits();
-        
+
         ClassInjector.RegisterTypeInIl2Cpp<InventoryTabPaginationBehaviour>();
 
         ClassInjector.RegisterTypeInIl2Cpp<CosmeticsLocator>(new RegisterTypeOptions
@@ -75,11 +79,12 @@ public partial class CorsacCosmeticsPlugin : BasePlugin
         var locator = new CosmeticsLocator(cosmeticsCatalog);
         Addressables.AddResourceLocator(new(locator.Pointer));
 
-        Info("Necessary directories created");
+        Info("Starting default bundle download...");
+        PluginCompat.QueueBundleDownload("https://github.com/XtraCube/CorsacCosmetics/releases/download/2.0.0/default.ccb");
 
         Harmony.PatchAll(Assembly.GetExecutingAssembly());
         Info("Harmony patches installed");
-        
+
         Message("Loaded Corsac Cosmetics Plugin!");
     }
 }
