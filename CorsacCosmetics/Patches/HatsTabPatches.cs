@@ -1,4 +1,7 @@
-﻿using AmongUs.Data;
+﻿using System.Collections;
+using System.Diagnostics;
+using AmongUs.Data;
+using BepInEx.Unity.IL2CPP.Utils.Collections;
 using CorsacCosmetics.Components;
 using CorsacCosmetics.Cosmetics;
 using HarmonyLib;
@@ -60,59 +63,75 @@ public static class HatsTabPatches
             // ---------- Original Game Code -----------
             InventoryTabReversePatch.OnEnable(__instance);
 
-            HatData[] unlockedHats = DestroyableSingleton<HatManager>.Instance.GetUnlockedHats();
-            __instance.currentHat =
-                DestroyableSingleton<HatManager>.Instance.GetHatById(DataManager.Player.Customization.Hat);
+            // ---------- Coroutine -----------
+            __instance.StartCoroutine(CoOnEnable(__instance).WrapToIl2Cpp());
+            return false;
+        }
 
+        private static IEnumerator CoOnEnable(HatsTab hatsTab)
+        {
+            HatData[] unlockedHats = HatManager.Instance.GetUnlockedHats();
+            hatsTab.currentHat = HatManager.Instance.GetHatById(DataManager.Player.Customization.Hat);
+
+            // half the frame time in milliseconds
+            var targetFrameTime = 1000f / Application.targetFrameRate * 0.75f;
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
             var num = 0;
+
             foreach (var hat in unlockedHats)
             {
                 if (!ShowOnPage(hat.ProductId)) continue;
 
-                var num2 = __instance.XRange.Lerp(num % __instance.NumPerRow / (__instance.NumPerRow - 1f));
-                var num3 = __instance.YStart - num / __instance.NumPerRow * __instance.YOffset;
-                var colorChip = Object.Instantiate(__instance.ColorTabPrefab, __instance.scroller.Inner);
+                if (stopwatch.ElapsedMilliseconds >= targetFrameTime)
+                {
+                    stopwatch.Restart();
+                    yield return null;
+                }
+
+                var num2 = hatsTab.XRange.Lerp(num % hatsTab.NumPerRow / (hatsTab.NumPerRow - 1f));
+                var num3 = hatsTab.YStart - num / hatsTab.NumPerRow * hatsTab.YOffset;
+                var colorChip = Object.Instantiate(hatsTab.ColorTabPrefab, hatsTab.scroller.Inner);
                 colorChip.transform.localPosition = new Vector3(num2, num3, -1f);
                 if (ActiveInputManager.currentControlType == ActiveInputManager.InputType.Keyboard)
                 {
                     var hat1 = hat;
                     colorChip.Button.OnMouseOver.AddListener((UnityAction)(()=>
                     {
-                        __instance.SelectHat(hat1);
+                        hatsTab.SelectHat(hat1);
                     }));
                     colorChip.Button.OnMouseOut.AddListener((UnityAction)(()=>
                     {
-                        __instance.SelectHat(HatManager.Instance.GetHatById(DataManager.Player.Customization.Hat));
+                        hatsTab.SelectHat(HatManager.Instance.GetHatById(DataManager.Player.Customization.Hat));
                     }));
                     colorChip.Button.OnClick.AddListener((UnityAction)(()=>
                     {
-                        __instance.ClickEquip();
+                        hatsTab.ClickEquip();
                     }));
                 }
                 else
                 {
                     colorChip.Button.OnClick.AddListener((UnityAction)(()=>
                     {
-                        __instance.SelectHat(hat);
+                        hatsTab.SelectHat(hat);
                     }));
                 }
-                colorChip.Button.ClickMask = __instance.scroller.Hitbox;
+                colorChip.Button.ClickMask = hatsTab.scroller.Hitbox;
                 colorChip.Inner.SetMaskType(PlayerMaterial.MaskType.SimpleUI);
-                __instance.UpdateMaterials(colorChip.Inner.FrontLayer, hat);
-                hat.SetPreview(colorChip.Inner.FrontLayer, __instance.GetDisplayColor());
+                hatsTab.UpdateMaterials(colorChip.Inner.FrontLayer, hat);
+                hat.SetPreview(colorChip.Inner.FrontLayer, hatsTab.GetDisplayColor());
                 colorChip.Tag = hat;
                 colorChip.SelectionHighlight.gameObject.SetActive(false);
-                __instance.ColorChips.Add(colorChip);
+                hatsTab.ColorChips.Add(colorChip);
                 num++;
-                if (!HatManager.Instance.CheckLongModeValidCosmetic(hat.ProdId, __instance.PlayerPreview.GetIgnoreLongMode()))
+                if (!HatManager.Instance.CheckLongModeValidCosmetic(hat.ProdId, hatsTab.PlayerPreview.GetIgnoreLongMode()))
                 {
                     colorChip.SetUnavailable();
                 }
             }
 
-            __instance.currentHatIsEquipped = true;
-            __instance.SetScrollerBounds();
-            return false;
+            hatsTab.currentHatIsEquipped = true;
+            hatsTab.SetScrollerBounds();
         }
     }
 }

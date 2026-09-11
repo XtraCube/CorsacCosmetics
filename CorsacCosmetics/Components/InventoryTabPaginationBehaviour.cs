@@ -82,9 +82,9 @@ public class InventoryTabPaginationBehaviour(nint cppPtr) : MonoBehaviour(cppPtr
 
         if (tab)
         {
+            tab.scroller.ScrollToTop();
             tab.enabled = false;
             tab.enabled = true;
-            tab.scroller.ScrollToTop();
         }
     }
 
@@ -95,9 +95,9 @@ public class InventoryTabPaginationBehaviour(nint cppPtr) : MonoBehaviour(cppPtr
 
         if (tab)
         {
+            tab.scroller.ScrollToTop();
             tab.enabled = false;
             tab.enabled = true;
-            tab.scroller.ScrollToTop();
         }
     }
 }

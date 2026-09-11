@@ -1,4 +1,7 @@
-﻿using AmongUs.Data;
+﻿using System.Collections;
+using System.Diagnostics;
+using AmongUs.Data;
+using BepInEx.Unity.IL2CPP.Utils.Collections;
 using CorsacCosmetics.Components;
 using CorsacCosmetics.Cosmetics;
 using HarmonyLib;
@@ -56,63 +59,78 @@ public static class VisorsTabPatches
                 __instance,
                 CosmeticsCatalog.Instance.VisorGroups.Count,
                 GetText);
-            
+
             // ---------- Original Game Code -----------
+            InventoryTabReversePatch.OnEnable(__instance);
+
+            // --------- Coroutine ----------
+            __instance.StartCoroutine(CoOnEnable(__instance).WrapToIl2Cpp());
+            return false;
+        }
+
+        private static IEnumerator CoOnEnable(VisorsTab tab)
+        {
             VisorData[] unlockedVisors = DestroyableSingleton<HatManager>.Instance.GetUnlockedVisors();
             var num = 0;
+            // half the frame time in milliseconds
+            var targetFrameTime = 1000f / Application.targetFrameRate * 0.75f;
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+
             foreach (var visor in unlockedVisors)
             {
                 if (!ShowOnPage(visor.ProductId)) continue;
 
-                var num2 = __instance.XRange.Lerp(num % __instance.NumPerRow / (__instance.NumPerRow - 1f));
-                var num3 = __instance.YStart - num / __instance.NumPerRow * __instance.YOffset;
-                var colorChip = Object.Instantiate(__instance.ColorTabPrefab, __instance.scroller.Inner);
+                if (stopwatch.ElapsedMilliseconds >= targetFrameTime)
+                {
+                    stopwatch.Restart();
+                    yield return null;
+                }
+
+                var num2 = tab.XRange.Lerp(num % tab.NumPerRow / (tab.NumPerRow - 1f));
+                var num3 = tab.YStart - num / tab.NumPerRow * tab.YOffset;
+                var colorChip = Object.Instantiate(tab.ColorTabPrefab, tab.scroller.Inner);
                 colorChip.transform.localPosition = new Vector3(num2, num3, -1f);
                 if (ActiveInputManager.currentControlType == ActiveInputManager.InputType.Keyboard)
                 {
                     var visor1 = visor;
-                    colorChip.Button.OnMouseOver.AddListener((UnityAction)(()=>
+                    colorChip.Button.OnMouseOver.AddListener((UnityAction)(() => { tab.SelectVisor(visor1); }));
+                    colorChip.Button.OnMouseOut.AddListener((UnityAction)(() =>
                     {
-                        __instance.SelectVisor(visor1);
+                        tab.SelectVisor(
+                            DestroyableSingleton<HatManager>.Instance.GetVisorById(DataManager.Player.Customization
+                                .Visor));
                     }));
-                    colorChip.Button.OnMouseOut.AddListener((UnityAction)(()=>
-                    {
-                        __instance.SelectVisor(DestroyableSingleton<HatManager>.Instance.GetVisorById(DataManager.Player.Customization.Visor));
-                    }));
-                    colorChip.Button.OnClick.AddListener((UnityAction)(()=>
-                    {
-                        __instance.ClickEquip();
-                    }));
+                    colorChip.Button.OnClick.AddListener((UnityAction)(() => { tab.ClickEquip(); }));
                 }
                 else
                 {
-                    colorChip.Button.OnClick.AddListener((UnityAction)(()=>
-                    {
-                        __instance.SelectVisor(visor);
-                    }));
+                    colorChip.Button.OnClick.AddListener((UnityAction)(() => { tab.SelectVisor(visor); }));
                 }
-                colorChip.Button.ClickMask = __instance.scroller.Hitbox;
+
+                colorChip.Button.ClickMask = tab.scroller.Hitbox;
                 colorChip.ProductId = visor.ProductId;
-                __instance.UpdateMaterials(colorChip.Inner.FrontLayer, visor);
-                visor.SetPreview(colorChip.Inner.FrontLayer, __instance.GetDisplayColor());
+                tab.UpdateMaterials(colorChip.Inner.FrontLayer, visor);
+                visor.SetPreview(colorChip.Inner.FrontLayer, tab.GetDisplayColor());
                 colorChip.Tag = visor.ProdId;
                 colorChip.SelectionHighlight.gameObject.SetActive(false);
-                __instance.ColorChips.Add(colorChip);
+                tab.ColorChips.Add(colorChip);
                 num++;
-                if (!DestroyableSingleton<HatManager>.Instance.CheckLongModeValidCosmetic(visor.ProdId, __instance.PlayerPreview.GetIgnoreLongMode()))
+                if (!DestroyableSingleton<HatManager>.Instance.CheckLongModeValidCosmetic(visor.ProdId,
+                        tab.PlayerPreview.GetIgnoreLongMode()))
                 {
                     colorChip.SetUnavailable();
                 }
             }
+
             if (unlockedVisors.Length != 0)
             {
-                __instance.GetDefaultSelectable().PlayerEquippedForeground.SetActive(true);
+                tab.GetDefaultSelectable().PlayerEquippedForeground.SetActive(true);
             }
-            __instance.visorId = DataManager.Player.Customization.Visor;
-            __instance.currentVisorIsEquipped = true;
-            __instance.SetScrollerBounds();
 
-            return false;
+            tab.visorId = DataManager.Player.Customization.Visor;
+            tab.currentVisorIsEquipped = true;
+            tab.SetScrollerBounds();
         }
     }
 }
