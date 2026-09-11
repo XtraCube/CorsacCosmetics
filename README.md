@@ -68,7 +68,20 @@ This ensures your resources are fully downloaded and saved before Corsac attempt
 For convenience, you can use `QueueBundleDownload` to download a `.ccb` bundle from a URL. The bundle will be automatically saved to the `CorsacCosmetics/Bundles` folder with the filename from the URL:
 
 ```csharp
+// Download to default Bundles folder
 PluginCompat.QueueBundleDownload("https://example.com/my_bundle.ccb");
+
+// Or specify a custom output folder
+PluginCompat.QueueBundleDownload("https://example.com/my_bundle.ccb", @"path\to\custom\folder");
+```
+
+##### Adding bundles from bytes
+
+If you already have bundle data in memory (e.g., from an embedded resource or network stream), you can use `AddBundleBytes` to register it directly:
+
+```csharp
+byte[] bundleData = GetBundleBytesFromSomewhere();
+PluginCompat.AddBundleBytes(bundleData);
 ```
 
 #### Adding a folder source

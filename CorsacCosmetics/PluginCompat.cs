@@ -41,9 +41,10 @@ public static class PluginCompat
     /// The bundle is saved to the CorsacCosmetics/Bundles folder with the filename from the URL.
     /// </summary>
     /// <param name="url">The URL of the .ccb bundle file to download.</param>
-    public static void QueueBundleDownload(string url)
+    /// <param name="outputFolder">Optional output folder for the download.</param>
+    public static void QueueBundleDownload(string url, string? outputFolder = null)
     {
-        var outputFolder = CosmeticPaths.BundlePath;
+        outputFolder ??= CosmeticPaths.BundlePath;
         var outputPath = Path.Combine(outputFolder, Path.GetFileName(url));
         QueueDiscoveryTask(DownloadBundle(url, outputPath));
     }
@@ -68,6 +69,18 @@ public static class PluginCompat
         {
             Error(e.Message);
         }
+    }
+
+    /// <summary>
+    /// Adds a bundle source from a byte array. The bytes are written to a temporary file and registered as a bundle source.
+    /// Useful when you already have bundle data in memory (e.g., from an embedded resource or network stream).
+    /// </summary>
+    /// <param name="bundleBytes">The raw bytes of the .ccb bundle file.</param>
+    public static void AddBundleBytes(byte[] bundleBytes)
+    {
+        var cacheFile = Path.GetTempFileName();
+        File.WriteAllBytes(cacheFile, bundleBytes);
+        AddBundleSource(cacheFile);
     }
 
     /// <summary>
