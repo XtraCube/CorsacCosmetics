@@ -4,15 +4,23 @@ using UnityEngine.AddressableAssets;
 
 namespace CorsacCosmetics.Cosmetics.Visors;
 
-public class VisorDataBuilder
+public class VisorDataBuilder(string id)
 {
     public string Name { get; private set; } = "";
 
-    public string Id { get; private set; } = "";
+    public string Id { get; private set; } = id;
 
     public bool BehindHats { get; private set; }
 
     public bool MatchPlayerColor { get; private set; }
+
+    public VisorDataBuilder SetFromMetadata(VisorMetadata metadata)
+    {
+        Name = metadata.Name;
+        BehindHats = metadata.BehindHats;
+        MatchPlayerColor = metadata.MatchPlayerColor;
+        return this;
+    }
 
     public VisorDataBuilder SetName(string name)
     {

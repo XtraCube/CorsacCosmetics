@@ -7,7 +7,7 @@ using CorsacCosmetics.Cosmetics.Nameplates;
 using CorsacCosmetics.Cosmetics.Visors;
 
 namespace CorsacCosmetics.Cosmetics.Bundle.V2;
-
+/*
 public class BundleLoaderV2(
     HatLoader hatLoader, 
     VisorLoader visorLoader, 
@@ -184,4 +184,4 @@ public class BundleLoaderV2(
             return BundleDecoder.DecodeNameplate(bundleSource);
         }
     }
-}
+}*/

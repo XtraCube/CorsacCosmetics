@@ -1,0 +1,73 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text.Json;
+using System.Threading.Tasks;
+using CorsacCosmetics.Cosmetics.AssetReaders;
+using CorsacCosmetics.Cosmetics.Hats;
+using CorsacCosmetics.Cosmetics.Nameplates;
+using CorsacCosmetics.Cosmetics.Visors;
+
+namespace CorsacCosmetics.Cosmetics.Sources;
+
+public class LocalFolderSource(string basePath) : ICosmeticSource
+{
+    public string SourceId => "LocalFolder";
+    private static string Group => "default";
+
+    public Task<IEnumerable<CosmeticDescriptor>> DiscoverAsync()
+    {
+        var descriptors = new List<CosmeticDescriptor>();
+        var hatPath = Path.Combine(basePath, "Hats");
+        var visorPath = Path.Combine(basePath, "Visors");
+        var namePlatePath = Path.Combine(basePath, "NamePlate");
+
+        descriptors.AddRange(Directory.EnumerateFiles(hatPath, "*.png")
+            .Select(pngFile => LoadCosmetic<HatMetadata>(pngFile, CosmeticType.Hat)));
+        descriptors.AddRange(Directory.EnumerateFiles(visorPath, "*.png")
+            .Select(pngFile => LoadCosmetic<VisorMetadata>(pngFile, CosmeticType.Visor)));
+        descriptors.AddRange(Directory.EnumerateFiles(namePlatePath, "*.png")
+            .Select(pngFile => LoadCosmetic<NamePlateMetadata>(pngFile, CosmeticType.NamePlate)));
+
+        return Task.FromResult(descriptors.AsEnumerable());
+    }
+
+    private CosmeticDescriptor LoadCosmetic<T>(
+        string filePath,
+        CosmeticType cosmeticType
+        ) where T : ICosmeticMetadata
+    {
+        var name = Path.GetFileNameWithoutExtension(filePath);
+        var metadataFile = Path.ChangeExtension(filePath, ".json");
+        var metadata = default(T);
+
+        try
+        {
+            if (File.Exists(metadataFile))
+            {
+                var metadataJson = File.ReadAllText(metadataFile);
+                metadata = JsonSerializer.Deserialize<T>(metadataJson);
+            }
+            else
+            {
+                Warning($"No metadata file found for hat {name}, using defaults.");
+            }
+        }
+        catch (Exception e)
+        {
+            Error($"Failed to load metadata for hat {name}: {e.Message}");
+        }
+
+        metadata ??= Activator.CreateInstance<T>();
+
+        return new CosmeticDescriptor(
+            SourceId,
+            Group,
+            name,
+            cosmeticType,
+            metadata,
+            new FileAssetReader(filePath)
+        );
+    }
+}

@@ -4,7 +4,7 @@ public static class CosmeticExtensions
 {
     extension(PreviewViewData previewData)
     {
-        public void Unload()
+        public void Release()
         {
             previewData.PreviewSprite.CleanUp();
             previewData.PreviewSprite = null;
@@ -14,7 +14,7 @@ public static class CosmeticExtensions
 
     extension(HatViewData hatViewData)
     {
-        public void Unload()
+        public void Release()
         {
             hatViewData.MainImage.CleanUp();
             hatViewData.MainImage = null;
@@ -38,7 +38,7 @@ public static class CosmeticExtensions
 
     extension(VisorViewData visorViewData)
     {
-        public void Unload()
+        public void Release()
         {
             visorViewData.IdleFrame.CleanUp();
             visorViewData.IdleFrame = null;
@@ -54,7 +54,7 @@ public static class CosmeticExtensions
 
     extension(NamePlateViewData nameplateViewData)
     {
-        public void Unload()
+        public void Release()
         {
             nameplateViewData.Image.CleanUp();
             nameplateViewData.Image = null;

@@ -6,7 +6,7 @@ using CorsacCosmetics.Cosmetics.Nameplates;
 using CorsacCosmetics.Cosmetics.Visors;
 
 namespace CorsacCosmetics.Cosmetics.Bundle;
-
+/*
 public class BundleLoader(HatLoader hatLoader, VisorLoader visorLoader, NameplateLoader nameplateLoader)
 {
     public void LoadBundles(string directory)
@@ -179,4 +179,4 @@ public class BundleLoader(HatLoader hatLoader, VisorLoader visorLoader, Nameplat
             return BundleDecoder.DecodeNameplate(bundleSource);
         }
     }
-}
+}*/

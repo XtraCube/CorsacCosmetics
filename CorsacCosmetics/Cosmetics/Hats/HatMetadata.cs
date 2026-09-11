@@ -1,11 +1,13 @@
 ﻿namespace CorsacCosmetics.Cosmetics.Hats;
 
-
-public struct HatMetadata()
+[System.Serializable]
+public struct HatMetadata : ICosmeticMetadata
 {
-    public string Name = "Custom Hat";
-    public bool MatchPlayerColor;
-    public bool BlocksVisors;
-    public bool InFront = true;
-    public bool NoBounce = true;
+    public string Name { get; set; } = "Custom Hat";
+    public bool MatchPlayerColor { get; set; } = false;
+    public bool BlocksVisors { get; set; } = false;
+    public bool InFront { get; set; } = true;
+    public bool NoBounce { get; set; } = true;
+
+    public HatMetadata() { }
 }

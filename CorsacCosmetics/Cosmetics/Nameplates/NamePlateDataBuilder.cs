@@ -4,11 +4,17 @@ using UnityEngine.AddressableAssets;
 
 namespace CorsacCosmetics.Cosmetics.Nameplates;
 
-public sealed class NamePlateDataBuilder
+public sealed class NamePlateDataBuilder(string id)
 {
     public string Name { get; private set; } = "";
 
-    public string Id { get; private set; } = "";
+    public string Id { get; private set; } = id;
+
+    public NamePlateDataBuilder SetFromMetadata(NamePlateMetadata metadata)
+    {
+        Name = metadata.Name;
+        return this;
+    }
 
     public NamePlateDataBuilder SetName(string name)
     {

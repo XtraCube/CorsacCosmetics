@@ -4,11 +4,11 @@ using UnityEngine.AddressableAssets;
 
 namespace CorsacCosmetics.Cosmetics.Hats;
 
-public sealed class HatDataBuilder
+public sealed class HatDataBuilder(string id)
 {
     public string Name { get; private set; } = "";
 
-    public string Id { get; private set; } = "";
+    public string Id { get; private set; } = id;
 
     public bool BlocksVisors { get; private set; }
 
@@ -17,6 +17,16 @@ public sealed class HatDataBuilder
     public bool InFront { get; private set; } = true;
 
     public bool MatchPlayerColor { get; private set; }
+
+    public HatDataBuilder SetFromMetadata(HatMetadata metadata)
+    {
+        Name = metadata.Name;
+        BlocksVisors = metadata.BlocksVisors;
+        NoBounce = metadata.NoBounce;
+        InFront = metadata.InFront;
+        MatchPlayerColor = metadata.MatchPlayerColor;
+        return this;
+    }
 
     public HatDataBuilder SetName(string name)
     {

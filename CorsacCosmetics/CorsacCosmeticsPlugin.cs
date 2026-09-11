@@ -4,10 +4,15 @@ using BepInEx;
 using BepInEx.Unity.IL2CPP;
 using CorsacCosmetics.Components;
 using CorsacCosmetics.Cosmetics;
+using CorsacCosmetics.Cosmetics.Hats;
+using CorsacCosmetics.Cosmetics.Nameplates;
+using CorsacCosmetics.Cosmetics.Sources;
+using CorsacCosmetics.Cosmetics.Visors;
 using CorsacCosmetics.Tools;
 using CorsacCosmetics.Unity;
 using HarmonyLib;
 using Il2CppInterop.Runtime.Injection;
+using UnityEngine.AddressableAssets;
 using UnityEngine.AddressableAssets.ResourceLocators;
 using UnityEngine.ResourceManagement.ResourceProviders;
 
@@ -22,9 +27,16 @@ public partial class CorsacCosmeticsPlugin : BasePlugin
 
     public static CorsacCosmeticsPlugin Instance { get; private set; } = null!;
 
+    public CosmeticsCatalog CosmeticsCatalog { get; }
+    public SourceRegistry SourceRegistry { get; }
+
     public CorsacCosmeticsPlugin()
     {
         Instance = this;
+
+        CosmeticsCatalog = new CosmeticsCatalog();
+        SourceRegistry = new SourceRegistry();
+        SourceRegistry.RegisterSource(new LocalFolderSource(CosmeticPaths.BasePath));
     }
 
     public override void Load()
@@ -37,31 +49,33 @@ public partial class CorsacCosmeticsPlugin : BasePlugin
         
         ClassInjector.RegisterTypeInIl2Cpp<InventoryTabPaginationBehaviour>();
 
-        ClassInjector.RegisterTypeInIl2Cpp<HatLocator>(new RegisterTypeOptions
+        ClassInjector.RegisterTypeInIl2Cpp<CosmeticsLocator>(new RegisterTypeOptions
         {
             Interfaces = new Il2CppInterfaceCollection([typeof(IResourceLocator)])
         });
 
-        ClassInjector.RegisterTypeInIl2Cpp<HatProvider>(new RegisterTypeOptions
+        ClassInjector.RegisterTypeInIl2Cpp<CosmeticsProvider>(new RegisterTypeOptions
         {
             Interfaces = new Il2CppInterfaceCollection([typeof(IResourceProvider)])
         });
+        Info("Injected IL2CPP types");
 
-        Info("Initializing HatProvider...");
-        HatProvider.Initialize();
-        Info("HatProvider initialized!");
-        
-        Info("Initializing HatLocator...");
-        HatLocator.Initialize();
-        Info("HatLocator initialized!");
+        var factoryRegistry = new ViewDataFactoryRegistry();
+        factoryRegistry.RegisterFactory(new HatViewDataFactory());
+        factoryRegistry.RegisterFactory(new VisorViewDataFactory());
+        factoryRegistry.RegisterFactory(new NamePlateViewDataFactory());
 
-        Info("Loading Harmony patches...");
-        Harmony.PatchAll(Assembly.GetExecutingAssembly());
-        Info("Harmony patches loaded!");
+        var cosmeticsProvider = new CosmeticsProvider(CosmeticsCatalog, factoryRegistry);
+        Addressables.ResourceManager.ResourceProviders.Insert(0, new(cosmeticsProvider.Pointer));
 
-        Info("Creating necessary directories...");
+        var cosmeticsLocator = new CosmeticsLocator(CosmeticsCatalog);
+        Addressables.AddResourceLocator(new(cosmeticsLocator.Pointer));
+
         CosmeticPaths.EnsureDirectoriesExist();
-        Info("Necessary directories created!");
+        Info("Necessary directories created");
+
+        Harmony.PatchAll(Assembly.GetExecutingAssembly());
+        Info("Harmony patches installed");
         
         Message("Loaded Corsac Cosmetics Plugin!");
     }
