@@ -79,9 +79,6 @@ public partial class CorsacCosmeticsPlugin : BasePlugin
         var locator = new CosmeticsLocator(cosmeticsCatalog);
         Addressables.AddResourceLocator(new(locator.Pointer));
 
-        Info("Starting default bundle download...");
-        PluginCompat.QueueBundleDownload("https://github.com/XtraCube/CorsacCosmetics/releases/download/2.0.0/default.ccb");
-
         Harmony.PatchAll(Assembly.GetExecutingAssembly());
         Info("Harmony patches installed");
 
