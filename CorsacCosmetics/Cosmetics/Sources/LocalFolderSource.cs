@@ -11,10 +11,9 @@ using CorsacCosmetics.Cosmetics.Visors;
 
 namespace CorsacCosmetics.Cosmetics.Sources;
 
-public class LocalFolderSource(string basePath) : ICosmeticSource
+public class LocalFolderSource(string basePath, string group = "default") : ICosmeticSource
 {
-    public string SourceId => "LocalFolder";
-    private static string Group => "default";
+    public string SourceId => basePath + group;
 
     public Task<IEnumerable<CosmeticDescriptor>> DiscoverAsync()
     {
@@ -74,7 +73,7 @@ public class LocalFolderSource(string basePath) : ICosmeticSource
 
         return new CosmeticDescriptor(
             SourceId,
-            Group,
+            group,
             name,
             cosmeticType,
             metadata,
