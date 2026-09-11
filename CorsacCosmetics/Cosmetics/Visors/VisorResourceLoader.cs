@@ -2,17 +2,17 @@ using System;
 using System.Threading.Tasks;
 using CorsacCosmetics.Tools;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace CorsacCosmetics.Cosmetics.Visors;
 
-public class VisorViewDataFactory : ICosmeticViewDataFactory
+public class VisorResourceLoader : BaseCosmeticResourceLoader<VisorViewData>
 {
-    public CosmeticType SupportedType => CosmeticType.Visor;
+    public override CosmeticType CosmeticType => CosmeticType.Visor;
 
-    public async Task<Object> CreateViewData(CosmeticDescriptor descriptor)
+    protected override async Task<VisorViewData> CreateViewDataAsync(CosmeticDescriptor descriptor)
     {
-        if (descriptor.Type != SupportedType) throw new ArgumentException($"Descriptor is not of type {SupportedType}");
+        if (descriptor.Type != CosmeticType) 
+            throw new ArgumentException($"Descriptor is not of type {CosmeticType}");
 
         var metadata = (VisorMetadata)descriptor.Metadata;
         var visorViewData = ScriptableObject.CreateInstance<VisorViewData>();
@@ -25,11 +25,8 @@ public class VisorViewDataFactory : ICosmeticViewDataFactory
         return visorViewData;
     }
 
-    public void ReleaseViewData(Object viewData)
-    {
-        if (viewData.TryCast<VisorViewData>() is { } visorViewData)
-        {
-            visorViewData.Release();
-        }
+    protected override void ReleaseViewData(VisorViewData viewData)
+    {           
+        viewData.Release();
     }
 }

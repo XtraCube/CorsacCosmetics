@@ -1,11 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Text.Json;
-using CorsacCosmetics.Cosmetics.Hats;
-using CorsacCosmetics.Cosmetics.Nameplates;
-using CorsacCosmetics.Cosmetics.Visors;
-
-namespace CorsacCosmetics.Cosmetics.Bundle;
+﻿namespace CorsacCosmetics.Cosmetics.Bundle;
 /*
 public class BundleLoader(HatLoader hatLoader, VisorLoader visorLoader, NameplateLoader nameplateLoader)
 {

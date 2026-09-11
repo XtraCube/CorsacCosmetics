@@ -2,17 +2,17 @@ using System;
 using System.Threading.Tasks;
 using CorsacCosmetics.Tools;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace CorsacCosmetics.Cosmetics.Hats;
 
-public class HatViewDataFactory : ICosmeticViewDataFactory
+public class HatResourceLoader : BaseCosmeticResourceLoader<HatViewData>
 {
-    public CosmeticType SupportedType => CosmeticType.Hat;
+    public override CosmeticType CosmeticType => CosmeticType.Hat;
 
-    public async Task<Object> CreateViewData(CosmeticDescriptor descriptor)
+    protected override async Task<HatViewData> CreateViewDataAsync(CosmeticDescriptor descriptor)
     {
-        if (descriptor.Type != SupportedType) throw new ArgumentException($"Descriptor is not of type {SupportedType}");
+        if (descriptor.Type != CosmeticType) 
+            throw new ArgumentException($"Descriptor is not of type {CosmeticType}");
 
         var metadata = (HatMetadata)descriptor.Metadata;
         var hatViewData = ScriptableObject.CreateInstance<HatViewData>();
@@ -30,11 +30,8 @@ public class HatViewDataFactory : ICosmeticViewDataFactory
         return hatViewData;
     }
 
-    public void ReleaseViewData(Object viewData)
+    protected override void ReleaseViewData(HatViewData viewData)
     {
-        if (viewData.TryCast<HatViewData>() is { } hatViewData)
-        {
-            hatViewData.Release();
-        }
+        viewData.Release();
     }
 }

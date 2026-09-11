@@ -60,16 +60,17 @@ public partial class CorsacCosmeticsPlugin : BasePlugin
         });
         Info("Injected IL2CPP types");
 
-        var factoryRegistry = new ViewDataFactoryRegistry();
-        factoryRegistry.RegisterFactory(new HatViewDataFactory());
-        factoryRegistry.RegisterFactory(new VisorViewDataFactory());
-        factoryRegistry.RegisterFactory(new NamePlateViewDataFactory());
+        var factoryRegistry = new ViewDataLoaderRegistry();
+        factoryRegistry.RegisterLoader(new PreviewResourceLoader());
+        factoryRegistry.RegisterLoader(new HatResourceLoader());
+        factoryRegistry.RegisterLoader(new VisorResourceLoader());
+        factoryRegistry.RegisterLoader(new NamePlateResourceLoader());
 
-        var cosmeticsProvider = new CosmeticsProvider(CosmeticsCatalog, factoryRegistry);
-        Addressables.ResourceManager.ResourceProviders.Insert(0, new(cosmeticsProvider.Pointer));
+        var provider = new CosmeticsProvider(CosmeticsCatalog, factoryRegistry);
+        Addressables.ResourceManager.ResourceProviders.Insert(0, new(provider.Pointer));
 
-        var cosmeticsLocator = new CosmeticsLocator(CosmeticsCatalog);
-        Addressables.AddResourceLocator(new(cosmeticsLocator.Pointer));
+        var locator = new CosmeticsLocator(CosmeticsCatalog);
+        Addressables.AddResourceLocator(new(locator.Pointer));
 
         CosmeticPaths.EnsureDirectoriesExist();
         Info("Necessary directories created");

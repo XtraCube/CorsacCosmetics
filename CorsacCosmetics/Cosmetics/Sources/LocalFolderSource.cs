@@ -21,7 +21,10 @@ public class LocalFolderSource(string basePath) : ICosmeticSource
         var descriptors = new List<CosmeticDescriptor>();
         var hatPath = Path.Combine(basePath, "Hats");
         var visorPath = Path.Combine(basePath, "Visors");
-        var namePlatePath = Path.Combine(basePath, "NamePlate");
+        var namePlatePath = Path.Combine(basePath, "NamePlates");
+        Directory.CreateDirectory(hatPath);
+        Directory.CreateDirectory(visorPath);
+        Directory.CreateDirectory(namePlatePath);
 
         descriptors.AddRange(Directory.EnumerateFiles(hatPath, "*.png")
             .Select(pngFile => LoadCosmetic<HatMetadata>(pngFile, CosmeticType.Hat)));

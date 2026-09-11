@@ -10,16 +10,10 @@ public class CosmeticsLocator : Il2CppSystem.Object
 {
     private readonly CosmeticsCatalog _catalog;
     private readonly Dictionary<string, Il2CppSystem.Collections.Generic.IList<IResourceLocation>> _locationCache = [];
-    private readonly Il2CppSystem.Collections.Generic.List<IResourceLocation> _locations = new();
     private readonly Il2CppSystem.Collections.Generic.List<Il2CppSystem.Object> _keys = new();
-
-    public string LocatorId => typeof(CosmeticsLocator).FullName!;
- 
-    // ReSharper disable once UnusedAutoPropertyAccessor.Global
-    public Il2CppSystem.Collections.Generic.IEnumerable<IResourceLocation> Locations { get; }
     
     // ReSharper disable once UnusedAutoPropertyAccessor.Global
-    public Il2CppSystem.Collections.Generic.IEnumerable<Il2CppSystem.Object> Keys { get; }
+    public Il2CppSystem.Collections.Generic.IEnumerable<Il2CppSystem.Object> Keys => new(_keys.Pointer);
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
     public CosmeticsLocator(IntPtr intPtr) : base(intPtr) { }
@@ -28,8 +22,7 @@ public class CosmeticsLocator : Il2CppSystem.Object
     public CosmeticsLocator(CosmeticsCatalog catalog)
         : base(ClassInjector.DerivedConstructorPointer<CosmeticsLocator>())
     {
-        Keys = new(_keys.Pointer);
-        Locations = new(_locations.Pointer);
+        ClassInjector.DerivedConstructorBody(this);
         _catalog = catalog;
     }
 
@@ -64,7 +57,6 @@ public class CosmeticsLocator : Il2CppSystem.Object
 
         // Save to collections
         _locationCache.Add(cacheKey, locations);
-        _locations.Add(location.Cast<IResourceLocation>());
         _keys.Add(key);
         return true;
     }
