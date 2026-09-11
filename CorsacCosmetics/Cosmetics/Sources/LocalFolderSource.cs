@@ -43,14 +43,23 @@ public class LocalFolderSource(string basePath) : ICosmeticSource
     {
         var name = Path.GetFileNameWithoutExtension(filePath);
         var metadataFile = Path.ChangeExtension(filePath, ".json");
-        var metadata = default(T);
+        var metadata = Activator.CreateInstance<T>();
+        metadata.Name = name;
 
         try
         {
             if (File.Exists(metadataFile))
             {
                 var metadataJson = File.ReadAllText(metadataFile);
-                metadata = JsonSerializer.Deserialize<T>(metadataJson);
+                var newMetadata = JsonSerializer.Deserialize<T>(metadataJson);
+                if (newMetadata != null)
+                {
+                    metadata = newMetadata;
+                }
+                else
+                {
+                    Error($"Failed to load metadata for hat {name}: {metadataJson}");
+                }
             }
             else
             {
@@ -61,8 +70,6 @@ public class LocalFolderSource(string basePath) : ICosmeticSource
         {
             Error($"Failed to load metadata for hat {name}: {e.Message}");
         }
-
-        metadata ??= Activator.CreateInstance<T>();
 
         return new CosmeticDescriptor(
             SourceId,

@@ -15,6 +15,7 @@ public class NamePlateResourceLoader : BaseCosmeticResourceLoader<NamePlateViewD
             throw new ArgumentException($"Descriptor is not of type {CosmeticType}");
         
         var namePlateViewData = ScriptableObject.CreateInstance<NamePlateViewData>();
+        namePlateViewData.name = descriptor.DisplayName;
         namePlateViewData.Image = await descriptor.AssetReader.LoadSpriteAsync("");
         return namePlateViewData;
     }

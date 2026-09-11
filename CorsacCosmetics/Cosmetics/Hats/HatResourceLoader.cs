@@ -16,8 +16,8 @@ public class HatResourceLoader : BaseCosmeticResourceLoader<HatViewData>
 
         var metadata = (HatMetadata)descriptor.Metadata;
         var hatViewData = ScriptableObject.CreateInstance<HatViewData>();
+        hatViewData.name = descriptor.DisplayName;
         hatViewData.MatchPlayerColor = metadata.MatchPlayerColor;
-
         hatViewData.MainImage = await descriptor.AssetReader.LoadSpriteAsync("");
         hatViewData.BackImage = await descriptor.AssetReader.LoadSpriteAsync("back");
         hatViewData.ClimbImage = await descriptor.AssetReader.LoadSpriteAsync("climb");

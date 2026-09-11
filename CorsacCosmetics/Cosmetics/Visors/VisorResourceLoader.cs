@@ -16,11 +16,12 @@ public class VisorResourceLoader : BaseCosmeticResourceLoader<VisorViewData>
 
         var metadata = (VisorMetadata)descriptor.Metadata;
         var visorViewData = ScriptableObject.CreateInstance<VisorViewData>();
+        visorViewData.name = descriptor.DisplayName;
+        visorViewData.MatchPlayerColor = metadata.MatchPlayerColor;
         visorViewData.IdleFrame = await descriptor.AssetReader.LoadSpriteAsync("");
         visorViewData.ClimbFrame = await descriptor.AssetReader.LoadSpriteAsync("climb");
         visorViewData.FloorFrame = await descriptor.AssetReader.LoadSpriteAsync("floor");
         visorViewData.LeftIdleFrame = await descriptor.AssetReader.LoadSpriteAsync("left");
-        visorViewData.MatchPlayerColor = metadata.MatchPlayerColor;
 
         return visorViewData;
     }

@@ -11,6 +11,7 @@ public class PreviewResourceLoader : BaseCosmeticResourceLoader<PreviewViewData>
     protected override async Task<PreviewViewData> CreateViewDataAsync(CosmeticDescriptor descriptor)
     {
         var viewData = ScriptableObject.CreateInstance<PreviewViewData>();
+        viewData.name = descriptor.DisplayName;
         viewData.PreviewSprite = await descriptor.AssetReader.LoadSpriteAsync("");
         return viewData;
     }
