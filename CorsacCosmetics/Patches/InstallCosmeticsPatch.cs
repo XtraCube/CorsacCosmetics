@@ -39,7 +39,7 @@ public static class InstallCosmeticsPatch
         {
             try
             {
-                Info($"Installing {cosmetic.DisplayName}...");
+                Debug($"Installing {cosmetic.DisplayName}...");
                 cosmeticGroup.ids.Add(cosmetic.Id);
                 CosmeticsCatalog.Instance.Register(cosmetic);
                 switch (cosmetic.Type)
@@ -62,5 +62,6 @@ public static class InstallCosmeticsPatch
                 Error($"Failed to install {cosmetic.DisplayName}, type {cosmetic.Type}, metadata {cosmetic.Metadata} : {e}");
             }
         }
+        Info($"Installed {discoveredCosmetics.Count} cosmetics.");
     }
 }
