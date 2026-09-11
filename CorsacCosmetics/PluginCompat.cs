@@ -1,4 +1,7 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
 using CorsacCosmetics.Cosmetics.Sources;
 
 namespace CorsacCosmetics;
@@ -9,6 +12,17 @@ namespace CorsacCosmetics;
 /// </summary>
 public static class PluginCompat
 {
+    internal static Queue<IEnumerator> BeforeDiscoveryCoroutines = [];
+
+    /// <summary>
+    /// Adds a coroutine to run before Corsac discovers and installs cosmetics.
+    /// </summary>
+    /// <param name="coroutine">The coroutine to run.</param>
+    public static void QueueDiscoveryCoroutine(IEnumerator coroutine)
+    {
+        BeforeDiscoveryCoroutines.Enqueue(coroutine);
+    }
+
     /// <summary>
     /// Adds a new folder source to load cosmetics. Directory structure must match Corsac's default structure.
     /// </summary>

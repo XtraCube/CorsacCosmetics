@@ -28,6 +28,11 @@ public static class InstallCosmeticsPatch
             yield return original.Current;
         }
 
+        while (PluginCompat.BeforeDiscoveryCoroutines.TryDequeue(out var coroutine))
+        {
+            yield return coroutine;
+        }
+
         var discoveryTask = SourceRegistry.Instance.DiscoverAllAsync();
         yield return discoveryTask.AsIEnumerator();
 

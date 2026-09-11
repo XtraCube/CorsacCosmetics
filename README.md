@@ -44,6 +44,32 @@ Notes:
 
 CorsacCosmetics provides a `PluginCompat` static class that allows other mods to add cosmetics programmatically. This is designed to work with soft-dependencies, so your mod doesn't need to reference CorsacCosmetics directly.
 
+#### Downloading resources at runtime
+
+If you are downloading resources at runtime, you should do it before Corsac discovers and installs cosmetics. Use `QueueDiscoveryCoroutine` to register a coroutine that Corsac will wait for before proceeding:
+
+```csharp
+IEnumerator DownloadCosmetics()
+{
+    // Example: download files from a web server
+    using var www = UnityWebRequest.Get("https://example.com/my_cosmetics.ccb");
+    yield return www.SendWebRequest();
+    
+    if (www.result == UnityWebRequest.Result.Success)
+    {
+        File.WriteAllBytes(@"path\to\save\location.ccb", www.downloadHandler.data);
+    }
+    
+    // If you save cosmetics to your own folder, add it as a source
+    PluginCompat.AddBundleSource(@"path\to\save\location.ccb");
+}
+
+// Queue the coroutine before Corsac runs discovery (for example, in Plugin Load)
+PluginCompat.QueueDiscoveryCoroutine(DownloadCosmetics());
+```
+
+This ensures your resources are fully downloaded and saved before Corsac attempts to load cosmetics. Multiple coroutines can be queued and they will be executed in order.
+
 #### Adding a folder source
 
 You can register a folder for CorsacCosmetics to load cosmetics from. The directory structure must match Corsac's default structure (with `Hats`, `Visors`, `Nameplates` subfolders). The `Bundles` subfolder is not included in the folder source:
