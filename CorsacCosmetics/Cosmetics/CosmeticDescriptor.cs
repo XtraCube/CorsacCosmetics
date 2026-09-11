@@ -1,4 +1,6 @@
 using System;
+using System.Security.Cryptography;
+using System.Text;
 using CorsacCosmetics.Cosmetics.AssetReaders;
 using CorsacCosmetics.Cosmetics.Hats;
 using CorsacCosmetics.Cosmetics.Nameplates;
@@ -56,11 +58,27 @@ public class CosmeticDescriptor
         return ToCosmeticData().Cast<T>();
     }
 
+    private const byte UnitSeparator = 0x1F; 
     private static string GenerateGuid(params string[] parts)
     {
-        using var md5 = System.Security.Cryptography.MD5.Create();
-        var inputBytes = System.Text.Encoding.UTF8.GetBytes(string.Join(":", parts));
-        var hashBytes = md5.ComputeHash(inputBytes);
+        using var incrementalHash = IncrementalHash.CreateHash(HashAlgorithmName.MD5);
+
+        for (var i = 0; i < parts.Length; i++)
+        {
+            var currentPart = parts[i];
+            
+            incrementalHash.AppendData(Encoding.UTF8.GetBytes(currentPart));
+
+            if (i < parts.Length - 1)
+            {
+                ReadOnlySpan<byte> separatorSpan = [UnitSeparator];
+                incrementalHash.AppendData(separatorSpan);
+            }
+        }
+
+        Span<byte> hashBytes = stackalloc byte[16];
+        incrementalHash.GetCurrentHash(hashBytes);
+
         return new Guid(hashBytes).ToString();
     }
 }
