@@ -20,25 +20,24 @@ public static class VisorsTabPatches
         }
         else
         {
-            name = CosmeticsLoader.Instance.VisorGroups.GetGroupNameByIndex(_pagination.CurrentTab - 1);
+            name = CosmeticsCatalog.Instance.VisorGroups.GetGroupNameByIndex(_pagination.CurrentTab - 1);
         }
 
-        var max = CosmeticsLoader.Instance.VisorGroups.Count;
-        return $"{name} ({_pagination.CurrentTab} / {max})";
+        var max = CosmeticsCatalog.Instance.VisorGroups.Count + 1;
+        return $"{name} ({_pagination.CurrentTab + 1} / {max})";
     }
 
     private static bool ShowOnPage(string id)
     {
         if (!_pagination) return true;
         
-        if (_pagination.CurrentTab == 0) return !id.StartsWith("corsac");
+        var data = CosmeticsCatalog.Instance.Get(id);
 
-        if (!id.StartsWith("corsac")) return false;
+        if (_pagination.CurrentTab == 0) return data == null;
+        if (data == null) return false;
         
-        var group = Names.GetGroup(id);
-        var currentGroup = CosmeticsLoader.Instance.VisorGroups.GetGroupIdByIndex(_pagination.CurrentTab - 1);
-
-        return currentGroup == group;
+        var currentGroup = CosmeticsCatalog.Instance.VisorGroups.GetGroupIdByIndex(_pagination.CurrentTab - 1);
+        return currentGroup == data.GroupId;
     }
 
     [HarmonyPatch(typeof(VisorsTab), nameof(VisorsTab.OnEnable))]
@@ -55,7 +54,7 @@ public static class VisorsTabPatches
 
             _pagination.Setup(
                 __instance,
-                CosmeticsLoader.Instance.VisorGroups.Count,
+                CosmeticsCatalog.Instance.VisorGroups.Count,
                 GetText);
             
             // ---------- Original Game Code -----------

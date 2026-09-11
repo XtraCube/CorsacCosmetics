@@ -15,9 +15,10 @@ public class BundleSource(string bundlePath, long dataStart)
 
     private readonly Dictionary<string, SpriteData> _sprites = new();
 
-    public void AddSprite(string slot, SpriteData data)
+    public BundleSource AddSprite(string slot, SpriteData data)
     {
         _sprites[slot] = data;
+        return this;
     }
 
     public bool TryGetSprite(string slot, out SpriteData data)

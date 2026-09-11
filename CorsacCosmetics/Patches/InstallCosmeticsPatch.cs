@@ -1,30 +1,67 @@
-﻿using CorsacCosmetics.Cosmetics;
+﻿using System;
+using System.Collections;
+using BepInEx.Unity.IL2CPP.Utils.Collections;
+using CorsacCosmetics.Cosmetics;
+using CorsacCosmetics.Cosmetics.Sources;
+using CorsacCosmetics.Tools;
 using HarmonyLib;
+using UnityEngine;
 
 namespace CorsacCosmetics.Patches;
 
-[HarmonyPatch(typeof(ReferenceDataManager._Initialize_d__7), "MoveNext")]
+[HarmonyPatch(typeof(ReferenceDataManager), nameof(ReferenceDataManager.Initialize))]
 public static class InstallCosmeticsPatch
 {
-    private static bool _didRun = false;
-
-    public static void Postfix(ReferenceDataManager._Initialize_d__7 __instance)
+    public static void Postfix(ReferenceDataManager __instance, ref Il2CppSystem.Collections.IEnumerator __result)
     {
-        if (__instance.__1__state >= 0 || _didRun)
+        var original = __result;
+        __result = CoInstallCosmetics(__instance, original).WrapToIl2Cpp();
+    }
+
+    private static IEnumerator CoInstallCosmetics(
+        ReferenceDataManager referenceDataManager,
+        Il2CppSystem.Collections.IEnumerator original)
+    {
+        // run original coroutine
+        while (original.MoveNext())
         {
-            // only run after the original method has fully completed
-            return;
+            yield return original.Current;
         }
 
-        Info("Loading cosmetics...");
-        CosmeticsLoader.Instance.LoadCosmetics();
-        Info("Cosmetics loaded");
+        var discoveryTask = SourceRegistry.Instance.DiscoverAllAsync();
+        yield return discoveryTask.AsIEnumerator();
 
-        Info("Patching HatManager to include custom cosmetics");
-        CosmeticsLoader.Instance.InstallCosmetics(__instance.__4__this.Refdata);
-        Info("Loaded custom cosmetics into HatManager");
+        var cosmeticGroup = ScriptableObject.CreateInstance<CosmeticReleaseGroup>();
+        cosmeticGroup.date = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 
-        // second guard to prevent double execution
-        _didRun = true;
+        var discoveredCosmetics = discoveryTask.Result;
+        foreach (var cosmetic in discoveredCosmetics)
+        {
+            try
+            {
+                Debug($"Installing {cosmetic.DisplayName}...");
+                cosmeticGroup.ids.Add(cosmetic.Id);
+                CosmeticsCatalog.Instance.Register(cosmetic);
+                switch (cosmetic.Type)
+                {
+                    case Cosmetics.CosmeticType.Hat:
+                        referenceDataManager.Refdata.hats.Add(cosmetic.ToCosmeticData<HatData>());
+                        break;
+                    case Cosmetics.CosmeticType.Visor:
+                        referenceDataManager.Refdata.visors.Add(cosmetic.ToCosmeticData<VisorData>());
+                        break;
+                    case Cosmetics.CosmeticType.NamePlate:
+                        referenceDataManager.Refdata.nameplates.Add(cosmetic.ToCosmeticData<NamePlateData>());
+                        break;
+                    default:
+                        throw new InvalidOperationException();
+                }
+            }
+            catch (Exception e)
+            {
+                Error($"Failed to install {cosmetic.DisplayName}, type {cosmetic.Type}, metadata {cosmetic.Metadata} : {e}");
+            }
+        }
+        Info($"Installed {discoveredCosmetics.Count} cosmetics.");
     }
 }

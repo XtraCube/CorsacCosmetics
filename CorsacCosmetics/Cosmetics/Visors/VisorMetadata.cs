@@ -1,8 +1,11 @@
 namespace CorsacCosmetics.Cosmetics.Visors;
 
-public struct VisorMetadata()
+[System.Serializable]
+public struct VisorMetadata : ICosmeticMetadata
 {
-    public string Name = "Custom Visor";
-    public bool MatchPlayerColor = false;
-    public bool BehindHats = false;
+    public string Name { get; set; } = "Custom Visor";
+    public bool MatchPlayerColor { get; set; } = false;
+    public bool BehindHats { get; set; } = false;
+
+    public VisorMetadata() { }
 }

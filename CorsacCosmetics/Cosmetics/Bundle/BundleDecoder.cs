@@ -35,47 +35,6 @@ public static class BundleDecoder
         }
     }
 
-    public static PreviewViewData DecodePreview(BundleSource source)
-    {
-        var previewData = ScriptableObject.CreateInstance<PreviewViewData>();
-        var previewSprite = DecodeSprite(source, "PreviewSprite");
-        previewData.PreviewSprite = previewSprite;
-        return previewData;
-    }
-
-    public static HatViewData DecodeHat(BundleSource source, bool matchPlayerColor)
-    {
-        var viewData = ScriptableObject.CreateInstance<HatViewData>();
-        viewData.MainImage = DecodeSprite(source, "MainSprite");
-        viewData.BackImage = DecodeSprite(source, "BackSprite");
-        viewData.ClimbImage = DecodeSprite(source, "ClimbSprite");
-        viewData.FloorImage = DecodeSprite(source, "FloorSprite");
-        viewData.LeftMainImage = DecodeSprite(source, "LeftMainSprite");
-        viewData.LeftBackImage = DecodeSprite(source, "LeftBackSprite");
-        viewData.LeftClimbImage = DecodeSprite(source, "LeftClimbSprite");
-        viewData.LeftFloorImage = DecodeSprite(source, "LeftFloorSprite");
-        viewData.MatchPlayerColor = matchPlayerColor;
-        return viewData;
-    }
-
-    public static VisorViewData DecodeVisor(BundleSource source, bool matchPlayerColor)
-    {
-        var viewData = ScriptableObject.CreateInstance<VisorViewData>();
-        viewData.IdleFrame = DecodeSprite(source, "IdleSprite");
-        viewData.LeftIdleFrame = DecodeSprite(source, "LeftIdleSprite");
-        viewData.FloorFrame = DecodeSprite(source, "FloorSprite");
-        viewData.ClimbFrame = DecodeSprite(source, "ClimbSprite");
-        viewData.MatchPlayerColor = matchPlayerColor;
-        return viewData;
-    }
-
-    public static NamePlateViewData DecodeNameplate(BundleSource source)
-    {
-        var viewData = ScriptableObject.CreateInstance<NamePlateViewData>();
-        viewData.Image = DecodeSprite(source, "NameplateSprite");
-        return viewData;
-    }
-
     public static void CloseAll()
     {
         lock (Lock)
