@@ -1,9 +1,11 @@
 ﻿using System.Collections;
 using System.Diagnostics;
+using System.Linq;
 using AmongUs.Data;
 using BepInEx.Unity.IL2CPP.Utils.Collections;
 using CorsacCosmetics.Components;
 using CorsacCosmetics.Cosmetics;
+using CorsacCosmetics.Tools;
 using HarmonyLib;
 using UnityEngine;
 using UnityEngine.Events;
@@ -33,12 +35,12 @@ public static class VisorsTabPatches
     private static bool ShowOnPage(string id)
     {
         if (!_pagination) return true;
-        
+
         var data = CosmeticsCatalog.Instance.Get(id);
 
         if (_pagination.CurrentTab == 0) return data == null;
         if (data == null) return false;
-        
+
         var currentGroup = CosmeticsCatalog.Instance.VisorGroups.GetGroupIdByIndex(_pagination.CurrentTab - 1);
         return currentGroup == data.GroupId;
     }
@@ -70,17 +72,20 @@ public static class VisorsTabPatches
 
         private static IEnumerator CoOnEnable(VisorsTab tab)
         {
-            VisorData[] unlockedVisors = DestroyableSingleton<HatManager>.Instance.GetUnlockedVisors();
+            var visors = DestroyableSingleton<HatManager>.Instance.GetUnlockedVisors()
+                .Where(v => ShowOnPage(v.ProductId)).ToArray();
+
+            tab.visorId = DataManager.Player.Customization.Visor;
+            tab.currentVisorIsEquipped = true;
+            tab.scroller.CalculateAndSetYBounds(visors.Length, tab.NumPerRow, tab.NumRowsVisible, tab.YOffset);
+
             var num = 0;
-            // half the frame time in milliseconds
-            var targetFrameTime = 1000f / Application.targetFrameRate * 0.75f;
+            var targetFrameTime = Utilities.GetTargetFrameTimeMilliseconds();
             var stopwatch = new Stopwatch();
             stopwatch.Start();
 
-            foreach (var visor in unlockedVisors)
+            foreach (var visor in visors)
             {
-                if (!ShowOnPage(visor.ProductId)) continue;
-
                 if (stopwatch.ElapsedMilliseconds >= targetFrameTime)
                 {
                     stopwatch.Restart();
@@ -123,14 +128,10 @@ public static class VisorsTabPatches
                 }
             }
 
-            if (unlockedVisors.Length != 0)
+            if (visors.Length != 0)
             {
                 tab.GetDefaultSelectable().PlayerEquippedForeground.SetActive(true);
             }
-
-            tab.visorId = DataManager.Player.Customization.Visor;
-            tab.currentVisorIsEquipped = true;
-            tab.SetScrollerBounds();
         }
     }
 }

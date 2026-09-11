@@ -1,9 +1,11 @@
 ﻿using System.Collections;
 using System.Diagnostics;
+using System.Linq;
 using AmongUs.Data;
 using BepInEx.Unity.IL2CPP.Utils.Collections;
 using CorsacCosmetics.Components;
 using CorsacCosmetics.Cosmetics;
+using CorsacCosmetics.Tools;
 using HarmonyLib;
 using UnityEngine;
 using UnityEngine.Events;
@@ -70,16 +72,19 @@ public static class HatsTabPatches
 
         private static IEnumerator CoOnEnable(HatsTab hatsTab)
         {
-            HatData[] unlockedHats = HatManager.Instance.GetUnlockedHats();
-            hatsTab.currentHat = HatManager.Instance.GetHatById(DataManager.Player.Customization.Hat);
+            var hats = HatManager.Instance.GetUnlockedHats().Where(h => ShowOnPage(h.ProductId)).ToArray();
 
-            // half the frame time in milliseconds
-            var targetFrameTime = 1000f / Application.targetFrameRate * 0.75f;
+            hatsTab.currentHat = HatManager.Instance.GetHatById(DataManager.Player.Customization.Hat);
+            hatsTab.currentHatIsEquipped = true;
+            hatsTab.scroller.CalculateAndSetYBounds(hats.Length, hatsTab.NumPerRow, hatsTab.NumRowsVisible,
+                hatsTab.YOffset);
+
+            var num = 0;
+            var targetFrameTime = Utilities.GetTargetFrameTimeMilliseconds();
             var stopwatch = new Stopwatch();
             stopwatch.Start();
-            var num = 0;
 
-            foreach (var hat in unlockedHats)
+            foreach (var hat in hats)
             {
                 if (!ShowOnPage(hat.ProductId)) continue;
 
@@ -96,26 +101,18 @@ public static class HatsTabPatches
                 if (ActiveInputManager.currentControlType == ActiveInputManager.InputType.Keyboard)
                 {
                     var hat1 = hat;
-                    colorChip.Button.OnMouseOver.AddListener((UnityAction)(()=>
-                    {
-                        hatsTab.SelectHat(hat1);
-                    }));
-                    colorChip.Button.OnMouseOut.AddListener((UnityAction)(()=>
+                    colorChip.Button.OnMouseOver.AddListener((UnityAction)(() => { hatsTab.SelectHat(hat1); }));
+                    colorChip.Button.OnMouseOut.AddListener((UnityAction)(() =>
                     {
                         hatsTab.SelectHat(HatManager.Instance.GetHatById(DataManager.Player.Customization.Hat));
                     }));
-                    colorChip.Button.OnClick.AddListener((UnityAction)(()=>
-                    {
-                        hatsTab.ClickEquip();
-                    }));
+                    colorChip.Button.OnClick.AddListener((UnityAction)(() => { hatsTab.ClickEquip(); }));
                 }
                 else
                 {
-                    colorChip.Button.OnClick.AddListener((UnityAction)(()=>
-                    {
-                        hatsTab.SelectHat(hat);
-                    }));
+                    colorChip.Button.OnClick.AddListener((UnityAction)(() => { hatsTab.SelectHat(hat); }));
                 }
+
                 colorChip.Button.ClickMask = hatsTab.scroller.Hitbox;
                 colorChip.Inner.SetMaskType(PlayerMaterial.MaskType.SimpleUI);
                 hatsTab.UpdateMaterials(colorChip.Inner.FrontLayer, hat);
@@ -124,14 +121,12 @@ public static class HatsTabPatches
                 colorChip.SelectionHighlight.gameObject.SetActive(false);
                 hatsTab.ColorChips.Add(colorChip);
                 num++;
-                if (!HatManager.Instance.CheckLongModeValidCosmetic(hat.ProdId, hatsTab.PlayerPreview.GetIgnoreLongMode()))
+                if (!HatManager.Instance.CheckLongModeValidCosmetic(hat.ProdId,
+                        hatsTab.PlayerPreview.GetIgnoreLongMode()))
                 {
                     colorChip.SetUnavailable();
                 }
             }
-
-            hatsTab.currentHatIsEquipped = true;
-            hatsTab.SetScrollerBounds();
         }
     }
 }
