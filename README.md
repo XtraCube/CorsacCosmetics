@@ -102,6 +102,79 @@ You can also load cosmetics from a `.ccb` bundle file:
 PluginCompat.AddBundleSource(@"path\to\your\bundle.ccb");
 ```
 
+#### Custom sources and asset readers
+
+For deeper integration, you can implement the `ICosmeticSource` and `ICosmeticAssetReader` interfaces to create fully custom cosmetic loading pipelines.
+
+##### ICosmeticSource
+
+Implement this interface to create a custom source for discovering cosmetics:
+
+```csharp
+public interface ICosmeticSource
+{
+    string SourceId { get; }
+    Task<IEnumerable<CosmeticDescriptor>> DiscoverAsync();
+}
+```
+
+- `SourceId`: A unique identifier for your source
+- `DiscoverAsync()`: Returns a collection of `CosmeticDescriptor` objects representing the cosmetics your source provides
+
+When creating `CosmeticDescriptor`, try to pass a unique value into the `sourceId` parameter to ensure proper namespacing.
+For example, the built-in `LocalBundleSource` passes a hash of the bundle manifest, guaranteeing that different bundles will
+have different group IDs and cosmetic IDs.
+
+##### ICosmeticAssetReader
+
+Implement this interface to handle loading sprite assets for your cosmetics:
+
+```csharp
+public interface ICosmeticAssetReader
+{
+    Task<Sprite?> LoadSpriteAsync(string spriteKey);
+}
+```
+
+- `LoadSpriteAsync(string spriteKey)`: Loads and returns a `Sprite` for the given key. The spriteKey can be used to request different sprite variants (e.g., "preview", "climb").
+
+It is highly recommended not to keep a cache of sprites for your `ICosmeticAssetReader`. The purpose of this system is to create
+a sprite when it is needed, and to unload the sprite when it is no longer being used. If you keep a sprite cache, you are 
+defeating the purpose of the system.
+
+##### CosmeticDescriptor
+
+When implementing `ICosmeticSource.DiscoverAsync()`, you'll need to create `CosmeticDescriptor` instances:
+
+```csharp
+var descriptor = new CosmeticDescriptor(
+    sourceId: "MyCustomSource",
+    group: "my_group",
+    name: "My Custom Hat",
+    type: CosmeticType.Hat,
+    metadata: new HatMetadata { Name = "MyHat", MatchPlayerColor = true },
+    reader: new MyCustomAssetReader()
+);
+```
+
+The `CosmeticDescriptor` class has the following properties:
+- `Id`: Auto-generated unique identifier
+- `DisplayName`: The display name of the cosmetic
+- `Group`: The group this cosmetic belongs to
+- `Type`: The cosmetic type (`Hat`, `Visor`, or `NamePlate`)
+- `SourceId`: The source that provided this cosmetic
+- `Metadata`: The cosmetic metadata (implements `ICosmeticMetadata`)
+- `AssetReader`: The reader used to load sprites (implements `ICosmeticAssetReader`)
+
+##### Registering a custom source
+
+Register your custom source with the `SourceRegistry`:
+
+```csharp
+var mySource = new MyCustomSource();
+SourceRegistry.Instance.RegisterSource(mySource);
+```
+
 ### Visibility notes
 - Any custom cosmetic will be visible to you and to other players who have the same mod and the same cosmetic files installed.
 - Players who do not have the mod (or the same files) will likely see nothing.
