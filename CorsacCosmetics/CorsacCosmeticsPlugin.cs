@@ -1,9 +1,6 @@
 ﻿global using static CorsacCosmetics.Tools.Logger;
-using System.Collections;
 using System.IO;
-using System.Net.Http;
 using System.Reflection;
-using System.Threading.Tasks;
 using BepInEx;
 using BepInEx.Unity.IL2CPP;
 using CorsacCosmetics.Components;
@@ -18,7 +15,6 @@ using HarmonyLib;
 using Il2CppInterop.Runtime.Injection;
 using UnityEngine.AddressableAssets;
 using UnityEngine.AddressableAssets.ResourceLocators;
-using UnityEngine.Networking;
 using UnityEngine.ResourceManagement.ResourceProviders;
 
 namespace CorsacCosmetics;
