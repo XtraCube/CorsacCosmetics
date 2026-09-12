@@ -177,7 +177,7 @@ SourceRegistry.Instance.RegisterSource(mySource);
 
 ### Visibility notes
 - Any custom cosmetic will be visible to you and to other players who have the same mod and the same cosmetic files installed.
-- Players who do not have the mod (or the same files) will likely see nothing.
+- Players who do not have the mod (or have different files) will likely see nothing.
 
 ### Installation
 
