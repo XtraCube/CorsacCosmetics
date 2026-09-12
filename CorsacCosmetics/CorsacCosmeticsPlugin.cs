@@ -67,13 +67,13 @@ public partial class CorsacCosmeticsPlugin : BasePlugin
             sourceRegistry.RegisterSource(new LocalBundleSource(file));
         }
 
-        var factoryRegistry = new ViewDataLoaderRegistry();
-        factoryRegistry.RegisterLoader(new PreviewResourceLoader());
-        factoryRegistry.RegisterLoader(new HatResourceLoader());
-        factoryRegistry.RegisterLoader(new VisorResourceLoader());
-        factoryRegistry.RegisterLoader(new NamePlateResourceLoader());
+        var loaderRegistry = new ViewDataLoaderRegistry();
+        loaderRegistry.RegisterLoader(new PreviewResourceLoader());
+        loaderRegistry.RegisterLoader(new HatResourceLoader());
+        loaderRegistry.RegisterLoader(new VisorResourceLoader());
+        loaderRegistry.RegisterLoader(new NamePlateResourceLoader());
 
-        var provider = new CosmeticsProvider(cosmeticsCatalog, factoryRegistry);
+        var provider = new CosmeticsProvider(cosmeticsCatalog, loaderRegistry);
         Addressables.ResourceManager.ResourceProviders.Insert(0, new(provider.Pointer));
 
         var locator = new CosmeticsLocator(cosmeticsCatalog);
