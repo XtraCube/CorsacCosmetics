@@ -42,8 +42,8 @@ public partial class CorsacCosmeticsPlugin : BasePlugin
     {
         Message("Loading Corsac Cosmetics Plugin...");
 
+        ModStamp.Initialize();
         Assets.Initialize();
-
         ReactorCompat.RegisterCredits();
 
         ClassInjector.RegisterTypeInIl2Cpp<InventoryTabPaginationBehaviour>();
@@ -57,6 +57,7 @@ public partial class CorsacCosmeticsPlugin : BasePlugin
         {
             Interfaces = new Il2CppInterfaceCollection([typeof(IResourceProvider)])
         });
+
         Info("Injected IL2CPP types");
 
         var cosmeticsCatalog = new CosmeticsCatalog();
@@ -75,9 +76,11 @@ public partial class CorsacCosmeticsPlugin : BasePlugin
 
         var provider = new CosmeticsProvider(cosmeticsCatalog, loaderRegistry);
         Addressables.ResourceManager.ResourceProviders.Insert(0, new(provider.Pointer));
+        Info("Installed CosmeticsProvider");
 
         var locator = new CosmeticsLocator(cosmeticsCatalog);
         Addressables.AddResourceLocator(new(locator.Pointer));
+        Info("Installed CosmeticsLocator");
 
         Harmony.PatchAll(Assembly.GetExecutingAssembly());
         Info("Harmony patches installed");
