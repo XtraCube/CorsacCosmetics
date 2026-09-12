@@ -39,7 +39,18 @@ public class InventoryTabPaginationBehaviour(nint cppPtr) : MonoBehaviour(cppPtr
             nextButton.transform.localScale = new Vector3(0.5f, 0.5f, 1);
             nextButton.OnClick = new Button.ButtonClickedEvent();
             nextButton.OnClick.AddListener((UnityAction)NextPage);
-            nextButton.GetComponent<SpriteRenderer>().sprite = Assets.NextButton;
+            var spriteRenderer = nextButton.GetComponent<SpriteRenderer>();
+            spriteRenderer.sprite = Assets.NextButton;
+            nextButton.OnMouseOver = new UnityEvent();
+            nextButton.OnMouseOver.AddListener((Action)(()=>
+            {
+                spriteRenderer.sprite = Assets.NextButtonActive;
+            }));
+            nextButton.OnMouseOut = new UnityEvent();
+            nextButton.OnMouseOut.AddListener((Action)(() =>
+            {
+                spriteRenderer.sprite = Assets.NextButton;
+            }));
         }
 
         if (!backButton)
@@ -49,7 +60,19 @@ public class InventoryTabPaginationBehaviour(nint cppPtr) : MonoBehaviour(cppPtr
             backButton.transform.localPosition = new Vector3(-1.19f, -0.23f, -55f);
             backButton.OnClick = new Button.ButtonClickedEvent();
             backButton.OnClick.AddListener((UnityAction)PreviousPage);
-            backButton.GetComponent<SpriteRenderer>().flipX = true;
+            var spriteRenderer = backButton.GetComponent<SpriteRenderer>();
+            spriteRenderer.flipX = true;
+            spriteRenderer.sprite = Assets.NextButton;
+            backButton.OnMouseOver = new UnityEvent();
+            backButton.OnMouseOver.AddListener((Action)(()=>
+            {
+                spriteRenderer.sprite = Assets.NextButtonActive;
+            }));
+            backButton.OnMouseOut = new UnityEvent();
+            backButton.OnMouseOut.AddListener((Action)(() =>
+            {
+                spriteRenderer.sprite = Assets.NextButton;
+            }));
         }
 
         if (!title)
