@@ -21,9 +21,9 @@ public class CosmeticDescriptor
     public ICosmeticAssetReader AssetReader { get; }
 
     public CosmeticDescriptor(
-        string sourceId, 
-        string group, 
-        string name, 
+        string sourceId,
+        string group,
+        string name,
         CosmeticType type,
         ICosmeticMetadata metadata,
         ICosmeticAssetReader reader

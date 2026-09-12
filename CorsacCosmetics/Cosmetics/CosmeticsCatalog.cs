@@ -30,7 +30,12 @@ public class CosmeticsCatalog
 
     public void Register(CosmeticDescriptor descriptor)
     {
-        _descriptorsById[descriptor.Id] = descriptor;
+        if (!_descriptorsById.TryAdd(descriptor.Id, descriptor))
+        {
+            Error($"Cosmetic with ID {descriptor.Id} ({descriptor.Group} - {descriptor.DisplayName}) is already registered!");
+            return;
+        }
+
         switch (descriptor.Type)
         {
             case CosmeticType.Hat:

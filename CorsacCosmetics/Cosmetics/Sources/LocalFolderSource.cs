@@ -13,7 +13,7 @@ namespace CorsacCosmetics.Cosmetics.Sources;
 
 public class LocalFolderSource(string basePath, string group = "default") : ICosmeticSource
 {
-    public string SourceId => basePath + group;
+    public string SourceId => "LocalFolder";
 
     public Task<IEnumerable<CosmeticDescriptor>> DiscoverAsync()
     {

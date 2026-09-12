@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text.Json;
 using System.Threading.Tasks;
 using CorsacCosmetics.Cosmetics.AssetReaders;
@@ -12,7 +13,7 @@ namespace CorsacCosmetics.Cosmetics.Sources;
 
 public class LocalBundleSource(string bundleFile) : ICosmeticSource
 {
-    public string SourceId => "LocalBundle."+bundleFile;
+    public string SourceId => "LocalBundle";
 
     private const string DefaultGroup = "default";
 
@@ -53,22 +54,23 @@ public class LocalBundleSource(string bundleFile) : ICosmeticSource
         if (fs.Read(manifestBytes.AsSpan()) != header.ManifestLength)
         {
             Error("Could not read full bundle manifest!");
-            return ;
+            return;
         }
 
         var manifest = JsonSerializer.Deserialize(manifestBytes, BundleManifestContext.Default.BundleManifest);
         if (manifest.Hats == null)
         {
             Error("Bundle data cannot be null!");
-            return ;
+            return;
         }
 
+        var sourceId = new Guid(MD5.HashData(manifestBytes)).ToString();
         var start = fs.Position;
 
         foreach (var hatManifest in manifest.Hats)
         {
             cosmetics.Add(new CosmeticDescriptor(
-                SourceId,
+                sourceId,
                 DefaultGroup,
                 hatManifest.Name,
                 CosmeticType.Hat,
@@ -81,7 +83,7 @@ public class LocalBundleSource(string bundleFile) : ICosmeticSource
         foreach (var visorManifest in manifest.Visors)
         {
             cosmetics.Add(new CosmeticDescriptor(
-                SourceId,
+                sourceId,
                 DefaultGroup,
                 visorManifest.Name,
                 CosmeticType.Visor,
@@ -94,7 +96,7 @@ public class LocalBundleSource(string bundleFile) : ICosmeticSource
         foreach (var nameplateManifest in manifest.Nameplates)
         {
             cosmetics.Add(new CosmeticDescriptor(
-                SourceId,
+                sourceId,
                 DefaultGroup,
                 nameplateManifest.Name,
                 CosmeticType.NamePlate,
@@ -136,6 +138,7 @@ public class LocalBundleSource(string bundleFile) : ICosmeticSource
             return;
         }
 
+        var sourceId = new Guid(MD5.HashData(manifestBytes)).ToString();
         var start = fs.Position;
 
         foreach (var group in manifest.Groups)
@@ -143,7 +146,7 @@ public class LocalBundleSource(string bundleFile) : ICosmeticSource
             foreach (var hatManifest in group.Hats)
             {
                 cosmetics.Add(new CosmeticDescriptor(
-                    SourceId,
+                    sourceId,
                     group.Name,
                     hatManifest.Name,
                     CosmeticType.Hat,
@@ -156,7 +159,7 @@ public class LocalBundleSource(string bundleFile) : ICosmeticSource
             foreach (var visorManifest in group.Visors)
             {
                 cosmetics.Add(new CosmeticDescriptor(
-                    SourceId,
+                    sourceId,
                     group.Name,
                     visorManifest.Name,
                     CosmeticType.Visor,
@@ -169,7 +172,7 @@ public class LocalBundleSource(string bundleFile) : ICosmeticSource
             foreach (var nameplateManifest in group.Nameplates)
             {
                 cosmetics.Add(new CosmeticDescriptor(
-                    SourceId,
+                    sourceId,
                     group.Name,
                     nameplateManifest.Name,
                     CosmeticType.NamePlate,
