@@ -12,6 +12,7 @@ public class CosmeticsCatalog
     private Dictionary<string, string> CustomGroups { get; }
 
     // used to prevent groups with empty # of certain elements showing in inventory
+    public Group PetGroups { get; }
     public Group HatGroups { get; }
     public Group VisorGroups { get; }
     public Group NameplateGroups { get; }
@@ -23,6 +24,7 @@ public class CosmeticsCatalog
         CustomGroups = [];
         CustomGroups.Add("default", "Custom Cosmetics");
 
+        PetGroups = new Group(CustomGroups);
         HatGroups = new Group(CustomGroups);
         VisorGroups = new Group(CustomGroups);
         NameplateGroups = new Group(CustomGroups);
@@ -49,6 +51,13 @@ public class CosmeticsCatalog
             case CosmeticType.NamePlate:
                 CustomGroups.TryAdd(descriptor.GroupId, descriptor.Group);
                 NameplateGroups.AddGroup(descriptor.GroupId);
+                break;
+            case CosmeticType.Pet:
+                CustomGroups.TryAdd(descriptor.GroupId, descriptor.Group);
+                PetGroups.AddGroup(descriptor.GroupId);
+                break;
+            default:
+                Warning($"Unknown Cosmetic type {descriptor.Type}!");
                 break;
         }
     }

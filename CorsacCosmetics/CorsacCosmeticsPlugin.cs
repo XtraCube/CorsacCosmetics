@@ -7,6 +7,7 @@ using CorsacCosmetics.Components;
 using CorsacCosmetics.Cosmetics;
 using CorsacCosmetics.Cosmetics.Hats;
 using CorsacCosmetics.Cosmetics.Nameplates;
+using CorsacCosmetics.Cosmetics.Pets;
 using CorsacCosmetics.Cosmetics.Sources;
 using CorsacCosmetics.Cosmetics.Visors;
 using CorsacCosmetics.Tools;
@@ -42,6 +43,7 @@ public partial class CorsacCosmeticsPlugin : BasePlugin
         Assets.Initialize();
         ReactorCompat.RegisterCredits();
 
+        ClassInjector.RegisterTypeInIl2Cpp<Coroutines>();
         ClassInjector.RegisterTypeInIl2Cpp<InventoryTabPaginationBehaviour>();
 
         ClassInjector.RegisterTypeInIl2Cpp<CosmeticsLocator>(new RegisterTypeOptions
@@ -56,6 +58,8 @@ public partial class CorsacCosmeticsPlugin : BasePlugin
 
         Info("Injected IL2CPP types");
 
+        AddComponent<Coroutines>();
+
         var cosmeticsCatalog = new CosmeticsCatalog();
         var sourceRegistry = new SourceRegistry();
         sourceRegistry.RegisterSource(new LocalFolderSource(CosmeticPaths.BasePath));
@@ -69,6 +73,8 @@ public partial class CorsacCosmeticsPlugin : BasePlugin
         loaderRegistry.RegisterLoader(new HatResourceLoader());
         loaderRegistry.RegisterLoader(new VisorResourceLoader());
         loaderRegistry.RegisterLoader(new NamePlateResourceLoader());
+        loaderRegistry.RegisterLoader(new PetResourceLoader());
+        loaderRegistry.RegisterLoader(new PetGameObjectResourceLoader());
 
         var provider = new CosmeticsProvider(cosmeticsCatalog, loaderRegistry);
         Addressables.ResourceManager.ResourceProviders.Insert(0, new(provider.Pointer));

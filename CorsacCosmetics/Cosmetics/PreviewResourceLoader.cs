@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using CorsacCosmetics.Cosmetics.Pets;
 using CorsacCosmetics.Tools;
 using UnityEngine;
 
@@ -12,8 +13,21 @@ public class PreviewResourceLoader : BaseCosmeticResourceLoader<PreviewViewData>
     {
         var viewData = ScriptableObject.CreateInstance<PreviewViewData>();
         viewData.name = descriptor.DisplayName;
-        viewData.PreviewSprite = await descriptor.AssetReader.LoadSpriteAsync("preview");
-        viewData.PreviewSprite ??= await descriptor.AssetReader.LoadSpriteAsync("");
+
+        if (descriptor.Metadata is PetMetadata petMetadata)
+        {
+            var gameObj = await descriptor.AssetReader.LoadGameObjectAsync(petMetadata.ReferenceName);
+            if (gameObj != null)
+            {
+                viewData.PreviewSprite = gameObj.GetComponentInChildren<SpriteRenderer>().sprite;
+            }
+        }
+        else
+        {
+            viewData.PreviewSprite = await descriptor.AssetReader.LoadSpriteAsync("preview")
+                                     ?? await descriptor.AssetReader.LoadSpriteAsync("");
+        }
+
         return viewData;
     }
 

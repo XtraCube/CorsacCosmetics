@@ -72,7 +72,7 @@ public static class VisorsTabPatches
 
         private static IEnumerator CoOnEnable(VisorsTab tab)
         {
-            var visors = DestroyableSingleton<HatManager>.Instance.GetUnlockedVisors()
+            var visors = HatManager.Instance.GetUnlockedVisors()
                 .Where(v => ShowOnPage(v.ProductId)).ToArray();
 
             tab.visorId = DataManager.Player.Customization.Visor;
@@ -103,7 +103,7 @@ public static class VisorsTabPatches
                     colorChip.Button.OnMouseOut.AddListener((UnityAction)(() =>
                     {
                         tab.SelectVisor(
-                            DestroyableSingleton<HatManager>.Instance.GetVisorById(DataManager.Player.Customization
+                            HatManager.Instance.GetVisorById(DataManager.Player.Customization
                                 .Visor));
                     }));
                     colorChip.Button.OnClick.AddListener((UnityAction)(() => { tab.ClickEquip(); }));
@@ -121,7 +121,7 @@ public static class VisorsTabPatches
                 colorChip.SelectionHighlight.gameObject.SetActive(false);
                 tab.ColorChips.Add(colorChip);
                 num++;
-                if (!DestroyableSingleton<HatManager>.Instance.CheckLongModeValidCosmetic(visor.ProdId,
+                if (!HatManager.Instance.CheckLongModeValidCosmetic(visor.ProdId,
                         tab.PlayerPreview.GetIgnoreLongMode()))
                 {
                     colorChip.SetUnavailable();

@@ -4,6 +4,7 @@ using System.Text;
 using CorsacCosmetics.Cosmetics.AssetReaders;
 using CorsacCosmetics.Cosmetics.Hats;
 using CorsacCosmetics.Cosmetics.Nameplates;
+using CorsacCosmetics.Cosmetics.Pets;
 using CorsacCosmetics.Cosmetics.Visors;
 
 namespace CorsacCosmetics.Cosmetics;
@@ -49,6 +50,8 @@ public class CosmeticDescriptor
                 .SetFromMetadata(visorMetadata).Build(),
             CosmeticType.NamePlate when Metadata is NamePlateMetadata namePlateMetadata => new NamePlateDataBuilder(Id)
                 .SetFromMetadata(namePlateMetadata).Build(),
+            CosmeticType.Pet when Metadata is PetMetadata petMetadata => new PetDataBuilder(Id)
+                .SetFromMetadata(petMetadata).Build(),
             _ => throw new NotSupportedException()
         };
     }
@@ -79,6 +82,6 @@ public class CosmeticDescriptor
         Span<byte> hashBytes = stackalloc byte[16];
         incrementalHash.GetCurrentHash(hashBytes);
 
-        return new Guid(hashBytes).ToString();
+        return new Guid(hashBytes).ToString("N");
     }
 }

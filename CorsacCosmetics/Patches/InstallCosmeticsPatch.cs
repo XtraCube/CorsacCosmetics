@@ -55,6 +55,9 @@ public static class InstallCosmeticsPatch
                     case Cosmetics.CosmeticType.NamePlate:
                         referenceDataManager.Refdata.nameplates.Add(cosmetic.ToCosmeticData<NamePlateData>());
                         break;
+                    case Cosmetics.CosmeticType.Pet:
+                        referenceDataManager.Refdata.pets.Add(cosmetic.ToCosmeticData<PetData>());
+                        break;
                     default:
                         throw new InvalidOperationException();
                 }
