@@ -6,7 +6,6 @@ public static class CosmeticExtensions
     {
         public void Release()
         {
-            previewData.PreviewSprite.CleanUp();
             previewData.PreviewSprite = null;
             previewData.DestroyImmediate();
         }
@@ -16,21 +15,13 @@ public static class CosmeticExtensions
     {
         public void Release()
         {
-            hatViewData.MainImage.CleanUp();
             hatViewData.MainImage = null;
-            hatViewData.BackImage.CleanUp();
             hatViewData.BackImage = null;
-            hatViewData.ClimbImage.CleanUp();
             hatViewData.ClimbImage = null;
-            hatViewData.FloorImage.CleanUp();
             hatViewData.FloorImage = null;
-            hatViewData.LeftMainImage.CleanUp();
             hatViewData.LeftMainImage = null;
-            hatViewData.LeftBackImage.CleanUp();
             hatViewData.LeftBackImage = null;
-            hatViewData.LeftClimbImage.CleanUp();
             hatViewData.LeftClimbImage = null;
-            hatViewData.LeftFloorImage.CleanUp();
             hatViewData.LeftFloorImage = null;
             hatViewData.DestroyImmediate();
         }
@@ -40,13 +31,9 @@ public static class CosmeticExtensions
     {
         public void Release()
         {
-            visorViewData.IdleFrame.CleanUp();
             visorViewData.IdleFrame = null;
-            visorViewData.LeftIdleFrame.CleanUp();
             visorViewData.LeftIdleFrame = null;
-            visorViewData.FloorFrame.CleanUp();
             visorViewData.FloorFrame = null;
-            visorViewData.ClimbFrame.CleanUp();
             visorViewData.ClimbFrame = null;
             visorViewData.DestroyImmediate();
         }
@@ -56,7 +43,6 @@ public static class CosmeticExtensions
     {
         public void Release()
         {
-            nameplateViewData.Image.CleanUp();
             nameplateViewData.Image = null;
             nameplateViewData.DestroyImmediate();
         }

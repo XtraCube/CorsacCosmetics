@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace CorsacCosmetics.Cosmetics.Pets;
 
-public class PetResourceLoader : BaseCosmeticResourceLoader<PetBehaviour>
+public class PetBehaviourResourceLoader : BaseCosmeticResourceLoader<PetBehaviour>
 {
     public override CosmeticType CosmeticType => CosmeticType.Pet;
 
@@ -20,14 +20,13 @@ public class PetResourceLoader : BaseCosmeticResourceLoader<PetBehaviour>
                 "Cannot get PetBehaviour for a null GameObject! Check your AssetBundle reference!");
         }
 
-        gameObject = UnityEngine.Object.Instantiate(gameObject);
         var pet = gameObject.GetComponent<PetBehaviour>();
-        pet.data = descriptor.ToCosmeticData<PetData>();
+        if (!pet.data) pet.data = descriptor.ToCosmeticData<PetData>();
         return pet;
     }
 
     protected override void ReleaseViewData(PetBehaviour pet)
     {
-        UnityEngine.Object.Destroy(pet.gameObject);
+        // no-op, game will cleanup the pet on its own.
     }
 }

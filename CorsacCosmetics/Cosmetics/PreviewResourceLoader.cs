@@ -19,7 +19,8 @@ public class PreviewResourceLoader : BaseCosmeticResourceLoader<PreviewViewData>
             var gameObj = await descriptor.AssetReader.LoadGameObjectAsync(petMetadata.ReferenceName);
             if (gameObj != null)
             {
-                viewData.PreviewSprite = gameObj.GetComponentInChildren<SpriteRenderer>().sprite;
+                var sprite = gameObj.GetComponent<SpriteRenderer>().sprite;
+                viewData.PreviewSprite = sprite;
             }
         }
         else

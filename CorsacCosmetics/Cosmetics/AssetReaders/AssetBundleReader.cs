@@ -60,14 +60,20 @@ public class AssetBundleReader(AssetBundle bundle) : ICosmeticAssetReader
             try
             {
                 var asset = request.GetResult();
-
                 if (asset == null)
                 {
                     tcs.SetResult(null);
                     yield break;
                 }
 
-                tcs.SetResult(asset.Cast<GameObject>());
+                var go = asset.Cast<GameObject>();
+                if (go == null)
+                {
+                    tcs.SetResult(null);
+                    yield break;
+                }
+
+                tcs.SetResult(go);
             }
             catch (Exception e)
             {

@@ -41,8 +41,11 @@ public class CosmeticsProvider : ResourceProviderBase
 
         var loader = _loaderRegistry.GetLoader(provideHandle.Location.ResourceType) ??
                      _loaderRegistry.GetLoader(provideHandle.Type);
+
         if (loader == null)
         {
+            provideHandle.Complete<UnityEngine.Object>(null!, false,
+                new Il2CppSystem.Exception($"Cosmetic ID {id} not found."));
             Warning($"Could not find a loader for {provideHandle.Location.ResourceType.FullName}!");
             return;
         }

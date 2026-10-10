@@ -21,14 +21,13 @@ public class PetGameObjectResourceLoader : BaseCosmeticResourceLoader<GameObject
                 "Cannot get PetBehaviour for a null GameObject! Check your AssetBundle reference!");
         }
 
-        gameObject = UnityEngine.Object.Instantiate(gameObject);
         var pet = gameObject.GetComponent<PetBehaviour>();
-        pet.data = descriptor.ToCosmeticData<PetData>();
+        if (!pet.data) pet.data = descriptor.ToCosmeticData<PetData>();
         return gameObject;
     }
 
     protected override void ReleaseViewData(GameObject pet)
     {
-        UnityEngine.Object.Destroy(pet);
+        // no-op, game will cleanup the pet on its own.
     }
 }

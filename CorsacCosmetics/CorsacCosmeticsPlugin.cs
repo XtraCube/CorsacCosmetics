@@ -73,7 +73,7 @@ public partial class CorsacCosmeticsPlugin : BasePlugin
         loaderRegistry.RegisterLoader(new HatResourceLoader());
         loaderRegistry.RegisterLoader(new VisorResourceLoader());
         loaderRegistry.RegisterLoader(new NamePlateResourceLoader());
-        loaderRegistry.RegisterLoader(new PetResourceLoader());
+        loaderRegistry.RegisterLoader(new PetBehaviourResourceLoader());
         loaderRegistry.RegisterLoader(new PetGameObjectResourceLoader());
 
         var provider = new CosmeticsProvider(cosmeticsCatalog, loaderRegistry);
