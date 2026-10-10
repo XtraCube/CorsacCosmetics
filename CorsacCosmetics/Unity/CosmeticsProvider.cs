@@ -30,7 +30,7 @@ public class CosmeticsProvider : ResourceProviderBase
     public override void Provide(ProvideHandle provideHandle)
     {
         var id = provideHandle.Location.PrimaryKey;
-        var descriptor = _catalog.Get(id);
+        var descriptor = _catalog.GetAsset(id);
 
         if (descriptor == null)
         {
@@ -55,7 +55,7 @@ public class CosmeticsProvider : ResourceProviderBase
 
     public override void Release(IResourceLocation location, Object? asset)
     {
-        var descriptor = _catalog.Get(location.PrimaryKey);
+        var descriptor = _catalog.GetAsset(location.PrimaryKey);
 
         if (descriptor != null && asset != null)
         {

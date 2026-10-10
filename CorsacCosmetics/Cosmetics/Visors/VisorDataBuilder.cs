@@ -4,11 +4,13 @@ using UnityEngine.AddressableAssets;
 
 namespace CorsacCosmetics.Cosmetics.Visors;
 
-public class VisorDataBuilder(string id)
+public class VisorDataBuilder(string productId)
 {
     public string Name { get; private set; } = "";
 
-    public string Id { get; private set; } = id;
+    public string ProductId { get; private set; } = productId;
+
+    public string AssetId { get; private set; } = "";
 
     public bool BehindHats { get; private set; }
 
@@ -30,7 +32,13 @@ public class VisorDataBuilder(string id)
 
     public VisorDataBuilder SetId(string id)
     {
-        Id = id;
+        ProductId = id;
+        return this;
+    }
+
+    public VisorDataBuilder SetAssetId(string id)
+    {
+        AssetId = id;
         return this;
     }
 
@@ -51,11 +59,11 @@ public class VisorDataBuilder(string id)
         var visorData = ScriptableObject.CreateInstance<VisorData>();
         visorData.name = Name;
         visorData.Free = true;
-        visorData.ProductId = Id;
+        visorData.ProductId = ProductId;
         visorData.behindHats = BehindHats;
         visorData.PreviewCrewmateColor = MatchPlayerColor;
-        visorData.ViewDataRef = new AssetReference(Id, Il2CppType.Of<VisorViewData>());
-        visorData.PreviewData = new AssetReference(Id, Il2CppType.Of<PreviewViewData>());
+        visorData.ViewDataRef = new AssetReference(AssetId, Il2CppType.Of<VisorViewData>());
+        visorData.PreviewData = new AssetReference(AssetId, Il2CppType.Of<PreviewViewData>());
         return visorData;
     }
 }

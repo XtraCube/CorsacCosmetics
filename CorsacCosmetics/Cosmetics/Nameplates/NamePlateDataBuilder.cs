@@ -4,11 +4,13 @@ using UnityEngine.AddressableAssets;
 
 namespace CorsacCosmetics.Cosmetics.Nameplates;
 
-public sealed class NamePlateDataBuilder(string id)
+public sealed class NamePlateDataBuilder(string productId)
 {
     public string Name { get; private set; } = "";
 
-    public string Id { get; private set; } = id;
+    public string ProductId { get; private set; } = productId;
+
+    public string AssetId { get; private set; } = "";
 
     public NamePlateDataBuilder SetFromMetadata(NamePlateMetadata metadata)
     {
@@ -24,7 +26,13 @@ public sealed class NamePlateDataBuilder(string id)
 
     public NamePlateDataBuilder SetId(string id)
     {
-        Id = id;
+        ProductId = id;
+        return this;
+    }
+
+    public NamePlateDataBuilder SetAssetId(string id)
+    {
+        AssetId = id;
         return this;
     }
 
@@ -33,8 +41,8 @@ public sealed class NamePlateDataBuilder(string id)
         var namePlateData = ScriptableObject.CreateInstance<NamePlateData>();
         namePlateData.name = Name;
         namePlateData.Free = true;
-        namePlateData.ProductId = Id;
-        namePlateData.ViewDataRef = new AssetReference(Id, Il2CppType.Of<NamePlateViewData>());
+        namePlateData.ProductId = ProductId;
+        namePlateData.ViewDataRef = new AssetReference(AssetId, Il2CppType.Of<NamePlateViewData>());
         return namePlateData;
     }
 }

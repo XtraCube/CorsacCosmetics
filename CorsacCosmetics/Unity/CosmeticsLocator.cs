@@ -31,7 +31,7 @@ public class CosmeticsLocator : Il2CppSystem.Object
         locations = null!;
         var id = key.ToString();
 
-        if (id == null || _catalog.Get(id) is null)
+        if (id == null || _catalog.GetAsset(id) is null)
         {
             return false;
         }

@@ -7,6 +7,7 @@ public class CosmeticsCatalog
     public static CosmeticsCatalog Instance { get; private set; } = null!;
 
     private readonly Dictionary<string, CosmeticDescriptor> _descriptorsById = new();
+    private readonly Dictionary<string, CosmeticDescriptor> _descriptorsByAssetId = new();
 
     // ID -> Name
     private Dictionary<string, string> CustomGroups { get; }
@@ -32,11 +33,13 @@ public class CosmeticsCatalog
 
     public void Register(CosmeticDescriptor descriptor)
     {
-        if (!_descriptorsById.TryAdd(descriptor.Id, descriptor))
+        if (!_descriptorsById.TryAdd(descriptor.ProductId, descriptor))
         {
-            Error($"Cosmetic with ID {descriptor.Id} ({descriptor.Group} - {descriptor.DisplayName}) is already registered!");
+            Error($"Cosmetic with ID {descriptor.ProductId} ({descriptor.Group} - {descriptor.DisplayName}) is already registered!");
             return;
         }
+
+        _descriptorsByAssetId.Add(descriptor.AssetId, descriptor);
 
         switch (descriptor.Type)
         {
@@ -63,4 +66,6 @@ public class CosmeticsCatalog
     }
 
     public CosmeticDescriptor? Get(string id) => _descriptorsById.GetValueOrDefault(id);
+
+    public CosmeticDescriptor? GetAsset(string id) => _descriptorsByAssetId.GetValueOrDefault(id);
 }

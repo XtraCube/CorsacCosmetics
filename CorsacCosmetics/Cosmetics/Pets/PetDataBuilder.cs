@@ -4,11 +4,13 @@ using UnityEngine.AddressableAssets;
 
 namespace CorsacCosmetics.Cosmetics.Pets;
 
-public sealed class PetDataBuilder(string id)
+public sealed class PetDataBuilder(string productId)
 {
     public string Name { get; private set; } = "";
 
-    public string Id { get; private set; } = id;
+    public string ProductId { get; private set; } = productId;
+
+    public string AssetId { get; private set; } = "";
 
     public bool MatchPlayerColor { get; private set; }
 
@@ -27,7 +29,13 @@ public sealed class PetDataBuilder(string id)
 
     public PetDataBuilder SetId(string id)
     {
-        Id = id;
+        ProductId = id;
+        return this;
+    }
+
+    public PetDataBuilder SetAssetId(string id)
+    {
+        AssetId = id;
         return this;
     }
 
@@ -43,10 +51,10 @@ public sealed class PetDataBuilder(string id)
         petData.name = Name;
         petData.StoreName = StringNames.PetLabel;
         petData.Free = true;
-        petData.ProductId = Id;
+        petData.ProductId = ProductId;
         petData.PreviewCrewmateColor = MatchPlayerColor;
-        petData.PetPrefabRef = new AssetReference(Id, Il2CppType.Of<PetBehaviour>());
-        petData.PreviewData = new AssetReference(Id, Il2CppType.Of<PreviewViewData>());
+        petData.PetPrefabRef = new AssetReference(AssetId, Il2CppType.Of<PetBehaviour>());
+        petData.PreviewData = new AssetReference(AssetId, Il2CppType.Of<PreviewViewData>());
         return petData;
     }
 }

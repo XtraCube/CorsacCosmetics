@@ -26,7 +26,7 @@ public abstract class BaseCosmeticResourceLoader<TViewData> : ICosmeticResourceL
                 provideHandle.Complete<TViewData>(
                     null!, 
                     status: false, 
-                    new Il2CppSystem.Exception($"Loader returned null for {descriptor.Id}")
+                    new Il2CppSystem.Exception($"Loader returned null for {descriptor.AssetId}")
                 );
             }
         }
