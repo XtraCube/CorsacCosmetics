@@ -12,12 +12,14 @@ public class CosmeticsProvider : ResourceProviderBase
 {
     private readonly CosmeticsCatalog _catalog;
     private readonly ViewDataLoaderRegistry _loaderRegistry;
-    
+
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
-    public CosmeticsProvider(IntPtr intPtr) : base(intPtr) { }
+    public CosmeticsProvider(IntPtr intPtr) : base(intPtr)
+    {
+    }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 
-    public CosmeticsProvider(CosmeticsCatalog catalog, ViewDataLoaderRegistry loaderRegistry) 
+    public CosmeticsProvider(CosmeticsCatalog catalog, ViewDataLoaderRegistry loaderRegistry)
         : base(ClassInjector.DerivedConstructorPointer<CosmeticsProvider>())
     {
         ClassInjector.DerivedConstructorBody(this);
@@ -32,11 +34,19 @@ public class CosmeticsProvider : ResourceProviderBase
 
         if (descriptor == null)
         {
-            provideHandle.Complete<UnityEngine.Object>(null!, false, new Il2CppSystem.Exception($"Cosmetic ID {id} not found."));
+            provideHandle.Complete<UnityEngine.Object>(null!, false,
+                new Il2CppSystem.Exception($"Cosmetic ID {id} not found."));
             return;
         }
 
-        var loader = _loaderRegistry.GetLoader(provideHandle.Location.ResourceType);
+        var loader = _loaderRegistry.GetLoader(provideHandle.Location.ResourceType) ??
+                     _loaderRegistry.GetLoader(provideHandle.Type);
+        if (loader == null)
+        {
+            Warning($"Could not find a loader for {provideHandle.Location.ResourceType.FullName}!");
+            return;
+        }
+
         _ = loader.LoadAndCompleteAsync(provideHandle, descriptor);
     }
 
@@ -47,6 +57,13 @@ public class CosmeticsProvider : ResourceProviderBase
         if (descriptor != null && asset != null)
         {
             var loader = _loaderRegistry.GetLoader(location.ResourceType);
+            if (loader == null)
+            {
+                Warning($"Could not find a loader for {location.ResourceType.FullName}!");
+                ResourceProviderBaseReversePatch.Release(this, location, asset);
+                return;
+            }
+
             loader.Release(asset);
         }
 

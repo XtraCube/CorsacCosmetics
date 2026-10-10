@@ -8,11 +8,18 @@ public class ViewDataLoaderRegistry
 
     public void RegisterLoader(ICosmeticResourceLoader loader)
     {
-        _loaders[loader.SupportedType] = loader;
+        if (!_loaders.TryAdd(loader.SupportedType, loader))
+        {
+            Error($"Loader already registered for type {loader.SupportedType.FullName}");
+        }
+        else
+        {
+            Info($"Registered loader for type {loader.SupportedType.FullName}");
+        }
     }
 
-    public ICosmeticResourceLoader GetLoader(Il2CppSystem.Type type)
+    public ICosmeticResourceLoader? GetLoader(Il2CppSystem.Type type)
     {
-        return _loaders[type];
+        return _loaders.GetValueOrDefault(type);
     }
 }

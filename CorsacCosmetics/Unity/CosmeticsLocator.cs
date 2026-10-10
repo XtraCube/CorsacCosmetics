@@ -42,7 +42,7 @@ public class CosmeticsLocator : Il2CppSystem.Object
             locations = cachedLocations;
             return true;
         }
-            
+
         var location = new ResourceLocationBase(
             id, 
             id, 

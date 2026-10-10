@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections;
-using System.Linq;
 using BepInEx.Unity.IL2CPP.Utils.Collections;
 using CorsacCosmetics.Cosmetics;
 using CorsacCosmetics.Cosmetics.Sources;
 using CorsacCosmetics.Tools;
 using HarmonyLib;
-using UnityEngine;
-using UnityEngine.ProBuilder;
 
 namespace CorsacCosmetics.Patches;
 
