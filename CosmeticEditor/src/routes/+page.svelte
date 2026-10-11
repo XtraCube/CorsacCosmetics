@@ -103,6 +103,34 @@
 		setStatus('Group removed. Cosmetics were moved to the remaining group.', 'info');
 	}
 
+	function clearGroup(groupId: string) {
+		let deletedHats = hats.filter((h) => h.groupId == groupId);
+		let newHats = hats.filter((h) => h.groupId !== groupId);
+		for (const hat of deletedHats) {
+			for (const url of Object.values(hat.previewUrls)) {
+				if (url) URL.revokeObjectURL(url);
+			}
+		}
+		let deletedVisors = visors.filter((h) => h.groupId == groupId);
+		let newVisors = visors.filter((h) => h.groupId !== groupId);
+		for (const visor of deletedVisors) {
+			for (const url of Object.values(visor.previewUrls)) {
+				if (url) URL.revokeObjectURL(url);
+			}
+		}
+		let deletedNameplates = nameplates.filter((h) => h.groupId == groupId);
+		let newNameplates = nameplates.filter((h) => h.groupId !== groupId);
+		for (const nameplate of deletedNameplates) {
+			for (const url of Object.values(nameplate.previewUrls)) {
+				if (url) URL.revokeObjectURL(url);
+			}
+		}
+		hats = newHats;
+		visors = newVisors;
+		nameplates = newNameplates;
+		setStatus('Cosmetics within this group have been removed.', 'info');
+	}
+
 	function setActiveGroup(groupId: string) {
 		activeGroupId = groupId;
 	}
@@ -713,6 +741,9 @@
 						</label>
 						<button type="button" class="btn btn-danger group-delete-btn" onclick={() => deleteGroup(activeGroupId)} disabled={groups.length <= 1}>
 							Delete Group
+						</button>
+						<button type="button" class="btn btn-danger group-delete-btn" onclick={() => clearGroup(activeGroupId)} disabled={groups.length <= 1}>
+							Clear Group
 						</button>
 					</div>
 					<p class="group-note">New cosmetics are created in the selected group. Use each item’s dropdown to move it.</p>
