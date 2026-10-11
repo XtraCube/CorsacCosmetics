@@ -4,11 +4,25 @@
 
 CorsacCosmetics is a client-side BepInEx mod for Among Us that adds support for user-provided cosmetic images. This fork updates the original CorsacHats to support newer Among Us versions and expands the available cosmetic types to include hats, visors, and nameplates.
 
+### Version Support
+
+Don't mix different major versions. If you do, you may not be able to see other peoples cosmetics (and they won't see yours).
+
+| Version | Compatibility                          |
+|---------|----------------------------------------|
+| 0.0.1   | Don't use it. Uses too much memory.    |
+| 0.1.0   | Don't use it. Same as above.           |
+| 2.0.0   | Don't use it. Same as above.           |
+| 2.1.X   | Good, works with other 2.1.X versions. |
+| 3.0.X   | Good, works with other 3.X.X versions. |
+| 4.0.0   | Good, works with other 4.X.X versions. |
+
 ### Supported cosmetic types and locations
 - Hats: `CorsacCosmetics/Hats`
 - Visors: `CorsacCosmetics/Visors`
 - Nameplates: `CorsacCosmetics/Nameplates`
 - Bundles: `CorsacCosmetics/Bundles`
+- Pets: Can only load via Unity Engine `AssetBundle`s.
 
 ### Cosmetic bundles
 
@@ -18,9 +32,10 @@ You can create cosmetic bundles with the [online editor](https://allofus.dev/cos
 
 
 ### Making your own cosmetics
-You can use the `Crewmate_Base.png` file in the Templates folder as a base layer for cosmetics.
-Player cosmetics should be 270x428 pixels in size. Nameplates can be any size as they are scaled,
-but try to stick to the same aspect ratio as the original nameplate (around 3:1) for best results.
+You can use the `Crewmate_Base.png` file in the [Templates](https://github.com/XtraCube/CorsacCosmetics/tree/master/Templates) 
+folder as a base layer for cosmetics. Player cosmetics should be 270x428 pixels in size. 
+Nameplates can be any size as they are scaled, but try to stick to the same aspect ratio 
+as the original nameplate. There is a template for nameplates too.
 
 Notes:
 - Right now, only PNG format is supported. This will be expanded in future updates.
@@ -41,6 +56,25 @@ Notes:
    "NoBounce": false
 }
 ```
+
+### Visibility notes
+- Any custom cosmetic will be visible to you and to other players who have the same mod and the same cosmetic files installed.
+- Players who do not have the mod (or have different files) will likely see nothing.
+
+### Installation
+
+1. Make sure you have BepInEx and Reactor installed for Among Us. This plugin depends on Reactor.
+2. Copy the mod DLL (CorsacCosmetics.dll) into `BepInEx\plugins`.
+3. Start Among Us. The mod will create the `CorsacCosmetics` folder and subfolders for `Bundles`, Hats`, `Visors`, and `Nameplates` if they don't already exist.
+4. Place your `.ccb` bundles and custom PNG files into the appropriate subfolder (Bundles, Hats, Visors, Nameplates).
+5. (Optional) Create corresponding JSON metadata files for each PNG cosmetic as described above.
+6. Restart Among Us to load the new cosmetics.
+7. Enjoy your custom cosmetics in-game!
+
+### Notable changes in this fork
+- Updated to support more recent Among Us versions.
+- Added Visors, Nameplates, and Pets as cosmetic types.
+- Added custom bundle format (`.ccb`)
 
 ### For Developers
 
@@ -176,25 +210,6 @@ Register your custom source with the `SourceRegistry`:
 var mySource = new MyCustomSource();
 SourceRegistry.Instance.RegisterSource(mySource);
 ```
-
-### Visibility notes
-- Any custom cosmetic will be visible to you and to other players who have the same mod and the same cosmetic files installed.
-- Players who do not have the mod (or have different files) will likely see nothing.
-
-### Installation
-
-1. Make sure you have BepInEx and Reactor installed for Among Us. This plugin depends on Reactor.
-2. Copy the mod DLL (CorsacCosmetics.dll) into `BepInEx\plugins`.
-3. Start Among Us. The mod will create the `CorsacCosmetics` folder and subfolders for `Bundles`, Hats`, `Visors`, and `Nameplates` if they don't already exist.
-4. Place your `.ccb` bundles and custom PNG files into the appropriate subfolder (Bundles, Hats, Visors, Nameplates).
-5. (Optional) Create corresponding JSON metadata files for each PNG cosmetic as described above.
-6. Restart Among Us to load the new cosmetics.
-7. Enjoy your custom cosmetics in-game!
-
-### Notable changes in this fork
-- Updated to support more recent Among Us versions.
-- Added Visors and Nameplates as cosmetic types.
-- Added custom bundle format (`.ccb`)
 
 > This mod is not affiliated with Among Us or Innersloth LLC, and the content contained therein is not endorsed or otherwise sponsored by Innersloth LLC. Portions of the materials contained herein are property of Innersloth LLC. © Innersloth LLC.
 
